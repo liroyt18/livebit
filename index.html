@@ -2,74 +2,213 @@
 <html lang="en" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>LiveBIT Elite</title>
+    <title>LiveBIT Elite Dashboard</title>
     <style>
-        :root { --neon: #00d4ff; }
-        body { background: #020205; color: white; font-family: sans-serif; margin: 0; overflow: hidden; height: 100vh; display: flex; align-items: center; justify-content: center; }
+        :root { --neon-blue: #00d4ff; --neon-glow: rgba(0, 212, 255, 0.6); --gold: #ffd700; }
+        body { background-color: #020205; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; display: grid; grid-template-columns: 350px 1fr 350px; gap: 15px; padding: 10px; }
         
-        /* מסך התחברות */
-        #overlay { position: fixed; inset: 0; background: #05050a; z-index: 1000; display: flex; align-items: center; justify-content: center; }
-        .login-card { background: #111; padding: 40px; border-radius: 20px; border: 2px solid var(--neon); text-align: center; width: 350px; }
+        /* Login Screen */
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #05050a; z-index: 1000; display: flex; align-items: center; justify-content: center; }
+        .login-card { background: #111; border-radius: 20px; text-align: center; width: 380px; padding: 40px; border: 2px solid var(--neon-blue); }
+        .login-card input { padding: 15px; width: 100%; border-radius: 10px; border: 1px solid #333; background: #000; color: white; margin-bottom: 15px; text-align: left; outline: none; }
         
-        /* תיבות טקסט נקיות - בלי מילים בפנים */
-        input { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 10px; border: 1px solid #333; background: #000; color: white; box-sizing: border-box; outline: none; font-size: 16px; }
-        
-        /* טיימר */
-        #timer { font-size: 180px; font-weight: 900; font-family: monospace; color: var(--neon); text-shadow: 0 0 20px rgba(0, 212, 255, 0.5); }
-        
-        /* כפתור הפעלה */
-        .admin-btn { background: var(--neon); color: black; padding: 20px 40px; border-radius: 15px; font-weight: bold; border: none; cursor: pointer; font-size: 24px; margin-top: 20px; transition: 0.3s; }
-        .admin-btn:hover { transform: scale(1.05); box-shadow: 0 0 15px var(--neon); }
+        .password-wrapper { position: relative; width: 100%; }
+        .eye-btn { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 20px; z-index: 10; }
 
-        /* הסתרת דברים בטיקטוק */
-        .broadcast-mode #overlay, .broadcast-mode .admin-only { display: none !important; }
+        /* כפתורי קישורים מעוצבים */
+        .copy-link-box { 
+            background: linear-gradient(45deg, #1a1a1a, #000);
+            border: 1px solid #333;
+            padding: 8px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 12px;
+            color: var(--neon-blue);
+            font-weight: bold;
+            transition: 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .copy-link-box:hover { border-color: var(--neon-blue); transform: translateY(-2px); box-shadow: 0 0 15px var(--neon-glow); }
+
+        /* Dashboard Components */
+        .top-bar { grid-column: 1 / 4; display: flex; justify-content: center; align-items: center; gap: 60px; padding: 15px; border-bottom: 1px solid #222; font-size: 32px; }
+        .center-column { grid-column: 2; display: flex; flex-direction: column; align-items: center; }
+
+        .biggest-gift-section { border: 2px solid var(--gold); border-radius: 15px; padding: 15px; text-align: center; background: rgba(255,215,0,0.05); width: 100%; margin-bottom: 30px; }
+        
+        #timer { font-size: 130px; font-weight: 900; font-family: monospace; line-height: 1; margin: 5px 0; }
+        #snipe-display-text { color: #ff3232; font-size: 24px; font-weight: bold; margin-bottom: 15px; }
+
+        .rank-card { background: rgba(255,255,255,0.03); border: 1px solid #333; border-radius: 12px; height: 50px; display: flex; align-items: center; padding: 0 15px; margin-bottom: 8px; }
+        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+        button { padding: 14px; border-radius: 10px; border: none; cursor: pointer; color: white; font-weight: bold; }
+        .btn-blue { background: #00e5ff; color: #000; grid-column: 1/3; }
+        .btn-purple { background: #8246dc; grid-column: 1/3; }
+
+        /* סתרת אלמנטים במצב שידור */
+        .broadcast-mode .controls, 
+        .broadcast-mode .top-bar, 
+        .broadcast-mode #overlay, 
+        .broadcast-mode .copy-link-box { display: none !important; }
+        .broadcast-mode body { grid-template-columns: 1fr; background: transparent; }
     </style>
 </head>
-<body id="b">
-    <audio id="snipeSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
-    
+<body>
+
+    <audio id="snipeSound" src="https://www.myinstants.com/media/sounds/m4a1_single-mike_koenig-154170597.mp3"></audio>
+
     <div id="overlay">
         <div class="login-card">
-            <h2 style="color:var(--neon); margin-bottom: 30px;">LiveBIT LOGIN</h2>
-            <input type="text">
-            <input type="password">
-            <button onclick="document.getElementById('overlay').style.display='none'" class="admin-btn" style="width:100%; font-size:18px;">LOGIN</button>
+            <h2 style="color: var(--neon-blue); margin-bottom: 25px;">Welcome to LiveBIT</h2>
+            <input type="text" id="login-tiktok" placeholder="TikTok Username">
+            <input type="email" id="login-email" placeholder="Email">
+            <div class="password-wrapper">
+                <input type="password" id="pass" placeholder="Password">
+                <span class="eye-btn" onclick="togglePass()">👁️</span>
+            </div>
+            <button onclick="validateLogin()" class="btn-blue" style="width:100%; margin-top:15px;">CONNECT SYSTEM</button>
         </div>
     </div>
 
-    <div id="main" style="text-align:center;">
-        <div id="timer">01:00</div>
-        <div class="admin-only">
-            <button onclick="st()" class="admin-btn">START ▶</button>
+    <div class="top-bar">
+        <div style="color: #ff0050;">❤️ <span id="likes">0</span></div>
+        <div style="color: #00d4ff;">👁️ <span id="views">0</span></div>
+    </div>
+
+    <div class="left-column">
+        <div class="copy-link-box" onclick="copyLink('table')">🔗 COPY GIFTERS TABLE URL</div>
+        <h3 style="text-align: center; color: #888;">TOP GIFTERS</h3>
+        <div id="gifter-list">
+            <div class="rank-card" style="border-color: var(--gold);">#1 Waiting...</div>
+            <div class="rank-card">#2 Waiting...</div>
+            <div class="rank-card">#3 Waiting...</div>
         </div>
+    </div>
+
+    <div class="center-column" id="main-stream-area">
+        <div class="copy-link-box" style="color:var(--gold); border-color:var(--gold)" onclick="copyLink('gift')">👑 COPY BIGGEST GIFTER URL</div>
+        <div class="biggest-gift-section">
+            <div style="font-size: 40px;">👑</div>
+            <div id="top-gift-name" style="font-size: 22px; color: var(--gold); font-weight: bold;">...Waiting for Gifter</div>
+        </div>
+
+        <div id="snipe-display-text">Snipe: 20s</div>
+        <div id="timer">01:00</div>
+
+        <div class="controls">
+            <button class="btn-blue" onclick="startTimer()">START ▶</button>
+            <button style="background:#333" onclick="resetTimer()">RESET 🔄</button>
+            <button style="background:#333" onclick="stopTimer()">STOP ⏸</button>
+            <button style="background:#28a745" onclick="adjustTime(30)">🔼 30s</button>
+            <button style="background:#dc3545" onclick="adjustTime(-20)">🔽 20s</button>
+            <button class="btn-purple" onclick="setSnipeTime()">⚙️ SNIPE SETTINGS</button>
+            <div class="copy-link-box" style="margin-top:10px; grid-column: 1/3;" onclick="copyLink('timer')">⏱️ COPY TIMER & SNIPE URL</div>
+        </div>
+    </div>
+
+    <div class="sidebar-right">
+        <div class="copy-link-box" style="color:#ff0050; border-color:#ff0050" onclick="copyLink('likes')">❤️ COPY LIKES TABLE URL</div>
+        <h3 style="color: #ff0050; text-align: center;">TOP LIKERS</h3>
+        <div id="likes-list"></div>
     </div>
 
     <script>
-        let s = 60, tid;
-        const p = new URLSearchParams(window.location.search);
-        
-        // אם הקישור כולל ?mode=timer - מסתירים הכל חוץ מהטיימר
-        if(p.get('mode') === 'timer') {
-            document.body.classList.add('broadcast-mode');
+        let mainSec = 60;
+        let snipeSec = 20; 
+        let timerId;
+        let isSnipeMode = false;
+        let user = "";
+
+        function togglePass() {
+            const p = document.getElementById('pass');
+            p.type = p.type === "password" ? "text" : "password";
         }
 
-        function st() {
-            clearInterval(tid);
-            tid = setInterval(() => { 
-                if(s > 0) {
-                    s--; 
-                    update(); 
-                    if(s === 20) document.getElementById('snipeSound').play();
+        function validateLogin() {
+            user = document.getElementById('login-tiktok').value.trim();
+            if(user) document.getElementById('overlay').style.display = 'none';
+            initLikes();
+        }
+
+        function copyLink(type) {
+            const baseUrl = window.location.href.split('?')[0];
+            const finalUrl = `${baseUrl}?mode=${type}&user=${user}`;
+            navigator.clipboard.writeText(finalUrl);
+            alert(`Link Copied for ${type}!`);
+        }
+
+        // ניהול מצבי תצוגה לקישורים
+        const params = new URLSearchParams(window.location.search);
+        const mode = params.get('mode');
+        if(mode) {
+            document.documentElement.classList.add('broadcast-mode');
+            document.body.innerHTML = ""; // מנקים הכל
+            const container = document.createElement('div');
+            container.style.display = "flex";
+            container.style.flexDirection = "column";
+            container.style.alignItems = "center";
+            container.style.justifyContent = "center";
+            container.style.height = "100vh";
+            
+            if(mode === 'timer') {
+                container.innerHTML = document.getElementById('gifter-list').outerHTML + 
+                                     `<div id="snipe-display-text" style="color:#ff3232; font-size:40px; margin-top:20px;">Snipe: ${snipeSec}s</div>` + 
+                                     `<div id="timer" style="font-size:150px;">01:00</div>`;
+            } else if(mode === 'gift') {
+                container.innerHTML = document.querySelector('.biggest-gift-section').outerHTML;
+            } else if(mode === 'likes') {
+                container.innerHTML = document.querySelector('.sidebar-right').innerHTML;
+            }
+            document.body.appendChild(container);
+        }
+
+        function startTimer() {
+            clearInterval(timerId);
+            timerId = setInterval(() => {
+                if (!isSnipeMode) {
+                    if (mainSec > 0) mainSec--;
+                    else { 
+                        isSnipeMode = true; 
+                        document.getElementById('snipeSound').play(); // הפעלת סאונד
+                    }
                 } else {
-                    clearInterval(tid);
+                    if (snipeSec > 0) snipeSec--;
+                    else clearInterval(timerId);
                 }
+                updateUI();
             }, 1000);
         }
 
-        function update() {
-            let m = Math.floor(s/60), sec = s%60;
-            document.getElementById('timer').textContent = `${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
-            if(s <= 20) document.getElementById('timer').style.color = 'red';
+        function updateUI() {
+            let total = isSnipeMode ? snipeSec : mainSec;
+            let m = Math.floor(total / 60);
+            let s = total % 60;
+            const t = document.getElementById('timer');
+            if(t) {
+                t.textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+                t.style.color = isSnipeMode ? "#ff3232" : "#fff";
+            }
+        }
+
+        function setSnipeTime() {
+            let n = prompt("Snipe seconds:", snipeSec);
+            if(n) { 
+                snipeSec = parseInt(n); 
+                document.getElementById('snipe-display-text').textContent = `Snipe: ${snipeSec}s`;
+            }
+        }
+
+        function stopTimer() { clearInterval(timerId); }
+        function resetTimer() { stopTimer(); mainSec = 60; isSnipeMode = false; updateUI(); }
+        function adjustTime(v) { if(!isSnipeMode) mainSec = Math.max(0, mainSec + v); updateUI(); }
+
+        function initLikes() {
+            const list = document.getElementById('likes-list');
+            for(let i=1; i<=5; i++) {
+                list.innerHTML += `<div class="rank-card"><span>#${i} User</span><span>0</span></div>`;
+            }
         }
     </script>
 </body>
