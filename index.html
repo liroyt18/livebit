@@ -1,22 +1,12 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="he">
 <head>
     <meta charset="UTF-8">
-    <title>LiveBIT Elite Dashboard</title>
+    <title>LiveBIT Dashboard</title>
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        :root {
-            --bg: #0d0d16;
-            --panel: #161625;
-            --cyan: #00f2ff;
-            --magenta: #ff2d55;
-            --purple: #8a2be2;
-            --green: #00ffa3;
-        }
-
         body {
-            background: var(--bg);
+            background-color: #05050a;
             color: white;
             font-family: 'Segoe UI', sans-serif;
             margin: 0;
@@ -25,70 +15,110 @@
             overflow: hidden;
         }
 
-        /* Login Overlay */
-        #login-screen {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.95);
-            display: flex; justify-content: center; align-items: center; z-index: 1000;
-        }
-        .login-box {
-            background: #111; padding: 40px; border-radius: 25px;
-            border: 2px solid var(--cyan); width: 380px; text-align: center;
-            box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
-        }
-
-        /* Dashboard Layout */
-        #dashboard {
-            display: none; width: 100%; height: 100%;
-            grid-template-columns: 280px 1fr 280px;
-            gap: 15px; padding: 15px; box-sizing: border-box;
-        }
-
+        /* Side Panels */
         .side-panel {
-            background: var(--panel); border-radius: 15px;
-            padding: 20px; display: flex; flex-direction: column;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            width: 300px;
+            background: #0d0d1a;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #1a1a2e;
+            border-left: 1px solid #1a1a2e;
         }
 
-        .main-area { display: flex; flex-direction: column; gap: 15px; }
+        .side-title {
+            color: #ff2d55;
+            font-weight: bold;
+            text-align: center;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #1a1a2e;
+            color: #00f2ff;
+        }
+
+        /* Center Dashboard */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
 
         .top-banner {
-            background: var(--panel); border: 2px solid gold;
-            border-radius: 12px; padding: 10px; text-align: center;
+            background: #0d0d1a;
+            border: 2px solid #ffcc00;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
         }
 
-        .timer-section {
-            background: var(--panel); border-radius: 20px;
-            flex-grow: 1; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; position: relative;
+        .timer-container {
+            background: #0d0d1a;
+            border-radius: 15px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
         }
+
+        .snipe-trigger { color: #ff2d55; font-weight: bold; margin-bottom: 10px; }
 
         .clock {
-            font-size: 9rem; font-weight: 800; color: white;
-            letter-spacing: -5px; margin: 10px 0;
+            font-size: 10rem;
+            font-weight: bold;
+            margin: 10px 0;
+            letter-spacing: -2px;
         }
 
-        /* Buttons Style */
-        .btn-grid {
-            display: grid; grid-template-columns: 1fr 1fr;
-            gap: 12px; width: 80%;
-        }
+        /* Buttons from Screenshot */
+        .btn-stack { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 10px; }
+        .row { display: flex; gap: 10px; width: 100%; }
+        
         .btn {
-            padding: 15px; border: none; border-radius: 10px;
-            font-weight: bold; cursor: pointer; color: white; font-size: 1rem;
-        }
-        .btn-start { background: var(--cyan); color: black; grid-column: span 2; }
-        .btn-gray { background: #2a2a3a; }
-        .btn-purple { background: var(--purple); }
-        .btn-outline-green {
-            background: transparent; border: 2px solid var(--green);
-            color: var(--green); grid-column: span 2; margin-top: 10px;
+            padding: 18px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            flex: 1;
+            text-transform: uppercase;
         }
 
-        /* Lists */
-        .list-title { color: var(--magenta); text-align: center; margin-bottom: 15px; font-weight: bold; }
-        .list-item {
-            display: flex; justify-content: space-between;
-            padding: 10px; border-bottom: 1px solid #252535; font-size: 0.9rem;
+        .btn-cyan { background: #00f2ff; color: black; }
+        .btn-dark { background: #222222; color: white; }
+        .btn-purple { background: #7d2ae8; color: white; }
+        .btn-outline-green {
+            background: transparent;
+            border: 2px solid #00ff88;
+            color: #00ff88;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        /* Login Overlay */
+        #login-screen {
+            position: fixed; inset: 0; background: #05050a;
+            display: flex; justify-content: center; align-items: center; z-index: 100;
+        }
+        .login-box {
+            background: #111; padding: 40px; border-radius: 20px;
+            border: 2px solid #00f2ff; width: 400px; text-align: center;
+        }
+        input {
+            width: 100%; padding: 15px; margin: 10px 0;
+            background: #000; border: 1px solid #333; color: white; border-radius: 10px;
         }
     </style>
 </head>
@@ -96,74 +126,58 @@
 
     <div id="login-screen">
         <div class="login-box">
-            <h2 style="color: var(--cyan); margin-bottom: 30px;">Welcome to LiveBIT</h2>
-            <input type="text" id="user-in" placeholder="TikTok Username" style="width:100%; padding:15px; background:#000; border:1px solid #333; color:white; border-radius:10px; margin-bottom:20px;">
-            <button class="btn btn-start" style="width:100%;" onclick="doConnect()">CONNECT SYSTEM</button>
-            <p id="status-msg" style="margin-top:15px; font-size:0.9rem;"></p>
+            <h1 style="color: #00f2ff; margin-bottom: 30px;">Welcome to LiveBIT</h1>
+            <input type="text" id="target" placeholder="TikTok Username">
+            <button class="btn btn-cyan" style="width:100%; margin-top:20px;" onclick="connect()">CONNECT SYSTEM</button>
         </div>
     </div>
 
-    <div id="dashboard">
-        <div class="side-panel">
-            <div class="list-title">TOP 10 LIKERS</div>
-            <div id="likers"></div>
+    <div class="side-panel">
+        <div class="side-title">TOP 10 LIKERS</div>
+        <div id="likes-list">
+            </div>
+    </div>
+
+    <div class="main-content">
+        <div class="top-banner">
+            <div style="color: #ffcc00; font-size: 0.8rem;">👑 BIGGEST GIFTER</div>
+            <div id="top-gift-name" style="font-weight: bold; font-size: 1.5rem;">Waiting...</div>
         </div>
 
-        <div class="main-area">
-            <div class="top-banner">
-                <div style="color: gold; font-size: 0.7rem; font-weight: bold;">👑 BIGGEST GIFTER</div>
-                <div id="gifter-name">Waiting for gifts...</div>
-            </div>
-
-            <div class="timer-section">
-                <div style="color: var(--magenta); font-weight: bold;">Snipe Trigger: 34s</div>
-                <div class="clock">01:00</div>
-                <div class="btn-grid">
-                    <button class="btn btn-start">START / PAUSE</button>
-                    <button class="btn btn-gray">▲ 30S</button>
-                    <button class="btn btn-gray">▼ 30S</button>
-                    <button class="btn btn-gray">RESET</button>
-                    <button class="btn btn-purple">SNIPE DELAY</button>
-                    <button class="btn btn-outline-green">📶 CONNECT TO LIVE</button>
+        <div class="timer-container">
+            <div class="snipe-trigger">Snipe Trigger: 34s</div>
+            <div class="clock">01:00</div>
+            
+            <div class="btn-stack">
+                <button class="btn btn-cyan">START / PAUSE</button>
+                <div class="row">
+                    <button class="btn btn-dark">▲ 30S</button>
+                    <button class="btn btn-dark">▼ 30S</button>
                 </div>
+                <div class="row">
+                    <button class="btn btn-dark">RESET</button>
+                    <button class="btn btn-purple">SNIPE DELAY</button>
+                </div>
+                <button class="btn btn-outline-green">📶 CONNECT TO LIVE</button>
             </div>
         </div>
+    </div>
 
-        <div class="side-panel">
-            <div class="list-title" style="color: gold;">TOP 3 GIFTERS</div>
-            <div id="gifters"></div>
-        </div>
+    <div class="side-panel">
+        <div class="side-title" style="color: #ffcc00;">TOP 3 GIFTERS</div>
+        <div id="gifts-list"></div>
     </div>
 
     <script>
         const socket = io('https://livebit-server.onrender.com');
-
-        function doConnect() {
-            const u = document.getElementById('user-in').value;
-            if(!u) return;
-            document.getElementById('status-msg').innerText = "Connecting...";
-            socket.emit('connect-live', u);
+        
+        function connect() {
+            const user = document.getElementById('target').value;
+            socket.emit('connect-live', user);
         }
 
-        socket.on('conn-status', (d) => {
-            if(d.success) {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('dashboard').style.display = 'grid';
-                confetti({ particleCount: 150, spread: 70 });
-            } else {
-                document.getElementById('status-msg').innerText = "User is not Live";
-            }
-        });
-
-        socket.on('like', (data) => {
-            const item = `<div class="list-item"><span>${data.nickname}</span><span style="color:var(--cyan)">0</span></div>`;
-            document.getElementById('likers').insertAdjacentHTML('afterbegin', item);
-        });
-
-        socket.on('gift', (data) => {
-            document.getElementById('gifter-name').innerText = data.nickname;
-            const item = `<div class="list-item"><span>${data.nickname}</span><span style="color:gold">${data.giftName}</span></div>`;
-            document.getElementById('gifters').insertAdjacentHTML('afterbegin', item);
+        socket.on('conn-status', (data) => {
+            if(data.success) document.getElementById('login-screen').style.display = 'none';
         });
     </script>
 </body>
