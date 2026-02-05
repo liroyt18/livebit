@@ -3,58 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LiveBIT Elite Pro</title>
+    <title>LiveBIT Dashboard</title>
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         body {
             margin: 0;
-            padding: 20px;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: transparent;
-            color: white;
-            overflow: hidden;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: #0f0f0f;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
         }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            margin-top: 50px;
+            text-align: center;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        h1 { color: #fe2c55; font-size: 2.5rem; margin-bottom: 10px; }
+
+        .setup-box {
+            background: #1e1e1e;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 80%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            background: #2b2b2b;
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            outline: none;
+        }
+
+        button {
+            background: #fe2c55;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover { transform: scale(1.05); }
+
         #status {
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 10px;
+            margin-top: 15px;
+            font-weight: bold;
+            padding: 8px 15px;
+            border-radius: 20px;
             display: inline-block;
         }
-        .online { background: #2ecc71; }
-        .offline { background: #e74c3c; }
+
+        .online { background: #2ecc71; color: #fff; }
+        .offline { background: #ff4757; color: #fff; }
+
         #events-container {
-            height: 400px;
-            overflow-y: auto;
+            width: 100%;
+            margin-top: 20px;
             display: flex;
             flex-direction: column-reverse;
+            gap: 10px;
         }
+
         .event-card {
-            background: rgba(0, 0, 0, 0.7);
-            margin: 5px 0;
-            padding: 10px;
-            border-radius: 8px;
-            border-left: 5px solid #6c5ce7;
-            animation: slideIn 0.3s ease;
+            background: #2b2b2b;
+            padding: 15px;
+            border-radius: 10px;
+            border-right: 5px solid #fe2c55;
+            text-align: right;
+            animation: fadeIn 0.4s ease-out;
         }
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
 
-    <div id="setup">
-        <input type="text" id="username" placeholder="שם משתמש בטיקטוק">
-        <button onclick="connect()">התחבר ללייב</button>
+    <div class="container">
+        <div class="header">
+            <h1>LiveBIT</h1>
+            <p>חיבור ישיר ללייב של טיקטוק</p>
+        </div>
+
+        <div id="setup" class="setup-box">
+            <input type="text" id="username" placeholder="הכנס שם משתמש (ללא @)">
+            <br>
+            <button onclick="connect()">התחבר עכשיו</button>
+            <div id="status" class="offline">ממתין לחיבור...</div>
+        </div>
+
+        <div id="events-container"></div>
     </div>
 
-    <div id="status" class="offline">לא מחובר</div>
-    <div id="events-container"></div>
-
     <script>
-        // חיבור לשרת ה-Render שלך
         const socket = io('https://livebit-server.onrender.com');
         const statusDiv = document.getElementById('status');
         const container = document.getElementById('events-container');
@@ -70,35 +133,28 @@
             if(data.success) {
                 statusDiv.innerText = "מחובר ללייב!";
                 statusDiv.className = "online";
-                document.getElementById('setup').style.display = 'none';
             } else {
-                statusDiv.innerText = "שגיאה בחיבור";
+                statusDiv.innerText = "שגיאה: משתמש לא בלייב";
                 statusDiv.className = "offline";
             }
         });
 
         socket.on('gift', (data) => {
-            addEvent(`${data.nickname} שלח ${data.giftName}!`, '#fdcb6e');
-            confetti({
-                particleCount: 100,
-                spread: 70,
-                origin: { y: 0.6 }
-            });
+            addEvent(`🎁 ${data.nickname} שלח ${data.giftName}!`, '#fdcb6e');
+            confetti({ particleCount: 150, spread: 80, origin: { y: 0.7 } });
         });
 
         socket.on('like', (data) => {
-            addEvent(`${data.nickname} עשה לייק!`, '#ff7675');
+            addEvent(`❤️ ${data.nickname} עשה לייק!`, '#fe2c55');
         });
 
         function addEvent(text, color) {
             const el = document.createElement('div');
             el.className = 'event-card';
-            el.style.borderColor = color;
+            el.style.borderRightColor = color;
             el.innerText = text;
             container.appendChild(el);
-            
-            // מחיקת ההודעה אחרי 10 שניות
-            setTimeout(() => el.remove(), 10000);
+            setTimeout(() => el.remove(), 8000);
         }
     </script>
 </body>
