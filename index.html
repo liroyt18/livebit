@@ -2,210 +2,118 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>LiveBIT - Connect System</title>
-    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <title>LiveBIT Elite Login</title>
     <style>
-        :root {
-            --bg: #05050a;
-            --cyan: #00f2ff;
-            --magenta: #ff2d55;
-            --panel: #0d0d1a;
-        }
-
         body {
-            background-color: var(--bg);
-            color: white;
-            font-family: 'Segoe UI', sans-serif;
-            margin: 0;
+            background-color: #050505;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
         }
 
-        /* --- מסך התחברות (Login Screen) --- */
-        #auth-screen {
-            background: #0a0a0f;
-            padding: 50px;
+        /* הקופסה הראשית לפי צילום מסך 184641 */
+        .login-card {
+            background-color: #121212;
+            border: 2px solid #00e5ff;
             border-radius: 30px;
-            border: 2px solid var(--cyan);
-            width: 480px;
+            padding: 50px 40px;
+            width: 420px;
             text-align: center;
-            box-shadow: 0 0 40px rgba(0, 242, 255, 0.15);
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
         }
 
-        #auth-screen h2 {
-            color: var(--cyan);
-            font-size: 2.2rem;
+        .login-card h2 {
+            color: #00e5ff;
+            font-size: 28px;
             margin-bottom: 35px;
-            font-weight: 800;
+            font-weight: bold;
         }
 
-        .input-box {
-            position: relative;
+        .input-group {
             margin-bottom: 15px;
+            position: relative;
         }
 
         input {
             width: 100%;
-            padding: 18px;
-            background: #000;
+            padding: 18px 20px;
+            background-color: #000000;
             border: 1px solid #1a1a1a;
-            color: white;
             border-radius: 12px;
+            color: white;
+            font-size: 16px;
             box-sizing: border-box;
-            font-size: 1rem;
         }
 
-        /* שדה סיסמה עם עין */
-        .password-container {
-            position: relative;
+        input::placeholder {
+            color: #444;
         }
 
+        /* הוספת ה-Eye Icon לשדה הסיסמה */
         .eye-icon {
             position: absolute;
-            right: 15px;
+            right: 20px;
             top: 50%;
             transform: translateY(-50%);
+            color: #444;
             cursor: pointer;
-            color: #555;
-            font-size: 1.2rem;
+            font-size: 20px;
         }
 
-        .btn-connect-sys {
-            background: var(--cyan);
-            color: black;
-            border: none;
-            padding: 20px;
+        /* כפתור CONNECT SYSTEM הטורקיז */
+        .connect-btn {
             width: 100%;
+            padding: 18px;
+            background-color: #00e5ff;
+            border: none;
             border-radius: 12px;
+            color: black;
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 18px;
             cursor: pointer;
-            margin-top: 25px;
+            margin-top: 20px;
             text-transform: uppercase;
         }
 
-        /* --- דשבורד (Dashboard) - מוסתר בהתחלה --- */
-        #dashboard {
-            display: none;
-            width: 100vw;
-            height: 100vh;
-            grid-template-columns: 280px 1fr 280px;
-            padding: 15px;
-            box-sizing: border-box;
-            gap: 15px;
+        .connect-btn:hover {
+            background-color: #00b8cc;
         }
-
-        .side-panel { background: var(--panel); border-radius: 15px; padding: 20px; border: 1px solid #1a1a2e; }
-        .main-content { display: flex; flex-direction: column; gap: 15px; }
-        .timer-box { background: var(--panel); border-radius: 20px; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .clock { font-size: 8rem; font-weight: bold; margin: 10px 0; }
-        
-        /* כפתורי הדשבורד */
-        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 85%; }
-        .ctrl-btn { padding: 15px; border: none; border-radius: 8px; cursor: pointer; color: white; font-weight: bold; font-size: 1rem; }
-        .btn-start { background: var(--cyan); color: black; grid-column: span 2; }
-        .btn-dark { background: #222; }
-        .btn-purple { background: #7d2ae8; }
-        .btn-connect-live { background: transparent; border: 2px solid #00ff88; color: #00ff88; grid-column: span 2; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <div id="auth-screen">
+    <div class="login-card">
         <h2>Welcome to LiveBIT</h2>
-        <div class="input-box">
-            <input type="text" id="tiktok_user" placeholder="TikTok Username">
-        </div>
-        <div class="input-box">
-            <input type="email" id="email" placeholder="Email Address">
-        </div>
-        <div class="input-box password-container">
-            <input type="password" id="pass" placeholder="Password">
-            <span class="eye-icon" onclick="togglePass()">👁️</span>
-        </div>
-        <button class="btn-connect-sys" onclick="enterDashboard()">CONNECT SYSTEM</button>
-        <p id="err" style="color: red; margin-top: 10px; font-size: 0.8rem;"></p>
-    </div>
-
-    <div id="dashboard">
-        <div class="side-panel"><div style="color:var(--magenta); text-align:center;">TOP 10 LIKERS</div></div>
         
-        <div class="main-content">
-            <div style="background:var(--panel); border:2px solid gold; border-radius:10px; padding:10px; text-align:center;">
-                <small style="color:gold;">👑 BIGGEST GIFTER</small>
-                <div id="top-gifter">Waiting...</div>
-            </div>
-            
-            <div class="timer-box">
-                <div style="color:var(--magenta);">Snipe Trigger: 34s</div>
-                <div class="clock">01:00</div>
-                <div class="btn-grid">
-                    <button class="ctrl-btn btn-start">START / PAUSE</button>
-                    <button class="ctrl-btn btn-dark">▲ 30S</button>
-                    <button class="ctrl-btn btn-dark">▼ 30S</button>
-                    <button class="ctrl-btn btn-dark">RESET</button>
-                    <button class="ctrl-btn btn-purple">SNIPE DELAY</button>
-                    
-                    <div style="grid-column: span 2; margin-top: 20px;">
-                        <input type="text" id="live_id" placeholder="Enter Username with @" style="margin-bottom:10px;">
-                        <button class="ctrl-btn btn-connect-live" onclick="connectLive()">📶 CONNECT TO LIVE</button>
-                        <div id="live-status" style="margin-top:10px; font-size: 0.9rem;"></div>
-                    </div>
-                </div>
-            </div>
+        <div class="input-group">
+            <input type="text" placeholder="TikTok Username">
         </div>
 
-        <div class="side-panel"><div style="color:gold; text-align:center;">TOP 3 GIFTERS</div></div>
+        <div class="input-group">
+            <input type="email" placeholder="Email Address">
+        </div>
+
+        <div class="input-group">
+            <input type="password" placeholder="Password" id="passInput">
+            <span class="eye-icon" onclick="toggleView()">👁️</span>
+        </div>
+
+        <button class="connect-btn">CONNECT SYSTEM</button>
     </div>
 
     <script>
-        const socket = io('https://livebit-server.onrender.com');
-
-        function togglePass() {
-            const p = document.getElementById('pass');
-            p.type = p.type === 'password' ? 'text' : 'password';
-        }
-
-        function enterDashboard() {
-            const email = document.getElementById('email').value;
-            const user = document.getElementById('tiktok_user').value;
-            const pass = document.getElementById('pass').value;
-
-            if (!email.includes('@') || !email.includes('.') || !user || !pass) {
-                document.getElementById('err').innerText = "Please fill all fields correctly (Email must have @ and .)";
-                return;
-            }
-
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('dashboard').style.display = 'grid';
-            document.body.style.alignItems = 'stretch';
-        }
-
-        function connectLive() {
-            const target = document.getElementById('live_id').value;
-            const status = document.getElementById('live-status');
-            if (!target.startsWith('@')) {
-                status.style.color = "orange";
-                status.innerText = "Username must start with @";
-                return;
-            }
-            status.style.color = "white";
-            status.innerText = "Connecting to TikTok...";
-            socket.emit('connect-live', target.replace('@', ''));
-        }
-
-        socket.on('conn-status', (data) => {
-            const s = document.getElementById('live-status');
-            if(data.success) {
-                s.style.color = "#00ff88";
-                s.innerText = "Successfully connected to your live!";
+        function toggleView() {
+            const x = document.getElementById("passInput");
+            if (x.type === "password") {
+                x.type = "text";
             } else {
-                s.style.color = "#ff2d55";
-                s.innerText = "Check your username or if you have started the live.";
+                x.type = "password";
             }
-        });
+        }
     </script>
+
 </body>
 </html>
