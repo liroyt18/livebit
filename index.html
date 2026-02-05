@@ -3,159 +3,212 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LiveBIT Dashboard</title>
+    <title>LiveBIT Elite Dashboard</title>
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background-color: #0f0f0f;
-            color: #ffffff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
+        :root {
+            --bg-dark: #0a0a0f;
+            --panel-bg: #12121a;
+            --accent: #00f2ff;
+            --secondary: #7d2ae8;
+            --text: #ffffff;
         }
 
-        .container {
-            width: 90%;
-            max-width: 600px;
-            margin-top: 50px;
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text);
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Panels */
+        .side-panel {
+            width: 250px;
+            background: var(--panel-bg);
+            padding: 20px;
+            border: 1px solid #1f1f2e;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .side-title {
+            color: #fe2c55;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #1f1f2e;
+            font-size: 0.9rem;
+        }
+
+        /* Main Dashboard */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .top-banner {
+            background: var(--panel-bg);
+            border: 2px solid gold;
+            border-radius: 10px;
+            padding: 15px;
             text-align: center;
         }
 
-        .header {
-            margin-bottom: 30px;
-        }
-
-        h1 { color: #fe2c55; font-size: 2.5rem; margin-bottom: 10px; }
-
-        .setup-box {
-            background: #1e1e1e;
-            padding: 25px;
+        .timer-section {
+            background: var(--panel-bg);
             border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            margin-bottom: 20px;
+            padding: 40px;
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
-        input {
-            width: 80%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #333;
-            background: #2b2b2b;
-            color: white;
-            font-size: 1rem;
-            margin-bottom: 15px;
-            outline: none;
+        .timer-display {
+            font-size: 8rem;
+            font-weight: bold;
+            letter-spacing: 5px;
+            margin: 20px 0;
         }
 
-        button {
-            background: #fe2c55;
-            color: white;
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 15px;
             border: none;
-            padding: 12px 30px;
             border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
-            transition: transform 0.2s;
+            color: white;
+            font-size: 1rem;
         }
 
-        button:hover { transform: scale(1.05); }
+        .btn-main { background: var(--accent); color: black; grid-column: span 2; }
+        .btn-sec { background: #252525; }
+        .btn-purple { background: var(--secondary); }
+        .btn-connect { background: transparent; border: 2px solid #00ff88; color: #00ff88; margin-top: 20px; }
 
-        #status {
-            margin-top: 15px;
-            font-weight: bold;
-            padding: 8px 15px;
-            border-radius: 20px;
-            display: inline-block;
-        }
-
-        .online { background: #2ecc71; color: #fff; }
-        .offline { background: #ff4757; color: #fff; }
-
-        #events-container {
-            width: 100%;
-            margin-top: 20px;
+        /* Login Overlay */
+        #login-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
             display: flex;
-            flex-direction: column-reverse;
-            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
         }
 
-        .event-card {
-            background: #2b2b2b;
+        .login-box {
+            background: #111;
+            padding: 40px;
+            border-radius: 20px;
+            border: 2px solid var(--accent);
+            width: 400px;
+            text-align: center;
+        }
+
+        input {
+            width: 100%;
             padding: 15px;
-            border-radius: 10px;
-            border-right: 5px solid #fe2c55;
-            text-align: right;
-            animation: fadeIn 0.4s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            margin: 10px 0;
+            background: #000;
+            border: 1px solid #333;
+            color: white;
+            border-radius: 8px;
+            box-sizing: border-box;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="header">
-            <h1>LiveBIT</h1>
-            <p>חיבור ישיר ללייב של טיקטוק</p>
+    <div id="login-overlay">
+        <div class="login-box">
+            <h2 style="color: var(--accent);">Welcome to LiveBIT</h2>
+            <input type="text" id="username" placeholder="TikTok Username">
+            <input type="text" placeholder="Email Address (Optional)">
+            <input type="password" placeholder="Password">
+            <button class="btn btn-main" style="margin-top:20px" onclick="connect()">CONNECT SYSTEM</button>
+            <p id="status" style="margin-top:10px; font-size: 0.8rem;"></p>
+        </div>
+    </div>
+
+    <div class="side-panel">
+        <div class="side-title">TOP 10 LIKERS</div>
+        <div id="likers-list">
+            </div>
+    </div>
+
+    <div class="main-content">
+        <div class="top-banner">
+            <div style="color: gold; font-size: 0.7rem;">👑 BIGGEST GIFTER</div>
+            <div id="top-gifter">Waiting...</div>
         </div>
 
-        <div id="setup" class="setup-box">
-            <input type="text" id="username" placeholder="הכנס שם משתמש (ללא @)">
-            <br>
-            <button onclick="connect()">התחבר עכשיו</button>
-            <div id="status" class="offline">ממתין לחיבור...</div>
+        <div class="timer-section">
+            <div style="color: #ff4757;">Snipe Trigger: 34s</div>
+            <div class="timer-display" id="timer">01:00</div>
+            
+            <div class="controls">
+                <button class="btn btn-main">START / PAUSE</button>
+                <button class="btn btn-sec">▲ 30S</button>
+                <button class="btn btn-sec">▼ 30S</button>
+                <button class="btn btn-sec">RESET</button>
+                <button class="btn btn-purple">SNIPE DELAY</button>
+                <button class="btn btn-connect">📶 CONNECT TO LIVE</button>
+            </div>
         </div>
+    </div>
 
-        <div id="events-container"></div>
+    <div class="side-panel">
+        <div class="side-title" style="color: gold;">TOP 3 GIFTERS</div>
+        <div id="gifters-list">
+            </div>
     </div>
 
     <script>
         const socket = io('https://livebit-server.onrender.com');
-        const statusDiv = document.getElementById('status');
-        const container = document.getElementById('events-container');
-
+        
         function connect() {
             const user = document.getElementById('username').value;
-            if(!user) return alert("נא להזין שם משתמש");
+            if(!user) return alert("Please enter username");
             socket.emit('connect-live', user);
-            statusDiv.innerText = "מנסה להתחבר...";
+            document.getElementById('status').innerText = "Connecting...";
         }
 
         socket.on('conn-status', (data) => {
             if(data.success) {
-                statusDiv.innerText = "מחובר ללייב!";
-                statusDiv.className = "online";
+                document.getElementById('login-overlay').style.display = 'none';
+                confetti({ particleCount: 150, spread: 70 });
             } else {
-                statusDiv.innerText = "שגיאה: משתמש לא בלייב";
-                statusDiv.className = "offline";
+                alert("Live not found. Make sure the user is streaming.");
             }
         });
 
         socket.on('gift', (data) => {
-            addEvent(`🎁 ${data.nickname} שלח ${data.giftName}!`, '#fdcb6e');
-            confetti({ particleCount: 150, spread: 80, origin: { y: 0.7 } });
+            document.getElementById('top-gifter').innerText = `${data.nickname} - ${data.giftName}`;
+            confetti({ particleCount: 50, origin: { y: 0.8 } });
         });
-
-        socket.on('like', (data) => {
-            addEvent(`❤️ ${data.nickname} עשה לייק!`, '#fe2c55');
-        });
-
-        function addEvent(text, color) {
-            const el = document.createElement('div');
-            el.className = 'event-card';
-            el.style.borderRightColor = color;
-            el.innerText = text;
-            container.appendChild(el);
-            setTimeout(() => el.remove(), 8000);
-        }
     </script>
 </body>
 </html>
