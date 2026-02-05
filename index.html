@@ -5,89 +5,113 @@
     <title>LiveBIT Elite</title>
     <style>
         :root { --cyan: #00f2ff; --bg: #05050a; }
-        body { background-color: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        body { background-color: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
         
+        /* עיצוב מסך הלוגין לפי התמונה שלך */
         #auth-screen { 
-            background: #0a0a0f; border: 2px solid var(--cyan); border-radius: 30px; 
-            padding: 50px; width: 420px; text-align: center; 
-            box-shadow: 0 0 20px rgba(0, 242, 255, 0.1);
+            background: #0d0d0d; border: 2px solid var(--cyan); border-radius: 30px; 
+            padding: 50px; width: 450px; text-align: center; 
+            box-shadow: 0 0 25px rgba(0, 242, 255, 0.15);
         }
 
-        .input-group { position: relative; margin-bottom: 15px; }
+        .input-group { position: relative; margin-bottom: 18px; }
         input { 
-            width: 100%; padding: 18px; background: #000; border: 1px solid #1a1a1a; 
+            width: 100%; padding: 18px; background: #000; border: 1px solid #222; 
             color: white; border-radius: 12px; box-sizing: border-box; font-size: 1rem;
         }
 
+        /* העין בתוך הסיסמה */
+        .eye-btn { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #555; font-size: 1.2rem; }
+
+        /* כפתור הטורקיז */
         .connect-btn { 
             background: var(--cyan); color: black; border: none; padding: 20px; 
             width: 100%; border-radius: 12px; font-weight: bold; font-size: 1.2rem; 
             cursor: pointer; margin-top: 20px; text-transform: uppercase;
         }
 
-        #error-msg { color: #ff2d55; margin-top: 15px; font-size: 0.9rem; font-weight: bold; min-height: 1.2em; }
+        #error-msg { color: #ff2d55; margin-top: 20px; font-size: 0.95rem; font-weight: bold; min-height: 1.5em; }
         
-        #dashboard { display: none; width: 100%; text-align: center; }
+        /* דשבורד המשחק לפי התמונה */
+        #dashboard { display: none; width: 100vw; height: 100vh; grid-template-columns: 280px 1fr 280px; padding: 15px; gap: 15px; box-sizing: border-box; }
+        .side { background: #0d0d1a; border-radius: 15px; border: 1px solid #1a1a2e; padding: 20px; }
+        .main-timer { display: flex; flex-direction: column; justify-content: center; align-items: center; background: #0d0d1a; border-radius: 20px; }
         .clock { font-size: 10rem; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div id="auth-screen">
-        <h2 style="color: var(--cyan); margin-bottom: 30px;">Welcome to LiveBIT</h2>
+        <h2 style="color: var(--cyan); margin-bottom: 30px; font-size: 2rem;">Welcome to LiveBIT</h2>
         
         <div class="input-group">
-            <input type="text" id="tk_user" placeholder="TikTok Username (@name)">
+            <input type="text" id="user" placeholder="TikTok Username (@name)">
         </div>
 
         <div class="input-group">
-            <input type="email" id="tk_email" placeholder="Email Address">
+            <input type="email" id="email" placeholder="Email Address">
         </div>
 
         <div class="input-group">
-            <input type="password" id="tk_pass" placeholder="Password">
+            <input type="password" id="pass" placeholder="Password">
+            <span class="eye-btn" onclick="togglePass()">👁️</span>
         </div>
 
-        <button class="connect-btn" onclick="validateAndEnter()">CONNECT SYSTEM</button>
+        <button type="button" class="connect-btn" id="submitBtn">CONNECT SYSTEM</button>
         
         <div id="error-msg"></div>
     </div>
 
     <div id="dashboard">
-        <h1 style="color: var(--cyan);">CONNECTED SUCCESSFULLY</h1>
-        <div class="clock">01:00</div>
+        <div class="side" style="color:#ff2d55; text-align:center; font-weight:bold;">TOP 10 LIKERS</div>
+        <div class="main-timer">
+            <div style="color:#ff2d55; font-weight:bold; margin-bottom:10px;">Snipe Trigger: 34s</div>
+            <div class="clock">01:00</div>
+            <div style="color:var(--cyan); margin-top:20px; font-size:1.5rem;">GAME ACTIVE</div>
+        </div>
+        <div class="side" style="color:gold; text-align:center; font-weight:bold;">TOP 3 GIFTERS</div>
     </div>
 
     <script>
-        function validateAndEnter() {
-            const user = document.getElementById('tk_user').value.trim();
-            const email = document.getElementById('tk_email').value.trim();
-            const pass = document.getElementById('tk_pass').value;
+        // פונקציית העין
+        function togglePass() {
+            const p = document.getElementById('pass');
+            p.type = p.type === 'password' ? 'text' : 'password';
+        }
+
+        // הפעלת הכפתור בצורה חזקה
+        document.getElementById('submitBtn').addEventListener('click', function(e) {
+            e.preventDefault(); // מונע מהדף להתרענן
+            
+            const user = document.getElementById('user').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const pass = document.getElementById('pass').value;
             const error = document.getElementById('error-msg');
 
-            // 1. בדיקת יוזר ניים - חייב @
+            // בדיקת יוזר ניים עם @
             if (!user.startsWith('@')) {
                 error.innerText = "Please add @ to your TikTok username";
                 return;
             }
 
-            // 2. בדיקת אימייל - חייב פורמט תקין
-            if (!email.includes('@') || !email.includes('.') || (!email.includes('gmail') && !email.includes('com'))) {
+            // בדיקת אימייל לוגית (חייב @, נקודה, וסיומת)
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email) || (!email.includes('gmail') && !email.includes('com'))) {
                 error.innerText = "The email is not logical, please fix it";
                 return;
             }
 
-            // 3. בדיקת סיסמה - חייב 8 תווים
+            // בדיקת סיסמה - 8 תווים
             if (pass.length < 8) {
                 error.innerText = "The password is not logical, please make it 8 characters";
                 return;
             }
 
-            // אם הכל עבר בהצלחה
+            // אם הכל עבר - מעבר למשחק
             error.innerText = "";
             document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('dashboard').style.display = 'block';
-        }
+            document.getElementById('dashboard').style.display = 'grid';
+        });
     </script>
 </body>
 </html>
