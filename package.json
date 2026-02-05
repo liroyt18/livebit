@@ -1,0 +1,14 @@
+{
+  "name": "livebit-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "tiktok-live-connector": "^1.1.0",
+    "express": "^4.18.2",
+    "socket.io": "^4.6.1"
+  }
+}
