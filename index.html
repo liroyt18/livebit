@@ -2,72 +2,91 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>LiveBIT Elite - Fixed Button</title>
-    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <title>LiveBIT Elite</title>
     <style>
         :root { --cyan: #00f2ff; --bg: #05050a; }
-        body { background-color: var(--bg); color: white; font-family: sans-serif; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        body { background-color: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
         
-        /* מסך כניסה */
-        #auth-screen { background: #0a0a0f; border: 2px solid var(--cyan); border-radius: 30px; padding: 50px; width: 420px; text-align: center; }
-        .input-group { position: relative; margin-bottom: 15px; }
-        input { width: 100%; padding: 18px; background: #000; border: 1px solid #1a1a1a; color: white; border-radius: 12px; box-sizing: border-box; }
-        
-        .btn-connect-sys { 
-            background: var(--cyan); color: black; border: none; padding: 20px; width: 100%; 
-            border-radius: 12px; font-weight: bold; font-size: 1.2rem; cursor: pointer; margin-top: 20px; 
+        #auth-screen { 
+            background: #0a0a0f; border: 2px solid var(--cyan); border-radius: 30px; 
+            padding: 50px; width: 420px; text-align: center; 
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.1);
         }
 
-        /* דשבורד מוסתר */
-        #dashboard { display: none; width: 100vw; height: 100vh; background: var(--bg); padding: 20px; box-sizing: border-box; }
-        .clock { font-size: 8rem; text-align: center; margin-top: 50px; font-weight: bold; color: white; }
+        .input-group { position: relative; margin-bottom: 15px; }
+        input { 
+            width: 100%; padding: 18px; background: #000; border: 1px solid #1a1a1a; 
+            color: white; border-radius: 12px; box-sizing: border-box; font-size: 1rem;
+        }
+
+        .connect-btn { 
+            background: var(--cyan); color: black; border: none; padding: 20px; 
+            width: 100%; border-radius: 12px; font-weight: bold; font-size: 1.2rem; 
+            cursor: pointer; margin-top: 20px; text-transform: uppercase;
+        }
+
+        #error-msg { color: #ff2d55; margin-top: 15px; font-size: 0.9rem; font-weight: bold; min-height: 1.2em; }
+        
+        #dashboard { display: none; width: 100%; text-align: center; }
+        .clock { font-size: 10rem; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div id="auth-screen">
-        <h2 style="color: var(--cyan);">Welcome to LiveBIT</h2>
-        <div class="input-group"><input type="text" id="user" placeholder="TikTok Username"></div>
-        <div class="input-group"><input type="email" id="email" placeholder="Email Address"></div>
-        <div class="input-group"><input type="password" id="pass" placeholder="Password"></div>
+        <h2 style="color: var(--cyan); margin-bottom: 30px;">Welcome to LiveBIT</h2>
         
-        <button type="button" class="btn-connect-sys" id="mainButton" onclick="handleLogin()">CONNECT SYSTEM</button>
+        <div class="input-group">
+            <input type="text" id="tk_user" placeholder="TikTok Username (@name)">
+        </div>
+
+        <div class="input-group">
+            <input type="email" id="tk_email" placeholder="Email Address">
+        </div>
+
+        <div class="input-group">
+            <input type="password" id="tk_pass" placeholder="Password">
+        </div>
+
+        <button class="connect-btn" onclick="validateAndEnter()">CONNECT SYSTEM</button>
         
-        <p id="error-display" style="color: red; margin-top: 15px;"></p>
+        <div id="error-msg"></div>
     </div>
 
     <div id="dashboard">
-        <h1 style="text-align: center; color: var(--cyan);">System Active</h1>
+        <h1 style="color: var(--cyan);">CONNECTED SUCCESSFULLY</h1>
         <div class="clock">01:00</div>
-        <p style="text-align: center;">Connected to: <span id="display-name"></span></p>
     </div>
 
     <script>
-        // פונקציה לבדיקה אם הכפתור בכלל נלחץ
-        function handleLogin() {
-            console.log("Button clicked!"); // זה יופיע ב-F12
-            
-            const user = document.getElementById('user').value;
-            const email = document.getElementById('email').value;
-            const pass = document.getElementById('pass').value;
-            const errorElement = document.getElementById('error-display');
+        function validateAndEnter() {
+            const user = document.getElementById('tk_user').value.trim();
+            const email = document.getElementById('tk_email').value.trim();
+            const pass = document.getElementById('tk_pass').value;
+            const error = document.getElementById('error-msg');
 
-            // בדיקת אימייל (חובה @ ונקודה)
-            if (!email.includes('@') || !email.includes('.')) {
-                errorElement.innerText = "Error: Invalid Email (must contain @ and .)";
+            // 1. בדיקת יוזר ניים - חייב @
+            if (!user.startsWith('@')) {
+                error.innerText = "Please add @ to your TikTok username";
                 return;
             }
 
-            if (user === "" || pass === "") {
-                errorElement.innerText = "Error: Please fill all fields";
+            // 2. בדיקת אימייל - חייב פורמט תקין
+            if (!email.includes('@') || !email.includes('.') || (!email.includes('gmail') && !email.includes('com'))) {
+                error.innerText = "The email is not logical, please fix it";
                 return;
             }
 
-            // אם הכל תקין - מעבר לדשבורד
-            console.log("Login successful, switching screens...");
-            document.getElementById('auth-screen').style.setProperty('display', 'none', 'important');
+            // 3. בדיקת סיסמה - חייב 8 תווים
+            if (pass.length < 8) {
+                error.innerText = "The password is not logical, please make it 8 characters";
+                return;
+            }
+
+            // אם הכל עבר בהצלחה
+            error.innerText = "";
+            document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('dashboard').style.display = 'block';
-            document.getElementById('display-name').innerText = user;
         }
     </script>
 </body>
