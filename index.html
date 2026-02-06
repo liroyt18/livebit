@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LiveBIT - Professional Dashboard</title>
+    <title>LiveBIT System</title>
     <style>
         :root {
             --cyan: #00f2ff;
@@ -12,134 +11,154 @@
             --panel: #0d0d1a;
         }
 
-        body, html {
-            margin: 0; padding: 0; height: 100%;
+        body {
             background-color: var(--bg);
-            color: white; font-family: 'Segoe UI', sans-serif;
-            display: flex; justify-content: center; align-items: center;
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
         }
 
-        /* מסך התחברות - Login */
+        /* --- מסך לוגין --- */
         #auth-screen {
-            background: #0a0a0f; border: 2px solid var(--cyan); border-radius: 30px;
-            padding: 40px; width: 420px; text-align: center; z-index: 10;
+            background: #0a0a0f;
+            border: 2px solid var(--cyan);
+            border-radius: 25px;
+            padding: 40px;
+            width: 400px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.1);
         }
+
+        #auth-screen h2 { color: var(--cyan); margin-bottom: 30px; }
 
         .input-group { position: relative; margin-bottom: 15px; }
         input {
             width: 100%; padding: 15px; background: #000; border: 1px solid #222;
-            color: white; border-radius: 10px; box-sizing: border-box; font-size: 1rem;
+            color: white; border-radius: 10px; box-sizing: border-box;
         }
 
-        .connect-btn {
+        .eye-icon {
+            position: absolute; right: 15px; top: 50%; transform: translateY(-50%);
+            cursor: pointer; opacity: 0.5;
+        }
+
+        .connect-sys-btn {
             background: var(--cyan); color: black; border: none; padding: 18px;
             width: 100%; border-radius: 10px; font-weight: bold; font-size: 1.1rem;
             cursor: pointer; text-transform: uppercase; margin-top: 10px;
         }
 
-        #error-msg { color: var(--magenta); margin-top: 15px; font-size: 0.9rem; font-weight: bold; }
+        #error-display { color: var(--magenta); margin-top: 15px; font-weight: bold; font-size: 0.9rem; }
 
-        /* דשבורד - Dashboard (פריסה רחבה לפי תמונה 2) */
+        /* --- דשבורד רחב (לפי התמונה) --- */
         #dashboard {
             display: none; width: 100vw; height: 100vh;
-            grid-template-columns: 300px 1fr 300px;
+            grid-template-columns: 280px 1fr 280px;
             gap: 15px; padding: 15px; box-sizing: border-box;
         }
 
-        .side-panel { background: var(--panel); border-radius: 15px; padding: 20px; border: 1px solid #1a1a2e; text-align: center; }
-        .main-content { display: flex; flex-direction: column; gap: 15px; }
-        
-        .timer-box {
-            background: var(--panel); border-radius: 20px; flex-grow: 1;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            border: 1px solid #1a1a2e;
-        }
+        .side-column { background: var(--panel); border-radius: 12px; padding: 20px; border: 1px solid #1a1a2e; }
+        .center-column { display: flex; flex-direction: column; gap: 15px; }
 
-        .biggest-gifter {
-            background: var(--panel); border: 2px solid gold; border-radius: 10px;
+        .biggest-gifter-box {
+            background: var(--panel); border: 2px solid gold; border-radius: 12px;
             padding: 15px; text-align: center;
         }
 
-        .clock { font-size: 9rem; font-weight: bold; margin: 10px 0; letter-spacing: -5px; }
+        .main-game-area {
+            background: var(--panel); border-radius: 15px; flex: 1;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
 
-        /* כפתורי שליטה */
-        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 80%; }
-        .ctrl-btn { padding: 15px; border: none; border-radius: 8px; cursor: pointer; color: white; font-weight: bold; }
-        .btn-cyan { background: var(--cyan); color: black; grid-column: span 2; }
-        .btn-dark { background: #222; }
+        .clock { font-size: 9rem; font-weight: bold; margin: 10px 0; }
+
+        .controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 85%; }
+        .btn { padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; }
+        .btn-start { background: var(--cyan); color: black; grid-column: span 2; }
+        .btn-gray { background: #222; }
         .btn-purple { background: #7d2ae8; }
-        .btn-live { background: transparent; border: 2px solid #00ff88; color: #00ff88; grid-column: span 2; margin-top: 10px; }
+        .btn-outline-green { background: transparent; border: 2px solid #00ff88; color: #00ff88; grid-column: span 2; margin-top: 10px; }
 
     </style>
 </head>
 <body>
 
     <div id="auth-screen">
-        <h2 style="color: var(--cyan);">Welcome to LiveBIT</h2>
-        <div class="input-group"><input type="text" id="u_name" placeholder="TikTok Username (@name)"></div>
-        <div class="input-group"><input type="email" id="u_mail" placeholder="Email Address"></div>
-        <div class="input-group"><input type="password" id="u_pass" placeholder="Password (8+ chars)"></div>
-        <button class="connect-btn" onclick="startApp()">CONNECT SYSTEM</button>
-        <div id="error-msg"></div>
+        <h2>Welcome to LiveBIT</h2>
+        <div class="input-group"><input type="text" id="tk_user" placeholder="TikTok Username"></div>
+        <div class="input-group"><input type="text" id="tk_mail" placeholder="Email Address"></div>
+        <div class="input-group">
+            <input type="password" id="tk_pass" placeholder="Password">
+            <span class="eye-icon" onclick="togglePass()">👁️</span>
+        </div>
+        <button class="connect-sys-btn" onclick="tryLogin()">CONNECT SYSTEM</button>
+        <div id="error-display"></div>
     </div>
 
     <div id="dashboard">
-        <div class="side-panel">
-            <h3 style="color: var(--magenta);">TOP 10 LIKERS</h3>
+        <div class="side-column">
+            <h3 style="color: var(--magenta); text-align: center;">TOP 10 LIKERS</h3>
+        </div>
+
+        <div class="center-column">
+            <div class="biggest-gifter-box">
+                <small style="color: gold; font-weight: bold;">👑 BIGGEST GIFTER</small>
+                <div style="font-size: 1.4rem;">Waiting...</div>
             </div>
 
-        <div class="main-content">
-            <div class="biggest-gifter">
-                <small style="color: gold; text-transform: uppercase; font-weight: bold;">👑 Biggest Gifter</small>
-                <div style="font-size: 1.5rem; margin-top: 5px;">Waiting...</div>
-            </div>
-
-            <div class="timer-box">
+            <div class="main-game-area">
                 <div style="color: var(--magenta); font-weight: bold;">Snipe Trigger: 34s</div>
                 <div class="clock">01:00</div>
-                <div class="btn-grid">
-                    <button class="ctrl-btn btn-cyan">START / PAUSE</button>
-                    <button class="ctrl-btn btn-dark">▲ 30S</button>
-                    <button class="ctrl-btn btn-dark">▼ 30S</button>
-                    <button class="ctrl-btn btn-dark">RESET</button>
-                    <button class="ctrl-btn btn-purple">SNIPE DELAY</button>
-                    <button class="ctrl-btn btn-live">📶 CONNECT TO LIVE</button>
+                <div class="controls-grid">
+                    <button class="btn btn-start">START / PAUSE</button>
+                    <button class="btn btn-gray">▲ 30S</button>
+                    <button class="btn btn-gray">▼ 30S</button>
+                    <button class="btn btn-gray">RESET</button>
+                    <button class="btn btn-purple">SNIPE DELAY</button>
+                    <button class="btn btn-outline-green">📶 CONNECT TO LIVE</button>
                 </div>
-                <div style="color: var(--cyan); margin-top: 15px; font-weight: bold;">GAME ACTIVE</div>
             </div>
         </div>
 
-        <div class="side-panel">
-            <h3 style="color: gold;">TOP 3 GIFTERS</h3>
+        <div class="side-column">
+            <h3 style="color: gold; text-align: center;">TOP 3 GIFTERS</h3>
         </div>
     </div>
 
     <script>
-        function startApp() {
-            const user = document.getElementById('u_name').value.trim();
-            const email = document.getElementById('u_mail').value.trim();
-            const pass = document.getElementById('u_pass').value;
-            const error = document.getElementById('error-msg');
+        function togglePass() {
+            const p = document.getElementById('tk_pass');
+            p.type = p.type === 'password' ? 'text' : 'password';
+        }
 
-            // בדיקת @ ביוזר
+        function tryLogin() {
+            const user = document.getElementById('tk_user').value.trim();
+            const mail = document.getElementById('tk_mail').value.trim();
+            const pass = document.getElementById('tk_pass').value;
+            const err = document.getElementById('error-display');
+
             if (!user.startsWith('@')) {
-                error.innerText = "Please add @ to your TikTok username";
+                err.innerText = "Please add @ to your TikTok username";
                 return;
             }
 
-            // בדיקת אימייל
-            if (!email.includes('@') || !email.includes('.') || !email.includes('com')) {
-                error.innerText = "The email is not logical, please fix it";
+            if (!mail.includes('@') || !mail.includes('.') || (!mail.includes('gmail') && !mail.includes('com'))) {
+                err.innerText = "The email is not logical, please fix it";
                 return;
             }
 
-            // בדיקת סיסמה
             if (pass.length < 8) {
-                error.innerText = "The password is not logical, please make it 8 characters";
+                err.innerText = "The password is not logical, please make it 8 characters";
                 return;
             }
 
-            // אם הכל תקין - עוברים לדשבורד
+            // הצלחה
+            err.innerText = "";
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('dashboard').style.display = 'grid';
             document.body.style.alignItems = 'stretch';
