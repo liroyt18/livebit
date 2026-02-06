@@ -3,124 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LiveBIT Elite</title>
+    <title>LiveBIT Elite System</title>
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --cyan: #00e5ff; --bg: #0d0d0d; --error: #ff2d55; }
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
+        :root { --cyan: #00e5ff; --bg: #05050a; --card: #0d0d15; --red: #ff2d55; --gold: #ffcc00; --purple: #8a2be2; --green: #00ff88; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; overflow-x: hidden; }
 
-        /* מסגרת כחולה מעוגלת לפי צילום המסך */
+        /* --- מסך לוגין עם מסגרת כחולה זוהרת --- */
+        #login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
         .login-card { 
-            border: 2px solid #00d2ff; 
-            border-radius: 40px; 
-            padding: 50px 40px; 
+            background: #0d0d15; 
+            padding: 40px; 
+            border-radius: 25px; 
+            border: 2px solid var(--cyan); 
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
+            text-align: center; 
             width: 100%; 
-            max-width: 450px; 
-            text-align: center;
-            background: #0d0d0d;
+            max-width: 400px; 
         }
-
-        h1 { color: var(--cyan); font-size: 32px; margin-bottom: 10px; font-weight: 800; margin-top: 0; }
-        .sub-text { color: #666; font-size: 14px; margin-bottom: 30px; }
-
-        .input-group { position: relative; margin-bottom: 15px; text-align: left; }
-        input { 
-            width: 100%; padding: 18px; background: #000; border: 1px solid #1a1a1a; 
-            color: white; border-radius: 15px; box-sizing: border-box; outline: none; font-size: 16px; 
-        }
-
-        /* אייקון עין */
+        h1 { color: var(--cyan); margin-bottom: 25px; font-weight: 800; }
+        .input-group { position: relative; margin-bottom: 12px; text-align: left; }
+        input { width: 100%; padding: 18px; background: #000; border: 1px solid #1a1a1a; color: white; border-radius: 12px; box-sizing: border-box; outline: none; font-size: 16px; }
         .eye-btn { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #444; }
+        .error-msg { color: var(--red); font-size: 13px; margin-top: 5px; display: none; font-weight: bold; }
+        .btn-connect { width: 100%; padding: 18px; background: var(--cyan); color: black; border: none; border-radius: 12px; font-weight: 900; cursor: pointer; text-transform: uppercase; margin-top: 10px; }
 
-        /* כפתור טורקיז רחב */
-        .btn-connect { 
-            width: 100%; padding: 20px; background: var(--cyan); color: black; 
-            border: none; border-radius: 15px; font-weight: 900; font-size: 18px; 
-            cursor: pointer; text-transform: uppercase; margin-top: 10px; 
-        }
+        /* --- דשבורד מלא (מוסתר בהתחלה) --- */
+        #admin-panel { display: none; padding: 15px; }
+        #main-dashboard { display: grid; grid-template-columns: 280px 1fr 280px; gap: 15px; min-height: 95vh; }
+        @media (max-width: 1000px) { #main-dashboard { grid-template-columns: 1fr; } .center-column { order: -1; } }
 
-        .error-msg { color: var(--error); font-size: 13px; margin-top: 5px; display: none; font-weight: bold; }
-        .status-ready { color: #00ff88; font-size: 11px; margin-top: 20px; }
+        .panel { background: var(--card); border-radius: 10px; padding: 15px; border: 1px solid rgba(255,255,255,0.05); }
+        .center-column { display: flex; flex-direction: column; gap: 15px; }
 
-        #admin-panel { display: none; width: 100%; }
+        /* Biggest Gifter - מסגרת צהובה */
+        .biggest-gifter { border: 1px solid var(--gold); border-radius: 10px; padding: 15px; text-align: center; background: rgba(255, 204, 0, 0.02); }
+        .gift-label { color: var(--gold); font-size: 11px; font-weight: bold; }
+        .gift-name { font-size: 26px; font-weight: 900; margin-top: 5px; }
+
+        /* טיימר */
+        .timer-box { text-align: center; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
+        .timer-val { font-size: 130px; font-weight: 900; font-family: monospace; margin: 10px 0; }
+
+        /* כפתורים רחבים */
+        .btn-wide { width: 100%; padding: 20px; border-radius: 8px; border: none; font-weight: 900; cursor: pointer; text-transform: uppercase; margin-bottom: 10px; }
+        .btn-cyan { background: var(--cyan); color: black; }
+        .btn-gray { background: #1c1c1c; color: white; border: 1px solid #333; }
+        .btn-purple { background: var(--purple); color: white; }
+        .btn-live-outline { background: transparent; border: 1.5px solid var(--green); color: var(--green); padding: 12px; font-size: 12px; }
+
+        .list-header { color: var(--red); text-align: center; font-size: 14px; font-weight: 900; margin-bottom: 15px; }
+        .row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1a1a1a; font-size: 14px; }
     </style>
 </head>
 <body>
 
-    <div id="login-screen" class="login-card">
-        <h1>Welcome to LiveBIT</h1>
-        <div class="sub-text">Enter your credentials to access the system</div>
-        
-        <div class="input-group">
-            <input type="text" id="log-user" placeholder="TikTok Username">
-            <div id="err-user" class="error-msg">Please add @ to your TikTok username</div>
+    <div id="login-screen">
+        <div class="login-card">
+            <h1>LiveBIT Elite</h1>
+            <div class="input-group">
+                <input type="text" id="log-user" placeholder="TikTok Username (@name)">
+                <div id="err-user" class="error-msg">Please add @ to your TikTok username</div>
+            </div>
+            <div class="input-group">
+                <input type="email" id="log-email" placeholder="Email Address">
+                <div id="err-email" class="error-msg">Email is incorrect, please try again</div>
+            </div>
+            <div class="input-group">
+                <input type="password" id="log-pass" placeholder="Password">
+                <i class="fa-solid fa-eye eye-btn" onclick="togglePass()"></i>
+                <div id="err-pass" class="error-msg">Try to add more characters to reach 8</div>
+            </div>
+            <button class="btn-connect" onclick="attemptLogin()">CONNECT SYSTEM</button>
+            <div id="srv-status" style="font-size: 11px; margin-top: 15px; color: #444;">Connecting to server...</div>
         </div>
-
-        <div class="input-group">
-            <input type="email" id="log-email" placeholder="Email Address">
-            <div id="err-email" class="error-msg">Email is incorrect, please try again</div>
-        </div>
-
-        <div class="input-group">
-            <input type="password" id="log-pass" placeholder="Password">
-            <i class="fa-solid fa-eye eye-btn" onclick="togglePass()"></i>
-            <div id="err-pass" class="error-msg">Try to add more characters to reach 8</div>
-        </div>
-
-        <button class="btn-connect" id="login-btn" onclick="handleLogin()">CONNECT SYSTEM</button>
-        <div class="status-ready" id="server-status">Server Status: Ready</div>
     </div>
 
     <div id="admin-panel">
-        <h1 style="text-align: center; margin-top: 50px;">Dashboard Connected</h1>
-        <p style="text-align: center;">Your design for the dashboard is ready inside.</p>
+        <div id="main-dashboard">
+            <div class="panel">
+                <div class="list-header">TOP 10 LIKERS</div>
+                <div id="likers-list"></div>
+            </div>
+
+            <div class="center-column">
+                <div class="biggest-gifter">
+                    <div class="gift-label">👑 BIGGEST GIFTER</div>
+                    <div id="top-name" class="gift-name">Waiting...</div>
+                </div>
+
+                <div class="timer-box">
+                    <div style="color:var(--red); font-weight:bold;">Snipe Trigger: 20s</div>
+                    <div id="timer-display" class="timer-val">01:00</div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn-wide btn-cyan" onclick="toggleTimer()">START / PAUSE</button>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <button class="btn-wide btn-gray" onclick="adjTime(30)">▲ 30S</button>
+                        <button class="btn-wide btn-gray" onclick="adjTime(-30)">▼ 30S</button>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <button class="btn-wide btn-gray" onclick="resetTimer()">RESET</button>
+                        <button class="btn-wide btn-purple">SNIPE DELAY</button>
+                    </div>
+                    <button id="live-btn" class="btn-wide btn-live-outline" onclick="connectToTikTok()">
+                        <i class="fa-solid fa-signal"></i> CONNECT TO LIVE
+                    </button>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="list-header" style="color:var(--gold)">TOP 3 GIFTERS</div>
+                <div id="gifters-list"></div>
+            </div>
+        </div>
     </div>
 
     <script>
         const socket = io("https://livebit-server.onrender.com");
+        let activeUser = "";
+
+        socket.on("connect", () => { document.getElementById('srv-status').innerText = "Server Status: Ready"; });
 
         function togglePass() {
             const p = document.getElementById('log-pass');
             p.type = p.type === 'password' ? 'text' : 'password';
         }
 
-        function handleLogin() {
+        function attemptLogin() {
             const u = document.getElementById('log-user').value.trim();
             const e = document.getElementById('log-email').value.trim();
             const p = document.getElementById('log-pass').value;
-            const btn = document.getElementById('login-btn');
 
-            // איפוס שגיאות
             document.querySelectorAll('.error-msg').forEach(m => m.style.display = 'none');
 
             let valid = true;
-            if (!u.startsWith('@')) { document.getElementById('err-user').style.display = 'block'; valid = false; }
-            if (!e.includes('@') || !e.includes('.') || !e.includes('com')) { document.getElementById('err-email').style.display = 'block'; valid = false; }
-            if (p.length < 8) { document.getElementById('err-pass').style.display = 'block'; valid = false; }
+            if(!u.startsWith('@')) { document.getElementById('err-user').style.display = 'block'; valid = false; }
+            if(!e.includes('@') || !e.includes('.') || !e.includes('com')) { document.getElementById('err-email').style.display = 'block'; valid = false; }
+            if(p.length < 8) { document.getElementById('err-pass').style.display = 'block'; valid = false; }
 
-            if (valid) {
-                btn.innerText = "CHECKING TIKTOK...";
-                // הבדיקה שביקשת: שולח לשרת לבדוק אם זה חשבון פעיל
-                socket.emit("validateUser", u.replace('@', ''));
+            if(valid) {
+                activeUser = u.replace('@','');
+                socket.emit("validateUser", activeUser); // פה הוא בודק אם החשבון פעיל באמת
             }
         }
 
-        socket.on("loginResult", (res) => {
-            if (res.success) {
+        socket.on("loginResult", (data) => {
+            if(data.success) {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('admin-panel').style.display = 'block';
             } else {
-                alert("Account verification failed: TikTok user not found or not active.");
-                document.getElementById('login-btn').innerText = "CONNECT SYSTEM";
+                alert("TikTok user not found or not in live stream!");
             }
         });
 
-        // עדכון סטטוס שרת (למנוע את הטעינה הארוכה)
-        socket.on("connect", () => {
-            document.getElementById('server-status').innerText = "Server Status: Ready";
-            document.getElementById('server-status').style.color = "#00ff88";
+        // לוגיקת דשבורד
+        function connectToTikTok() {
+            socket.emit("connectToLive", { username: activeUser });
+            document.getElementById('live-btn').innerText = "CONNECTING...";
+        }
+
+        socket.on("liveConnected", () => {
+            document.getElementById('live-btn').style.background = "var(--green)";
+            document.getElementById('live-btn').style.color = "black";
+            document.getElementById('live-btn').innerHTML = "CONNECTED ✅";
         });
+
+        let timeLeft = 60, timerOn = false, interval;
+        function updateT() {
+            const m = Math.floor(timeLeft/60), s = timeLeft%60;
+            document.getElementById('timer-display').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }
+        function toggleTimer() {
+            if(timerOn) { clearInterval(interval); timerOn = false; }
+            else { timerOn = true; interval = setInterval(() => { if(timeLeft>0){timeLeft--; updateT();} }, 1000); }
+        }
+        function adjTime(n) { timeLeft = Math.max(0, timeLeft + n); updateT(); }
+        function resetTimer() { timeLeft = 60; updateT(); }
+
+        const populate = (id, count) => {
+            let h = ""; for(let i=1; i<=count; i++) h += `<div class="row"><span>${i}. ---</span><span style="color:var(--cyan)">0</span></div>`;
+            document.getElementById(id).innerHTML = h;
+        };
+        populate('likers-list', 10); populate('gifters-list', 3);
     </script>
 </body>
 </html>
