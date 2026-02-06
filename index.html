@@ -3,54 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LiveBIT Elite Pro - Verified</title>
-    
+    <title>LiveBIT Elite Pro</title>
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
     <style>
         :root { --neon: #00e5ff; --red: #ff2d55; --gold: #ffcc00; --purple: #8a2be2; --bg: #0d0d15; --card: #161625; --green: #00ff88; }
-        
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; min-height: 100vh; overflow-x: hidden; }
 
-        /* מסך התחברות עם אימות */
+        /* מסך לוגין */
         #login-screen { position: fixed; inset: 0; background: #05050a; z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .login-card { background: #111; padding: 40px; border-radius: 25px; border: 2px solid var(--neon); text-align: center; width: 100%; max-width: 400px; box-shadow: 0 0 30px rgba(0, 229, 255, 0.1); }
+        .login-card { background: #111; padding: 40px; border-radius: 25px; border: 2px solid var(--neon); text-align: center; width: 100%; max-width: 400px; }
         .input-group { position: relative; width: 100%; margin: 15px 0; }
-        input { width: 100%; padding: 16px; background: #000; border: 1px solid #222; color: white; border-radius: 12px; box-sizing: border-box; outline: none; font-size: 1rem; }
-        .eye-btn { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #555; }
-        .error-msg { color: var(--red); font-size: 13px; margin-top: 10px; display: none; font-weight: bold; line-height: 1.4; }
-        .btn-connect { background: var(--neon); color: black; border: none; padding: 18px; width: 100%; cursor: pointer; font-weight: 900; border-radius: 12px; text-transform: uppercase; transition: 0.3s; }
-        .btn-connect:disabled { background: #333; color: #666; cursor: not-allowed; }
+        input { width: 100%; padding: 16px; background: #000; border: 1px solid #222; color: white; border-radius: 12px; box-sizing: border-box; outline: none; }
+        .error-msg { color: var(--red); font-size: 13px; margin-top: 10px; display: none; font-weight: bold; }
+        .btn-connect { background: var(--neon); color: black; border: none; padding: 18px; width: 100%; cursor: pointer; font-weight: 900; border-radius: 12px; text-transform: uppercase; }
+        .btn-connect:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        /* דשבורד רספונסיבי */
+        /* דשבורד - עיצוב לפי התמונות */
         #admin-panel { display: none; width: 100%; height: 100%; }
-        #main-dashboard { display: grid; grid-template-columns: 300px 1fr 300px; gap: 20px; padding: 20px; box-sizing: border-box; min-height: 100vh; }
+        #main-dashboard { display: grid; grid-template-columns: 300px 1fr 300px; gap: 15px; padding: 15px; box-sizing: border-box; min-height: 100vh; }
 
-        @media (max-width: 1100px) {
-            #main-dashboard { grid-template-columns: 1fr; }
-            .center-column { order: -1; }
-            .timer-val { font-size: 80px !important; }
-        }
+        @media (max-width: 1000px) { #main-dashboard { grid-template-columns: 1fr; } .center-column { order: -1; } }
 
-        .panel { background: var(--card); border: 1px solid rgba(255,255,255,0.05); border-radius: 15px; overflow: hidden; height: fit-content; }
-        .content { padding: 20px; }
-        .center-column { display: flex; flex-direction: column; gap: 20px; align-items: center; }
-        
-        .biggest-gifter { width: 100%; border: 2px solid var(--gold); border-radius: 12px; padding: 20px; text-align: center; background: rgba(255,204,0,0.05); box-sizing: border-box; }
-        .timer-val { font-size: 100px; font-weight: 900; font-family: monospace; display: block; margin: 10px 0; }
-        .mode-snipe { color: var(--red) !important; text-shadow: 0 0 30px var(--red); }
+        .panel { background: var(--card); border: 1px solid rgba(255,255,255,0.05); border-radius: 10px; height: fit-content; }
+        .content { padding: 15px; }
+        .center-column { display: flex; flex-direction: column; gap: 15px; }
 
-        .btn-main { border: none; padding: 18px; border-radius: 10px; font-weight: 900; cursor: pointer; width: 100%; margin-bottom: 10px; text-transform: uppercase; }
-        .btn-start { background: var(--neon); color: #000; }
-        .btn-live-connect { background: transparent; color: var(--green); border: 2px solid var(--green); padding: 15px; width: 100%; border-radius: 12px; font-weight: 900; cursor: pointer; }
-        .btn-live-connect.active { background: var(--green); color: black; }
+        /* כותרת Biggest Gifter עם מסגרת צהובה (כמו בתמונה) */
+        .biggest-gifter { border: 2px solid var(--gold); border-radius: 10px; padding: 15px; text-align: center; background: rgba(0,0,0,0.3); }
+        .gift-label { color: var(--gold); font-size: 12px; font-weight: bold; text-transform: uppercase; }
+        .gift-name { font-size: 26px; font-weight: 900; margin-top: 5px; }
 
-        .row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        /* טיימר */
+        .timer-container { background: var(--card); padding: 30px; border-radius: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
+        .timer-val { font-size: 110px; font-weight: 900; font-family: 'Courier New', monospace; margin: 10px 0; display: block; }
+        .snipe-hint { color: var(--red); font-weight: bold; font-size: 14px; margin-bottom: 5px; }
 
-        /* מודאלים */
-        .custom-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 20000; align-items: center; justify-content: center; padding: 20px; }
-        .modal-card { background: #0d0d15; padding: 30px; border-radius: 20px; border: 1px solid var(--green); text-align: center; width: 100%; max-width: 340px; }
+        /* כפתורים רחבים וצבעוניים (כמו בתמונה) */
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .btn-full { width: 100%; padding: 18px; border-radius: 8px; border: none; font-weight: 900; cursor: pointer; text-transform: uppercase; font-size: 14px; }
+        .btn-cyan { background: #00ffff; color: #000; }
+        .btn-dark { background: #1c1c1c; color: #fff; border: 1px solid #333; }
+        .btn-purple { background: #8a2be2; color: #fff; }
+        .btn-outline-green { background: transparent; color: var(--green); border: 2px solid var(--green); margin-top: 10px; }
+        .btn-outline-green.active { background: var(--green); color: #000; }
+
+        .row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 14px; }
     </style>
 </head>
 <body>
@@ -59,135 +57,114 @@
 
     <div id="login-screen">
         <div class="login-card">
-            <h2 style="color: var(--neon); margin-bottom: 10px;">LiveBIT Elite</h2>
-            <p style="color: #666; font-size: 14px; margin-bottom: 20px;">Enter a valid TikTok username to enter</p>
-            
-            <div class="input-group">
-                <input type="text" id="log-user" placeholder="TikTok Username (e.g. @username)">
-            </div>
+            <h2 style="color: var(--neon)">LiveBIT Login</h2>
+            <div class="input-group"><input type="text" id="log-user" placeholder="TikTok Username"></div>
             <div id="login-error" class="error-msg"></div>
-            
-            <button id="login-btn" onclick="validateUserOnServer()" class="btn-connect">VERIFY & CONNECT</button>
+            <button id="login-btn" onclick="validateUser()" class="btn-connect">CONNECT SYSTEM</button>
         </div>
     </div>
 
     <div id="admin-panel">
         <div id="main-dashboard">
             <div class="panel">
-                <div class="content"><h3 style="color:var(--red); text-align:center;">TOP 10 LIKERS</h3><div id="likers-list"></div></div>
+                <div class="content"><h3 style="color:var(--red); text-align:center; font-size:14px;">TOP 10 LIKERS</h3><div id="likers-list"></div></div>
             </div>
 
             <div class="center-column">
-                <div class="panel biggest-gifter">
-                    <div style="color: var(--gold); font-size: 13px;">👑 BIGGEST GIFTER</div>
-                    <div id="top-name" style="font-size: 22px; font-weight: bold;">Waiting...</div>
+                <div class="biggest-gifter">
+                    <div class="gift-label">👑 BIGGEST GIFTER</div>
+                    <div id="top-name" class="gift-name">Waiting...</div>
                 </div>
-                <div class="panel" style="width: 100%; text-align: center; padding: 25px; box-sizing: border-box;">
-                    <div style="color:var(--red); font-weight:bold;">Snipe Trigger: <span id="snipe-display">20</span>s</div>
+
+                <div class="timer-container">
+                    <div class="snipe-hint">Snipe Trigger: <span id="snipe-display">20</span>s</div>
                     <div id="timer-display" class="timer-val">01:00</div>
-                    <button class="btn-main btn-start" onclick="toggleTimer()">START / PAUSE</button>
-                    <button id="live-btn" class="btn-live-connect" onclick="openModal('live-modal')"><i class="fa-solid fa-signal" style="margin-right: 8px;"></i> CONNECT LIVE SYNC</button>
+                    
+                    <button class="btn-full btn-cyan" onclick="toggleTimer()">START / PAUSE</button>
+                    
+                    <div class="btn-grid">
+                        <button class="btn-full btn-dark" onclick="adjustTime(30)">▲ 30S</button>
+                        <button class="btn-full btn-dark" onclick="adjustTime(-30)">▼ 30S</button>
+                    </div>
+                    
+                    <div class="btn-grid">
+                        <button class="btn-full btn-dark" onclick="resetT()">RESET</button>
+                        <button class="btn-full btn-purple" onclick="alert('Set Snipe Delay')">SNIPE DELAY</button>
+                    </div>
+
+                    <button id="live-btn" class="btn-full btn-outline-green" onclick="startTracking()"><i class="fa-solid fa-signal"></i> CONNECT TO LIVE</button>
                 </div>
             </div>
 
             <div class="panel">
-                <div class="content"><h3 style="color:var(--gold); text-align:center;">TOP 3 GIFTERS</h3><div id="gifters-list"></div></div>
+                <div class="content"><h3 style="color:var(--gold); text-align:center; font-size:14px;">TOP 3 GIFTERS</h3><div id="gifters-list"></div></div>
             </div>
         </div>
     </div>
 
-    <div id="live-modal" class="custom-modal">
-        <div class="modal-card">
-            <h3 style="color: var(--green)">Live Tracker</h3>
-            <p id="status-text" style="font-size: 13px; color: #888;">The system will now track gifts from your live.</p>
-            <button id="final-conn-btn" class="btn-main" style="background: var(--green); color: black;" onclick="startTracking()">START TRACKING</button>
-            <button class="btn-main" style="background: #222;" onclick="closeModal('live-modal')">CLOSE</button>
-        </div>
-    </div>
-
     <script>
-        // חיבור לשרת ה-Render
         const socket = io("https://livebit-server.onrender.com");
         let currentTikTokUser = "";
 
-        // --- לוגיקת אימות משתמש ---
-        function validateUserOnServer() {
+        // --- פונקציית אימות חסומה ---
+        function validateUser() {
             const user = document.getElementById('log-user').value.trim();
-            const err = document.getElementById('login-error');
             const btn = document.getElementById('login-btn');
+            const err = document.getElementById('login-error');
 
-            if (!user) {
-                err.innerText = "Please enter a TikTok username";
-                err.style.display = "block";
-                return;
-            }
+            if(!user) return;
 
-            err.style.display = "none";
-            btn.innerText = "CHECKING TIKTOK...";
             btn.disabled = true;
+            btn.innerText = "VERIFYING...";
+            err.style.display = "none";
 
-            // שולח לשרת בקשת אימות
-            socket.emit("validateUser", user.replace('@', ''));
+            // שולח לשרת לבדיקה
+            socket.emit("validateUser", user.replace('@',''));
         }
 
-        // קבלת תשובה מהשרת על האימות
+        // מקשיב לתשובה מהשרת - אם לא success, לא נכנסים!
         socket.on("loginResult", (data) => {
-            const btn = document.getElementById('login-btn');
-            const err = document.getElementById('login-error');
-
             if (data.success) {
                 currentTikTokUser = data.user;
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('admin-panel').style.display = 'block';
             } else {
-                err.innerText = "TikTok account not found or invalid. Make sure the name is correct!";
+                const btn = document.getElementById('login-btn');
+                const err = document.getElementById('login-error');
+                err.innerText = "USER NOT FOUND OR NOT LIVE";
                 err.style.display = "block";
-                btn.innerText = "VERIFY & CONNECT";
                 btn.disabled = false;
+                btn.innerText = "CONNECT SYSTEM";
             }
         });
 
-        // --- חיבור ללייב בזמן אמת ---
         function startTracking() {
-            const btn = document.getElementById('final-conn-btn');
-            btn.innerText = "CONNECTING TO LIVE...";
+            if(!currentTikTokUser) return;
+            document.getElementById('live-btn').innerText = "CONNECTING...";
             socket.emit("connectToLive", { username: currentTikTokUser });
         }
 
         socket.on("liveConnected", (data) => {
             document.getElementById('live-btn').classList.add('active');
-            document.getElementById('live-btn').innerHTML = `<i class="fa-solid fa-check"></i> TRACKING: @${data.username}`;
-            closeModal('live-modal');
+            document.getElementById('live-btn').innerHTML = "CONNECTED ✅";
         });
 
-        // --- קבלת מתנות ועדכון הדשבורד ---
         socket.on("gift", (data) => {
-            console.log("New Gift!", data);
             document.getElementById('top-name').innerText = data.uniqueId;
-            // כאן המערכת תעדכן את הטבלאות שלך אוטומטית בעתיד
         });
 
-        // --- פונקציות טיימר ועיצוב (מהקוד שלך) ---
+        // --- טיימר ---
         let timeLeft = 60, isRunning = false, timerId;
-        const sound = document.getElementById('snipe-sound');
-
-        function updateTimer() {
-            const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
+        function updateT() {
+            const m = Math.floor(timeLeft/60), s = timeLeft%60;
             document.getElementById('timer-display').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
         }
-
         function toggleTimer() {
-            if (isRunning) { clearInterval(timerId); isRunning = false; }
-            else {
-                isRunning = true;
-                timerId = setInterval(() => {
-                    if (timeLeft > 0) { timeLeft--; updateTimer(); }
-                }, 1000);
-            }
+            if(isRunning) { clearInterval(timerId); isRunning = false; }
+            else { isRunning = true; timerId = setInterval(() => { if(timeLeft>0){timeLeft--; updateT();} }, 1000); }
         }
-
-        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function adjustTime(n) { timeLeft = Math.max(0, timeLeft + n); updateT(); }
+        function resetT() { timeLeft = 60; updateT(); }
 
         const fill = (id, n) => {
             let h = ""; for(let i=1; i<=n; i++) h += `<div class="row"><span>${i}. ---</span><span style="color:var(--neon)">0</span></div>`;
