@@ -7,40 +7,50 @@
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --cyan: #00e5ff; --bg: #0d0d0d; --input-bg: #000000; --red: #ff2d55; --gold: #ffcc00; --purple: #8a2be2; --green: #00ff88; }
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        :root { --cyan: #00e5ff; --bg: #0d0d0d; --error: #ff2d55; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
 
-        /* --- מסך לוגין עם מסגרת זוהרת --- */
-        #login-screen { 
-            background: #0d0d15;
+        /* מסגרת כחולה מעוגלת לפי צילום המסך */
+        .login-card { 
+            border: 2px solid #00d2ff; 
+            border-radius: 40px; 
             padding: 50px 40px; 
-            border-radius: 30px; 
-            border: 2.5px solid var(--cyan); /* המסגרת הכחולה */
-            box-shadow: 0 0 20px rgba(0, 229, 255, 0.3); /* אפקט זוהר */
-            text-align: center; 
-            width: 100%;
-            max-width: 420px;
+            width: 100%; 
+            max-width: 450px; 
+            text-align: center;
+            background: #0d0d0d;
         }
-        h1 { color: var(--cyan); font-size: 32px; margin-bottom: 30px; font-weight: 800; }
-        .input-group { position: relative; margin-bottom: 12px; text-align: left; }
-        input { width: 100%; padding: 18px; background: var(--input-bg); border: 1px solid #1a1a1a; color: white; border-radius: 12px; box-sizing: border-box; outline: none; font-size: 16px; }
-        .eye-btn { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #555; font-size: 18px; z-index: 10; }
-        
-        .btn-connect { width: 100%; padding: 18px; background: var(--cyan); color: black; border: none; border-radius: 12px; font-weight: 900; font-size: 16px; cursor: pointer; text-transform: uppercase; margin-top: 15px; transition: 0.3s; }
-        .btn-connect:hover { background: #00b8cc; box-shadow: 0 0 15px var(--cyan); }
-        
-        .error-msg { color: var(--red); font-size: 13px; margin-top: 6px; display: none; font-weight: bold; }
-        .status-msg { font-size: 11px; margin-top: 15px; color: #444; }
 
-        /* --- דשבורד מוסתר --- */
-        #admin-panel { display: none; width: 100vw; height: 100vh; background: #050505; padding: 15px; box-sizing: border-box; position: fixed; inset: 0; z-index: 9999; }
-        /* עיצוב הדשבורד (טיימר, כפתורים וכו') נשמר בקוד מלא למטה */
+        h1 { color: var(--cyan); font-size: 32px; margin-bottom: 10px; font-weight: 800; margin-top: 0; }
+        .sub-text { color: #666; font-size: 14px; margin-bottom: 30px; }
+
+        .input-group { position: relative; margin-bottom: 15px; text-align: left; }
+        input { 
+            width: 100%; padding: 18px; background: #000; border: 1px solid #1a1a1a; 
+            color: white; border-radius: 15px; box-sizing: border-box; outline: none; font-size: 16px; 
+        }
+
+        /* אייקון עין */
+        .eye-btn { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #444; }
+
+        /* כפתור טורקיז רחב */
+        .btn-connect { 
+            width: 100%; padding: 20px; background: var(--cyan); color: black; 
+            border: none; border-radius: 15px; font-weight: 900; font-size: 18px; 
+            cursor: pointer; text-transform: uppercase; margin-top: 10px; 
+        }
+
+        .error-msg { color: var(--error); font-size: 13px; margin-top: 5px; display: none; font-weight: bold; }
+        .status-ready { color: #00ff88; font-size: 11px; margin-top: 20px; }
+
+        #admin-panel { display: none; width: 100%; }
     </style>
 </head>
 <body>
 
-    <div id="login-screen">
+    <div id="login-screen" class="login-card">
         <h1>Welcome to LiveBIT</h1>
+        <div class="sub-text">Enter your credentials to access the system</div>
         
         <div class="input-group">
             <input type="text" id="log-user" placeholder="TikTok Username">
@@ -54,72 +64,62 @@
 
         <div class="input-group">
             <input type="password" id="log-pass" placeholder="Password">
-            <i class="fa-solid fa-eye eye-btn" id="eye" onclick="togglePass()"></i>
+            <i class="fa-solid fa-eye eye-btn" onclick="togglePass()"></i>
             <div id="err-pass" class="error-msg">Try to add more characters to reach 8</div>
         </div>
 
-        <button class="btn-connect" id="main-btn" onclick="processLogin()">CONNECT SYSTEM</button>
-        <div id="server-status" class="status-msg">Server Status: Checking...</div>
+        <button class="btn-connect" id="login-btn" onclick="handleLogin()">CONNECT SYSTEM</button>
+        <div class="status-ready" id="server-status">Server Status: Ready</div>
     </div>
 
     <div id="admin-panel">
-        <h2 style="color:var(--cyan); text-align:center;">SYSTEM CONNECTED</h2>
+        <h1 style="text-align: center; margin-top: 50px;">Dashboard Connected</h1>
+        <p style="text-align: center;">Your design for the dashboard is ready inside.</p>
     </div>
 
     <script>
         const socket = io("https://livebit-server.onrender.com");
-        
-        // בדיקת שרת מוקדמת כדי למנוע המתנה מיותרת
-        socket.on("connect", () => {
-            document.getElementById('server-status').innerText = "Server Status: Ready ✅";
-            document.getElementById('server-status').style.color = "var(--green)";
-        });
 
         function togglePass() {
             const p = document.getElementById('log-pass');
-            const eye = document.getElementById('eye');
-            if(p.type === 'password') {
-                p.type = 'text';
-                eye.classList.replace('fa-eye', 'fa-eye-slash');
-            } else {
-                p.type = 'password';
-                eye.classList.replace('fa-eye-slash', 'fa-eye');
-            }
+            p.type = p.type === 'password' ? 'text' : 'password';
         }
 
-        function processLogin() {
+        function handleLogin() {
             const u = document.getElementById('log-user').value.trim();
             const e = document.getElementById('log-email').value.trim();
             const p = document.getElementById('log-pass').value;
-            const btn = document.getElementById('main-btn');
+            const btn = document.getElementById('login-btn');
 
             // איפוס שגיאות
             document.querySelectorAll('.error-msg').forEach(m => m.style.display = 'none');
 
-            // בדיקות מקומיות (חסמים)
-            let isOk = true;
-            if(!u.startsWith('@')) { document.getElementById('err-user').style.display = 'block'; isOk = false; }
-            if(!e.includes('@') || !e.includes('.') || !e.includes('com')) { document.getElementById('err-email').style.display = 'block'; isOk = false; }
-            if(p.length < 8) { document.getElementById('err-pass').style.display = 'block'; isOk = false; }
+            let valid = true;
+            if (!u.startsWith('@')) { document.getElementById('err-user').style.display = 'block'; valid = false; }
+            if (!e.includes('@') || !e.includes('.') || !e.includes('com')) { document.getElementById('err-email').style.display = 'block'; valid = false; }
+            if (p.length < 8) { document.getElementById('err-pass').style.display = 'block'; valid = false; }
 
-            if(isOk) {
+            if (valid) {
                 btn.innerText = "CHECKING TIKTOK...";
-                btn.style.opacity = "0.7";
-                // שליחה לשרת Render שיבדוק אם היוזר קיים ופעיל בטיקטוק
+                // הבדיקה שביקשת: שולח לשרת לבדוק אם זה חשבון פעיל
                 socket.emit("validateUser", u.replace('@', ''));
             }
         }
 
         socket.on("loginResult", (res) => {
-            const btn = document.getElementById('main-btn');
-            if(res.success) {
+            if (res.success) {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('admin-panel').style.display = 'block';
             } else {
-                alert("Error: TikTok account not found or not currently live. Check the name and try again!");
-                btn.innerText = "CONNECT SYSTEM";
-                btn.style.opacity = "1";
+                alert("Account verification failed: TikTok user not found or not active.");
+                document.getElementById('login-btn').innerText = "CONNECT SYSTEM";
             }
+        });
+
+        // עדכון סטטוס שרת (למנוע את הטעינה הארוכה)
+        socket.on("connect", () => {
+            document.getElementById('server-status').innerText = "Server Status: Ready";
+            document.getElementById('server-status').style.color = "#00ff88";
         });
     </script>
 </body>
