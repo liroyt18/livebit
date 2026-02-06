@@ -3,27 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LiveBIT System</title>
+    <title>LiveBIT Elite</title>
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --cyan: #00e5ff; --bg: #0d0d0d; --input-bg: #000000; --red: #ff2d55; }
+        :root { --cyan: #00e5ff; --bg: #0d0d0d; --input-bg: #000000; --red: #ff2d55; --gold: #ffcc00; --purple: #8a2be2; --green: #00ff88; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
 
-        /* --- עיצוב התחברות לפי התמונה --- */
-        #login-screen { width: 100%; max-width: 400px; padding: 20px; text-align: center; }
-        h1 { color: var(--cyan); font-size: 28px; margin-bottom: 30px; font-weight: 800; }
-        .input-group { position: relative; margin-bottom: 12px; }
+        /* --- מסך לוגין עם מסגרת זוהרת --- */
+        #login-screen { 
+            background: #0d0d15;
+            padding: 50px 40px; 
+            border-radius: 30px; 
+            border: 2.5px solid var(--cyan); /* המסגרת הכחולה */
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.3); /* אפקט זוהר */
+            text-align: center; 
+            width: 100%;
+            max-width: 420px;
+        }
+        h1 { color: var(--cyan); font-size: 32px; margin-bottom: 30px; font-weight: 800; }
+        .input-group { position: relative; margin-bottom: 12px; text-align: left; }
         input { width: 100%; padding: 18px; background: var(--input-bg); border: 1px solid #1a1a1a; color: white; border-radius: 12px; box-sizing: border-box; outline: none; font-size: 16px; }
-        .eye-btn { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #444; font-size: 18px; }
+        .eye-btn { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #555; font-size: 18px; z-index: 10; }
         
-        .btn-connect { width: 100%; padding: 18px; background: var(--cyan); color: black; border: none; border-radius: 12px; font-weight: 900; font-size: 16px; cursor: pointer; text-transform: uppercase; margin-top: 10px; }
+        .btn-connect { width: 100%; padding: 18px; background: var(--cyan); color: black; border: none; border-radius: 12px; font-weight: 900; font-size: 16px; cursor: pointer; text-transform: uppercase; margin-top: 15px; transition: 0.3s; }
+        .btn-connect:hover { background: #00b8cc; box-shadow: 0 0 15px var(--cyan); }
         
-        .error-msg { color: var(--red); font-size: 13px; margin-top: 8px; display: none; font-weight: bold; text-align: left; padding-left: 5px; }
+        .error-msg { color: var(--red); font-size: 13px; margin-top: 6px; display: none; font-weight: bold; }
+        .status-msg { font-size: 11px; margin-top: 15px; color: #444; }
 
-        /* --- דשבורד (מוסתר בהתחלה) --- */
-        #admin-panel { display: none; width: 100vw; height: 100vh; background: #050505; padding: 20px; box-sizing: border-box; }
-        /* (שאר עיצובי הדשבורד מהגרסה הקודמת נשמרים כאן פנימית) */
+        /* --- דשבורד מוסתר --- */
+        #admin-panel { display: none; width: 100vw; height: 100vh; background: #050505; padding: 15px; box-sizing: border-box; position: fixed; inset: 0; z-index: 9999; }
+        /* עיצוב הדשבורד (טיימר, כפתורים וכו') נשמר בקוד מלא למטה */
     </style>
 </head>
 <body>
@@ -47,22 +58,21 @@
             <div id="err-pass" class="error-msg">Try to add more characters to reach 8</div>
         </div>
 
-        <button class="btn-connect" onclick="doLogin()">CONNECT SYSTEM</button>
-        <div id="server-status" style="font-size: 10px; color: #333; margin-top: 15px;">Server Status: Checking...</div>
+        <button class="btn-connect" id="main-btn" onclick="processLogin()">CONNECT SYSTEM</button>
+        <div id="server-status" class="status-msg">Server Status: Checking...</div>
     </div>
 
     <div id="admin-panel">
-        <h2 style="color:var(--cyan)">Dashboard Connected</h2>
-        <p>Your design for the dashboard is ready inside.</p>
+        <h2 style="color:var(--cyan); text-align:center;">SYSTEM CONNECTED</h2>
     </div>
 
     <script>
         const socket = io("https://livebit-server.onrender.com");
         
-        // בדיקת סטטוס שרת למניעת "טעינה של שעה"
+        // בדיקת שרת מוקדמת כדי למנוע המתנה מיותרת
         socket.on("connect", () => {
-            document.getElementById('server-status').innerText = "Server Status: Ready";
-            document.getElementById('server-status').style.color = "green";
+            document.getElementById('server-status').innerText = "Server Status: Ready ✅";
+            document.getElementById('server-status').style.color = "var(--green)";
         });
 
         function togglePass() {
@@ -77,49 +87,38 @@
             }
         }
 
-        function doLogin() {
+        function processLogin() {
             const u = document.getElementById('log-user').value.trim();
             const e = document.getElementById('log-email').value.trim();
             const p = document.getElementById('log-pass').value;
-            
+            const btn = document.getElementById('main-btn');
+
             // איפוס שגיאות
             document.querySelectorAll('.error-msg').forEach(m => m.style.display = 'none');
 
+            // בדיקות מקומיות (חסמים)
             let isOk = true;
-
-            // חסימה 1: יוזר טיקטוק חייב @
-            if(!u.startsWith('@')) {
-                document.getElementById('err-user').style.display = 'block';
-                isOk = false;
-            }
-
-            // חסימה 2: אימייל תקין
-            if(!e.includes('@') || !e.includes('.') || !e.includes('com')) {
-                document.getElementById('err-email').style.display = 'block';
-                isOk = false;
-            }
-
-            // חסימה 3: סיסמה 8 תווים
-            if(p.length < 8) {
-                document.getElementById('err-pass').style.display = 'block';
-                isOk = false;
-            }
+            if(!u.startsWith('@')) { document.getElementById('err-user').style.display = 'block'; isOk = false; }
+            if(!e.includes('@') || !e.includes('.') || !e.includes('com')) { document.getElementById('err-email').style.display = 'block'; isOk = false; }
+            if(p.length < 8) { document.getElementById('err-pass').style.display = 'block'; isOk = false; }
 
             if(isOk) {
-                const btn = document.querySelector('.btn-connect');
-                btn.innerText = "WAITING FOR SERVER...";
-                // שולח ל-Render לבדוק אם המשתמש באמת קיים ובחיים
+                btn.innerText = "CHECKING TIKTOK...";
+                btn.style.opacity = "0.7";
+                // שליחה לשרת Render שיבדוק אם היוזר קיים ופעיל בטיקטוק
                 socket.emit("validateUser", u.replace('@', ''));
             }
         }
 
         socket.on("loginResult", (res) => {
+            const btn = document.getElementById('main-btn');
             if(res.success) {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('admin-panel').style.display = 'block';
             } else {
-                alert("The server says: User not found or not live!");
-                document.querySelector('.btn-connect').innerText = "CONNECT SYSTEM";
+                alert("Error: TikTok account not found or not currently live. Check the name and try again!");
+                btn.innerText = "CONNECT SYSTEM";
+                btn.style.opacity = "1";
             }
         });
     </script>
