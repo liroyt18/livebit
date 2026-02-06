@@ -3,68 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LiveBIT Elite Pro - Responsive</title>
+    <title>LiveBIT Elite Pro - CONNECTED</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --neon: #00e5ff; --red: #ff2d55; --gold: #ffcc00; --purple: #8a2be2; --bg: #0d0d15; --card: #161625; --green: #00ff88; }
-        
-        body { 
-            background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; 
-            margin: 0; min-height: 100vh; overflow-x: hidden;
-        }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; min-height: 100vh; overflow-x: hidden; }
 
-        /* --- מסך התחברות --- */
+        /* מסך התחברות */
         #login-screen { position: fixed; inset: 0; background: #05050a; z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .login-card { background: #111; padding: 40px; border-radius: 25px; border: 2px solid var(--neon); text-align: center; width: 100%; max-width: 400px; box-shadow: 0 0 30px rgba(0, 229, 255, 0.1); }
+        .login-card { background: #111; padding: 40px; border-radius: 25px; border: 2px solid var(--neon); text-align: center; width: 100%; max-width: 400px; }
         .input-group { position: relative; width: 100%; margin: 15px 0; }
         input { width: 100%; padding: 16px; background: #000; border: 1px solid #222; color: white; border-radius: 12px; box-sizing: border-box; outline: none; }
-        .eye-btn { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #555; }
         .error-msg { color: var(--red); font-size: 13px; margin-top: 10px; display: none; font-weight: bold; }
         .btn-connect { background: var(--neon); color: black; border: none; padding: 18px; width: 100%; cursor: pointer; font-weight: 900; border-radius: 12px; text-transform: uppercase; }
 
-        /* --- מבנה הדשבורד (רספונסיבי) --- */
+        /* דשבורד רספונסיבי */
         #admin-panel { display: none; width: 100%; height: 100%; }
-        #main-dashboard { 
-            display: grid; 
-            grid-template-columns: 300px 1fr 300px; /* ברירת מחדל: רוחב (מחשב) */
-            gap: 20px; padding: 20px; box-sizing: border-box; min-height: 100vh;
-        }
+        #main-dashboard { display: grid; grid-template-columns: 300px 1fr 300px; gap: 20px; padding: 20px; box-sizing: border-box; min-height: 100vh; }
 
-        /* התאמה למסך לאורך (טלפון) */
         @media (max-width: 1000px) {
-            #main-dashboard {
-                grid-template-columns: 1fr; /* הכל בטור אחד */
-                overflow-y: auto;
-                height: auto;
-            }
-            .center-column { order: -1; } /* השעון יהיה ראשון בטלפון */
+            #main-dashboard { grid-template-columns: 1fr; }
+            .center-column { order: -1; }
             .timer-val { font-size: 70px !important; }
         }
 
-        .panel { background: var(--card); border: 1px solid rgba(255,255,255,0.05); border-radius: 15px; overflow: hidden; height: fit-content; }
+        .panel { background: var(--card); border: 1px solid rgba(255,255,255,0.05); border-radius: 15px; overflow: hidden; }
         .content { padding: 20px; }
         .center-column { display: flex; flex-direction: column; gap: 20px; align-items: center; }
-        
-        .biggest-gifter { width: 100%; border: 2px solid var(--gold); border-radius: 12px; padding: 20px; text-align: center; background: rgba(255,204,0,0.05); box-sizing: border-box; }
-        .timer-val { font-size: 100px; font-weight: 900; font-family: monospace; display: block; margin: 10px 0; }
-        .mode-snipe { color: var(--red) !important; text-shadow: 0 0 30px var(--red); }
-
+        .biggest-gifter { width: 100%; border: 2px solid var(--gold); border-radius: 12px; padding: 20px; text-align: center; background: rgba(255,204,0,0.05); }
+        .timer-val { font-size: 100px; font-weight: 900; font-family: monospace; }
         .btn-main { border: none; padding: 18px; border-radius: 10px; font-weight: 900; cursor: pointer; width: 100%; margin-bottom: 10px; text-transform: uppercase; }
         .btn-start { background: var(--neon); color: #000; }
-        .btn-adjust { background: #222; color: #fff; border: 1px solid #333; flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-live-connect { background: transparent; color: var(--green); border: 2px solid var(--green); padding: 15px; width: 100%; border-radius: 12px; font-weight: 900; cursor: pointer; margin-top: 10px; }
+        .btn-live-connect { background: transparent; color: var(--green); border: 2px solid var(--green); padding: 15px; width: 100%; border-radius: 12px; font-weight: 900; cursor: pointer; }
         .btn-live-connect.active { background: var(--green); color: black; }
-
         .row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
-
-        /* מודאלים */
-        .custom-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 20000; align-items: center; justify-content: center; padding: 20px; }
-        .modal-card { background: #0d0d15; padding: 30px; border-radius: 20px; border: 1px solid var(--purple); text-align: center; width: 100%; max-width: 340px; }
-        .modal-card input { margin-bottom: 10px; text-align: center; font-size: 18px; border: 1px solid #333; color: white; background: #000; padding: 12px; border-radius: 8px; width: 100%; box-sizing: border-box; outline: none; }
-        .live-error-hint { color: var(--red); font-size: 11px; font-weight: bold; margin-bottom: 15px; display: none; }
-
-        .links-footer { position: relative; margin: 20px auto; width: fit-content; background: rgba(22, 22, 37, 0.9); border: 1px solid var(--neon); padding: 10px 25px; border-radius: 50px; display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
-        .link-item { color: var(--neon); text-decoration: none; font-size: 11px; font-weight: bold; cursor: pointer; text-align: center; }
+        
+        /* מודאל */
+        .custom-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 20000; align-items: center; justify-content: center; }
+        .modal-card { background: #0d0d15; padding: 30px; border-radius: 20px; border: 1px solid var(--green); text-align: center; width: 340px; }
     </style>
 </head>
 <body>
@@ -73,132 +50,94 @@
 
     <div id="login-screen">
         <div class="login-card">
-            <h2 style="color: var(--neon)">Welcome to LiveBIT</h2>
+            <h2 style="color: var(--neon)">LiveBIT System</h2>
             <div class="input-group"><input type="text" id="log-user" placeholder="TikTok Username (@name)"></div>
-            <div class="input-group"><input type="email" id="log-email" placeholder="Email Address"></div>
-            <div class="input-group">
-                <input type="password" id="log-pass" placeholder="Password">
-                <i class="fa-solid fa-eye eye-btn" onclick="togglePass()"></i>
-            </div>
             <div id="login-error" class="error-msg"></div>
-            <button onclick="validate()" class="btn-connect">CONNECT SYSTEM</button>
+            <button onclick="validate()" class="btn-connect">ENTER DASHBOARD</button>
         </div>
     </div>
 
     <div id="admin-panel">
         <div id="main-dashboard">
-            <div class="panel">
-                <div class="content"><h3 style="color:var(--red); text-align:center;">TOP 10 LIKERS</h3><div id="likers-list"></div></div>
-            </div>
-
+            <div class="panel"><div class="content"><h3 style="color:var(--red); text-align:center;">TOP 10 LIKERS</h3><div id="likers-list"></div></div></div>
             <div class="center-column">
                 <div class="panel biggest-gifter">
                     <div style="color: var(--gold); font-size: 13px;">👑 BIGGEST GIFTER</div>
                     <div id="top-name" style="font-size: 22px; font-weight: bold;">Waiting...</div>
                 </div>
-                <div class="panel" style="width: 100%; text-align: center; padding: 25px; box-sizing: border-box;">
-                    <div style="color:var(--red); font-weight:bold;">Snipe Trigger: <span id="snipe-display">20</span>s</div>
+                <div class="panel" style="width: 100%; text-align: center; padding: 25px;">
                     <div id="timer-display" class="timer-val">01:00</div>
                     <button class="btn-main btn-start" onclick="toggleTimer()">START / PAUSE</button>
-                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                        <button class="btn-main btn-adjust" onclick="adjustTime(30)">▲ 30s</button>
-                        <button class="btn-main btn-adjust" onclick="adjustTime(-30)">▼ 30s</button>
-                    </div>
-                    <div style="display: flex; gap: 10px;">
-                        <button class="btn-main" style="background:#444; color:white; flex:1;" onclick="resetT()">RESET</button>
-                        <button class="btn-main" style="background:var(--purple); color:white; flex:1;" onclick="openModal('snipe-modal')">SNIPE</button>
-                    </div>
-                    <button id="live-btn" class="btn-live-connect" onclick="openModal('live-modal')"><i class="fa-solid fa-signal"></i> CONNECT LIVE</button>
+                    <button id="live-btn" class="btn-live-connect" onclick="openModal('live-modal')">CONNECT TO LIVE</button>
                 </div>
             </div>
-
-            <div class="panel">
-                <div class="content"><h3 style="color:var(--gold); text-align:center;">TOP 3 GIFTERS</h3><div id="gifters-list"></div></div>
-            </div>
-        </div>
-        
-        <div class="links-footer">
-            <div class="link-item">LINK 1</div>
-            <div class="link-item">LINK 2</div>
-            <div class="link-item">LINK 3</div>
-            <div class="link-item">LINK 4</div>
+            <div class="panel"><div class="content"><h3 style="color:var(--gold); text-align:center;">TOP 3 GIFTERS</h3><div id="gifters-list"></div></div></div>
         </div>
     </div>
 
     <div id="live-modal" class="custom-modal">
-        <div class="modal-card" style="border-color: var(--green)">
-            <h3 style="color: var(--green)">Connect Live</h3>
-            <input type="text" id="tk-input" placeholder="@username">
-            <div id="live-err" class="live-error-hint">Check your live status!</div>
-            <button class="btn-main" style="background: var(--green); color: black;" onclick="tryConnect()">CONNECT</button>
+        <div class="modal-card">
+            <h3 style="color: var(--green)">TikTok Live Sync</h3>
+            <input type="text" id="tk-input" placeholder="Enter Username (no @)">
+            <p id="status-text" style="font-size: 12px; color: #888;">Enter username to start tracking</p>
+            <button id="conn-btn" class="btn-main" style="background: var(--green); color: black;" onclick="connectToTikTok()">CONNECT NOW</button>
             <button class="btn-main" style="background: #222;" onclick="closeModal('live-modal')">CANCEL</button>
         </div>
     </div>
 
-    <div id="snipe-modal" class="custom-modal">
-        <div class="modal-card">
-            <h3 style="color: var(--purple)">Snipe Delay</h3>
-            <input type="number" id="snipe-val" placeholder="Seconds">
-            <button class="btn-main" style="background: var(--purple);" onclick="saveSnipe()">SAVE</button>
-            <button class="btn-main" style="background: #222;" onclick="closeModal('snipe-modal')">CLOSE</button>
-        </div>
-    </div>
-
     <script>
-        function togglePass() { 
-            const p = document.getElementById('log-pass'); 
-            p.type = p.type === 'password' ? 'text' : 'password'; 
+        // חיבור לשרת ה-Render שלך
+        const socket = io("https://livebit-server.onrender.com");
+
+        socket.on("connect", () => console.log("Connected to Server!"));
+
+        // קבלת נתונים מהשרת (מתנות)
+        socket.on("gift", (data) => {
+            document.getElementById('top-name').innerText = data.uniqueId;
+            // כאן המערכת תעדכן אוטומטית כשיש מתנה אמיתית בלייב
+        });
+
+        function connectToTikTok() {
+            const user = document.getElementById('tk-input').value;
+            const btn = document.getElementById('conn-btn');
+            const status = document.getElementById('status-text');
+
+            if(!user) return;
+
+            btn.innerHTML = "CONNECTING...";
+            // שליחת בקשה לשרת שלך ב-Render שיתחבר לטיקטוק
+            socket.emit("connectToLive", { username: user });
         }
 
+        // כששרת ה-Render מודיע שהצליח להתחבר ללייב
+        socket.on("liveConnected", (data) => {
+            document.getElementById('live-btn').classList.add('active');
+            document.getElementById('live-btn').innerHTML = "CONNECTED: " + data.username;
+            closeModal('live-modal');
+        });
+
+        socket.on("liveError", (err) => {
+            alert("Error: " + err);
+            document.getElementById('conn-btn').innerHTML = "CONNECT NOW";
+        });
+
+        // פונקציות תצוגה
         function validate() {
-            const user = document.getElementById('log-user').value.trim();
-            const email = document.getElementById('log-email').value.trim();
-            const pass = document.getElementById('log-pass').value;
-            const err = document.getElementById('login-error');
-
-            if (!user.startsWith('@')) { err.innerText = "Please add @ to TikTok username"; err.style.display="block"; return; }
-            if (!email.includes('@') || !email.includes('.')) { err.innerText = "The email is not logical"; err.style.display="block"; return; }
-            if (pass.length < 8) { err.innerText = "Password must be 8 characters"; err.style.display="block"; return; }
-
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('admin-panel').style.display = 'block';
         }
-
-        let timeLeft = 60, snipeTime = 20, isRunning = false, isSnipe = false, timerId;
-        const sound = document.getElementById('snipe-sound');
-
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        
+        let timeLeft = 60, isRunning = false, timerId;
         function update() {
             const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
             document.getElementById('timer-display').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-            if(isSnipe) document.getElementById('timer-display').classList.add('mode-snipe');
-            else document.getElementById('timer-display').classList.remove('mode-snipe');
         }
-
         function toggleTimer() {
-            if (isRunning) { clearInterval(timerId); isRunning = false; sound.pause(); }
-            else {
-                isRunning = true;
-                timerId = setInterval(() => {
-                    if (timeLeft > 0) { timeLeft--; update(); }
-                    else if (!isSnipe) { isSnipe = true; timeLeft = snipeTime; sound.play(); update(); }
-                    else { clearInterval(timerId); isRunning = false; sound.pause(); }
-                }, 1000);
-            }
+            if (isRunning) { clearInterval(timerId); isRunning = false; }
+            else { isRunning = true; timerId = setInterval(() => { if(timeLeft > 0) {timeLeft--; update();} }, 1000); }
         }
-
-        function adjustTime(n) { timeLeft = Math.max(0, timeLeft + n); update(); }
-        function resetT() { clearInterval(timerId); isRunning = false; isSnipe = false; timeLeft = 60; sound.pause(); update(); }
-        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        function saveSnipe() { let v = document.getElementById('snipe-val').value; if(v){ snipeTime=v; document.getElementById('snipe-display').innerText=v; closeModal('snipe-modal');} }
-
-        function tryConnect() {
-            const btn = document.getElementById('live-btn');
-            btn.classList.add('active');
-            btn.innerHTML = "CONNECTED ✅";
-            closeModal('live-modal');
-        }
-
         const fill = (id, n) => {
             let h = ""; for(let i=1; i<=n; i++) h += `<div class="row"><span>${i}. ---</span><span style="color:var(--neon)">0</span></div>`;
             document.getElementById(id).innerHTML = h;
