@@ -10,39 +10,34 @@
         :root { --cyan: #00e5ff; --bg: #05050a; --card: #0d0d15; --red: #ff2d55; --gold: #ffcc00; --purple: #8a2be2; --green: #00ff88; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
 
-        /* לוגין */
+        /* לוגין - לפי הצילום המדויק */
         #login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; position: fixed; inset: 0; z-index: 10000; background: var(--bg); }
-        .login-card { background: #0d0d15; padding: 40px; border-radius: 25px; border: 2px solid var(--cyan); text-align: center; width: 100%; max-width: 400px; }
-        .input-group { margin-bottom: 15px; }
-        input { width: 100%; padding: 18px; background: #000; border: 1px solid #1a1a1a; color: white; border-radius: 12px; box-sizing: border-box; outline: none; }
-        .btn-connect { width: 100%; padding: 18px; background: var(--cyan); color: black; border: none; border-radius: 12px; font-weight: 900; cursor: pointer; text-transform: uppercase; }
+        .login-card { background: #0d0d15; padding: 40px; border-radius: 25px; border: 2px solid var(--cyan); text-align: center; width: 400px; }
+        .input-group { position: relative; margin-bottom: 15px; }
+        input { width: 100%; padding: 18px; background: #000; border: 1px solid #1a1a1a; color: white; border-radius: 12px; box-sizing: border-box; outline: none; font-size: 16px; }
+        .btn-connect { width: 100%; padding: 18px; background: var(--cyan); color: black; border: none; border-radius: 12px; font-weight: 900; cursor: pointer; text-transform: uppercase; font-size: 16px; }
 
-        /* ממשק משחק */
+        /* ממשק - לפי המיקומים שאהבת */
         #game-interface { display: none; padding: 20px; box-sizing: border-box; width: 100%; }
-        .main-layout { display: grid; grid-template-columns: 300px 1fr 300px; gap: 20px; max-width: 1400px; margin: 0 auto; }
-        .panel { background: var(--card); border-radius: 15px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); }
-        .biggest-gifter { border: 2px solid var(--gold); border-radius: 12px; padding: 20px; text-align: center; }
+        .main-layout { display: grid; grid-template-columns: 300px 1fr 300px; gap: 20px; max-width: 1400px; margin: 0 auto; align-items: start; }
         
-        /* טיימר */
-        .timer-val { font-size: 150px; font-weight: 900; font-family: 'Courier New', monospace; text-align: center; margin: 20px 0; color: white; }
+        .panel { background: var(--card); border-radius: 15px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); min-height: 500px; }
+        .biggest-gifter { border: 2px solid var(--gold); border-radius: 12px; padding: 15px; text-align: center; margin-bottom: 10px; }
+        
+        .timer-val { font-size: 140px; font-weight: 900; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 10px 0; line-height: 1; }
         .timer-val.snipe-active { color: var(--red); text-shadow: 0 0 20px rgba(255, 45, 85, 0.5); }
         
-        .btn-action { width: 100%; padding: 22px; border-radius: 10px; border: none; font-weight: 900; cursor: pointer; text-transform: uppercase; margin-bottom: 12px; }
+        .btn-action { width: 100%; padding: 20px; border-radius: 10px; border: none; font-weight: 900; cursor: pointer; text-transform: uppercase; font-size: 16px; margin-bottom: 10px; }
         .btn-cyan { background: var(--cyan); color: black; }
         .btn-gray { background: #1c1c1c; color: white; border: 1px solid #333; }
         .btn-purple { background: var(--purple); color: white; }
 
-        /* עיצוב חלונית בחירת סנייפ (Modal) */
-        #snipe-modal { 
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); 
-            z-index: 20000; align-items: center; justify-content: center; 
-        }
-        .modal-content { 
-            background: #0d0d15; border: 2px solid var(--purple); padding: 30px; 
-            border-radius: 20px; text-align: center; width: 300px; 
-        }
-        .modal-content h2 { color: var(--purple); margin-top: 0; }
-        .modal-input { width: 80px; text-align: center; font-size: 24px; margin: 20px 0; border: 1px solid var(--purple); }
+        /* כפתור CONNECT TO LIVE הירוק מהצילום הראשון */
+        .btn-live { width: 100%; background: transparent; border: 2px solid var(--green); color: var(--green); padding: 15px; border-radius: 12px; font-weight: 900; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; text-transform: uppercase; }
+
+        /* חלונית סנייפ מעוצבת */
+        #snipe-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 20000; align-items: center; justify-content: center; }
+        .modal-content { background: #0d0d15; border: 2px solid var(--purple); padding: 30px; border-radius: 20px; text-align: center; width: 300px; }
 
         .row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #1a1a1a; }
     </style>
@@ -51,55 +46,59 @@
 
     <div id="login-screen">
         <div class="login-card">
-            <h1>Welcome to LiveBIT</h1>
-            <div class="input-group"><input type="text" id="log-user" placeholder="TikTok Username"></div>
+            <h2 style="color:var(--cyan); margin:0 0 5px 0;">LiveBIT Elite</h2>
+            <p style="color:#555; font-size:14px; margin-bottom:25px;">Enter a valid TikTok username to enter</p>
+            <div class="input-group"><input type="text" id="log-user" placeholder="TikTok Username (@liroy0641)"></div>
             <div class="input-group"><input type="email" id="log-email" placeholder="Email Address"></div>
             <div class="input-group"><input type="password" id="log-pass" placeholder="Password"></div>
             <button class="btn-connect" onclick="validate()">CONNECT SYSTEM</button>
+            <div style="font-size:11px; color:#333; margin-top:15px;">Server Status: Ready</div>
         </div>
     </div>
 
     <div id="snipe-modal">
         <div class="modal-content">
-            <h2>Snipe Delay</h2>
-            <p style="font-size: 14px; color: #888;">Set seconds for automatic snipe after timer ends</p>
-            <input type="number" id="snipe-input" class="modal-input" value="20">
-            <button class="btn-connect" style="background: var(--purple); color: white;" onclick="saveSnipe()">SAVE DELAY</button>
-            <button onclick="closeModal()" style="background:none; border:none; color:#555; cursor:pointer; margin-top:15px; display:block; width:100%;">Cancel</button>
+            <h3 style="color:var(--purple); margin-top:0;">Snipe Delay</h3>
+            <input type="number" id="snipe-input" value="20" style="width:80px; text-align:center; font-size:20px; background:#000; border:1px solid var(--purple); color:white; padding:10px; border-radius:10px; margin-bottom:20px;">
+            <button class="btn-connect" style="background:var(--purple); color:white;" onclick="saveSnipe()">SAVE</button>
         </div>
     </div>
 
     <div id="game-interface">
         <div class="main-layout">
             <div class="panel">
-                <div style="color:var(--red); font-weight:900; text-align:center;">TOP 10 LIKERS</div>
+                <div style="color:var(--red); font-weight:900; text-align:center; font-size:14px; margin-bottom:15px;">TOP 10 LIKERS</div>
                 <div id="likers-list"></div>
             </div>
 
-            <div style="display:flex; flex-direction:column; gap:20px;">
+            <div style="display:flex; flex-direction:column;">
                 <div class="biggest-gifter">
-                    <div style="color:var(--gold); font-size:12px;">👑 BIGGEST GIFTER</div>
-                    <div id="top-name" style="font-size:32px; font-weight:900;">Waiting...</div>
+                    <div style="color:var(--gold); font-size:10px; font-weight:bold;">👑 BIGGEST GIFTER</div>
+                    <div id="top-name" style="font-size:28px; font-weight:900;">Waiting...</div>
                 </div>
-                <div style="text-align:center;">
-                    <div id="status-label" style="color:white; font-weight:bold; letter-spacing: 1px;">MAIN TIMER</div>
+                
+                <div style="text-align:center; margin: 10px 0;">
+                    <div id="snipe-label" style="color:var(--red); font-weight:bold; font-size:14px;">Snipe Trigger: 20s</div>
                     <div id="timer-display" class="timer-val">01:00</div>
                 </div>
-                <div>
-                    <button class="btn-action btn-cyan" onclick="toggleT()">START / PAUSE</button>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                        <button class="btn-action btn-gray" onclick="adj(30)">▲ 30S</button>
-                        <button class="btn-action btn-gray" onclick="adj(-30)">▼ 30S</button>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                        <button class="btn-action btn-gray" onclick="reset()">RESET</button>
-                        <button class="btn-action btn-purple" onclick="openModal()">SNIPE DELAY</button>
-                    </div>
+
+                <button class="btn-action btn-cyan" onclick="toggleT()">START / PAUSE</button>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <button class="btn-action btn-gray" onclick="adj(30)">▲ 30S</button>
+                    <button class="btn-action btn-gray" onclick="adj(-30)">▼ 30S</button>
                 </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <button class="btn-action btn-gray" onclick="reset()">RESET</button>
+                    <button class="btn-action btn-purple" onclick="openModal()">SNIPE DELAY</button>
+                </div>
+
+                <button class="btn-live">
+                    <i class="fa-solid fa-signal" style="font-size:12px;"></i> CONNECT TO LIVE
+                </button>
             </div>
 
             <div class="panel">
-                <div style="color:var(--gold); font-weight:900; text-align:center;">TOP 3 GIFTERS</div>
+                <div style="color:var(--gold); font-weight:900; text-align:center; font-size:14px; margin-bottom:15px;">TOP 3 GIFTERS</div>
                 <div id="gifters-list"></div>
             </div>
         </div>
@@ -114,24 +113,22 @@
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.frequency.setValueAtTime(900, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            osc.frequency.setValueAtTime(850, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
             osc.start(); osc.stop(audioCtx.currentTime + 0.1);
         }
 
-        // ניהול המודאל
         function openModal() { document.getElementById('snipe-modal').style.display = 'flex'; }
-        function closeModal() { document.getElementById('snipe-modal').style.display = 'none'; }
         function saveSnipe() {
             snipeLimit = parseInt(document.getElementById('snipe-input').value);
-            closeModal();
+            document.getElementById('snipe-label').innerText = `Snipe Trigger: ${snipeLimit}s`;
+            document.getElementById('snipe-modal').style.display = 'none';
         }
 
         function validate() {
             const u = document.getElementById('log-user').value.trim();
-            const e = document.getElementById('log-email').value.trim();
             const p = document.getElementById('log-pass').value;
-            if(u.startsWith('@') && e.includes('@') && p.length >= 8) {
+            if(u.startsWith('@') && p.length >= 8) {
                 socket.emit("validateUser", u.replace('@',''));
             } else { alert("Check your details! (Username needs @ and Password min 8 chars)"); }
         }
@@ -146,19 +143,13 @@
         function updateD() {
             const m = Math.floor(time/60), s = time%60;
             const display = document.getElementById('timer-display');
-            const label = document.getElementById('status-label');
-            
             display.innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-
+            
             if (isSnipePhase) {
                 display.classList.add('snipe-active');
-                label.innerText = "SNIPE ACTIVE";
-                label.style.color = "var(--red)";
                 beep();
             } else {
                 display.classList.remove('snipe-active');
-                label.innerText = "MAIN TIMER";
-                label.style.color = "white";
             }
         }
 
@@ -168,28 +159,16 @@
                 if (audioCtx.state === 'suspended') audioCtx.resume();
                 run = true; 
                 intr = setInterval(() => {
-                    if (time > 0) {
-                        time--;
-                    } else if (!isSnipePhase) {
-                        // מעבר לסנייפ כשהטיימר הלבן נגמר
-                        isSnipePhase = true;
-                        time = snipeLimit;
-                    } else {
-                        // הכל נגמר
-                        clearInterval(intr);
-                        run = false;
-                    }
+                    if (time > 0) { time--; } 
+                    else if (!isSnipePhase) { isSnipePhase = true; time = snipeLimit; } 
+                    else { clearInterval(intr); run = false; }
                     updateD();
                 }, 1000); 
             }
         }
 
         function adj(n) { if(!isSnipePhase) { time = Math.max(0, time + n); updateD(); } }
-        function reset() { 
-            clearInterval(intr); run = false; 
-            time = 60; isSnipePhase = false; 
-            updateD(); 
-        }
+        function reset() { clearInterval(intr); run = false; time = 60; isSnipePhase = false; updateD(); }
 
         const fill = (id, n) => {
             let h = ""; for(let i=1; i<=n; i++) h += `<div class="row"><span>${i}. ---</span><span style="color:var(--cyan)">0</span></div>`;
