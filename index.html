@@ -8,116 +8,85 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --cyan: #00e5ff; --bg: #05050a; --card: #0d0d15; --red: #ff2d55; --gold: #ffcc00; --purple: #8a2be2; --green: #00ff88; }
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; min-height: 100vh; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
 
-        /* --- מסך לוגין עם מסגרת כחולה זוהרת --- */
+        /* --- מסך לוגין --- */
         #login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; position: fixed; inset: 0; z-index: 10000; background: var(--bg); }
-        .login-card { 
-            background: #0d0d15; padding: 40px; border-radius: 25px; 
-            border: 2px solid var(--cyan); box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
-            text-align: center; width: 100%; max-width: 400px; 
-        }
-        .input-group { position: relative; margin-bottom: 15px; text-align: left; }
+        .login-card { background: #0d0d15; padding: 40px; border-radius: 25px; border: 2px solid var(--cyan); box-shadow: 0 0 20px rgba(0, 229, 255, 0.3); text-align: center; width: 100%; max-width: 400px; }
+        .input-group { position: relative; margin-bottom: 15px; }
         input { width: 100%; padding: 18px; background: #000; border: 1px solid #1a1a1a; color: white; border-radius: 12px; box-sizing: border-box; outline: none; font-size: 16px; }
         .eye-btn { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #444; }
-        .error-msg { color: var(--red); font-size: 13px; margin-top: 5px; display: none; font-weight: bold; }
         .btn-connect { width: 100%; padding: 18px; background: var(--cyan); color: black; border: none; border-radius: 12px; font-weight: 900; cursor: pointer; text-transform: uppercase; }
+        .error-msg { color: var(--red); font-size: 13px; margin-top: 5px; display: none; font-weight: bold; }
 
-        /* --- הממשק של המשחק (מוסתר בהתחלה) --- */
-        #game-interface { display: none; padding: 20px; box-sizing: border-box; width: 100%; }
-        .main-layout { display: grid; grid-template-columns: 300px 1fr 300px; gap: 20px; max-width: 1400px; margin: 0 auto; }
-
-        .panel { background: var(--card); border-radius: 15px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); height: fit-content; }
-        .center-column { display: flex; flex-direction: column; gap: 20px; }
-
-        /* Biggest Gifter - מסגרת צהובה */
-        .biggest-gifter { border: 2px solid var(--gold); border-radius: 12px; padding: 20px; text-align: center; background: rgba(255, 204, 0, 0.03); }
-        .gift-label { color: var(--gold); font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
-        .gift-name { font-size: 32px; font-weight: 900; margin-top: 10px; text-shadow: 0 0 10px rgba(255, 204, 0, 0.3); }
-
-        /* טיימר ענק */
-        .timer-section { text-align: center; padding: 40px 0; }
-        .timer-val { font-size: 150px; font-weight: 900; font-family: 'Courier New', monospace; line-height: 1; margin: 20px 0; color: white; }
-
-        /* כפתורים רחבים כמו בתמונה */
+        /* --- ממשק המשחק --- */
+        #game-interface { display: none; padding: 20px; }
+        .main-layout { display: grid; grid-template-columns: 280px 1fr 280px; gap: 20px; max-width: 1400px; margin: 0 auto; }
+        .panel { background: var(--card); border-radius: 15px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); }
+        .biggest-gifter { border: 2px solid var(--gold); border-radius: 12px; padding: 20px; text-align: center; }
+        .timer-val { font-size: 150px; font-weight: 900; font-family: monospace; text-align: center; margin: 20px 0; }
         .btn-action { width: 100%; padding: 22px; border-radius: 10px; border: none; font-weight: 900; cursor: pointer; text-transform: uppercase; font-size: 16px; margin-bottom: 12px; }
         .btn-cyan { background: var(--cyan); color: black; }
         .btn-gray { background: #1c1c1c; color: white; border: 1px solid #333; }
         .btn-purple { background: var(--purple); color: white; }
-        
-        /* כפתור ה-Connect To Live הירוק והדק מהתמונה */
-        .btn-live-connect { width: 100%; background: transparent; border: 2px solid var(--green); color: var(--green); padding: 15px; border-radius: 10px; font-weight: 900; cursor: pointer; font-size: 14px; margin-top: 10px; }
-        .btn-live-connect.active { background: var(--green); color: black; }
-
-        .list-title { color: var(--red); text-align: center; font-size: 18px; font-weight: 900; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #1a1a1a; font-size: 15px; }
-        .val { color: var(--cyan); font-weight: bold; }
+        .row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #1a1a1a; }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
         <div class="login-card">
-            <h1 style="margin: 0 0 10px 0;">Welcome to LiveBIT</h1>
-            <p style="color: #666; font-size: 14px; margin-bottom: 30px;">Enter a valid TikTok username to enter</p>
-            
+            <h1>Welcome to LiveBIT</h1>
             <div class="input-group">
-                <input type="text" id="log-user" placeholder="TikTok Username (@liroy0641)">
+                <input type="text" id="log-user" placeholder="TikTok Username (@name)">
                 <div id="err-user" class="error-msg">Please add @ to your TikTok username</div>
             </div>
-
             <div class="input-group">
                 <input type="email" id="log-email" placeholder="Email Address">
-                <div id="err-email" class="error-msg">Email is incorrect, please try again</div>
+                <div id="err-email" class="error-msg">Email is incorrect</div>
             </div>
-
             <div class="input-group">
                 <input type="password" id="log-pass" placeholder="Password">
                 <i class="fa-solid fa-eye eye-btn" onclick="togglePass()"></i>
-                <div id="err-pass" class="error-msg">Try to add more characters to reach 8</div>
+                <div id="err-pass" class="error-msg">Min 8 characters</div>
             </div>
-
-            <button class="btn-connect" id="login-btn" onclick="validate()">CONNECT SYSTEM</button>
-            <div id="srv-status" style="font-size: 12px; margin-top: 20px; color: #444;">Server: Checking...</div>
+            <button class="btn-connect" onclick="validate()">CONNECT SYSTEM</button>
         </div>
     </div>
 
     <div id="game-interface">
         <div class="main-layout">
             <div class="panel">
-                <div class="list-title">TOP 10 LIKERS</div>
+                <div style="color:var(--red); font-weight:900; text-align:center; margin-bottom:15px;">TOP 10 LIKERS</div>
                 <div id="likers-list"></div>
             </div>
 
-            <div class="center-column">
+            <div style="display:flex; flex-direction:column; gap:20px;">
                 <div class="biggest-gifter">
-                    <div class="gift-label">👑 BIGGEST GIFTER</div>
-                    <div id="top-name" class="gift-name">Waiting...</div>
+                    <div style="color:var(--gold); font-size:12px;">👑 BIGGEST GIFTER</div>
+                    <div id="top-name" style="font-size:32px; font-weight:900;">Waiting...</div>
                 </div>
 
-                <div class="timer-section">
-                    <div style="color:var(--red); font-weight:bold; font-size: 18px;">Snipe Trigger: 20s</div>
+                <div style="text-align:center;">
+                    <div id="snipe-label" style="color:var(--red); font-weight:bold; font-size:20px;">Snipe Trigger: 20s</div>
                     <div id="timer-display" class="timer-val">01:00</div>
                 </div>
 
-                <div class="actions">
+                <div>
                     <button class="btn-action btn-cyan" onclick="toggleT()">START / PAUSE</button>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
                         <button class="btn-action btn-gray" onclick="adj(30)">▲ 30S</button>
                         <button class="btn-action btn-gray" onclick="adj(-30)">▼ 30S</button>
                     </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
                         <button class="btn-action btn-gray" onclick="reset()">RESET</button>
-                        <button class="btn-action btn-purple">SNIPE DELAY</button>
+                        <button class="btn-action btn-purple" onclick="setSnipe()">SNIPE DELAY</button>
                     </div>
-                    <button id="live-btn" class="btn-live-connect" onclick="connectLive()">
-                        <i class="fa-solid fa-signal"></i> CONNECT TO LIVE
-                    </button>
                 </div>
             </div>
 
             <div class="panel">
-                <div class="list-title" style="color:var(--gold)">TOP 3 GIFTERS</div>
+                <div style="color:var(--gold); font-weight:900; text-align:center; margin-bottom:15px;">TOP 3 GIFTERS</div>
                 <div id="gifters-list"></div>
             </div>
         </div>
@@ -125,32 +94,40 @@
 
     <script>
         const socket = io("https://livebit-server.onrender.com");
-        let tUser = "";
+        let tUser = "", snipeSec = 20;
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-        socket.on("connect", () => { document.getElementById('srv-status').innerText = "Server: Ready ✅"; });
+        function beep() {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.type = "sine"; osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+        }
 
         function togglePass() {
             const p = document.getElementById('log-pass');
             p.type = p.type === 'password' ? 'text' : 'password';
         }
 
+        function setSnipe() {
+            const val = prompt("Enter Snipe Trigger seconds:", snipeSec);
+            if(val) {
+                snipeSec = parseInt(val);
+                document.getElementById('snipe-label').innerText = `Snipe Trigger: ${snipeSec}s`;
+            }
+        }
+
         function validate() {
             const u = document.getElementById('log-user').value.trim();
             const e = document.getElementById('log-email').value.trim();
             const p = document.getElementById('log-pass').value;
-            const btn = document.getElementById('login-btn');
-
-            document.querySelectorAll('.error-msg').forEach(m => m.style.display = 'none');
-
-            let ok = true;
-            if(!u.startsWith('@')) { document.getElementById('err-user').style.display = 'block'; ok = false; }
-            if(!e.includes('@') || !e.includes('.') || !e.includes('com')) { document.getElementById('err-email').style.display = 'block'; ok = false; }
-            if(p.length < 8) { document.getElementById('err-pass').style.display = 'block'; ok = false; }
-
-            if(ok) {
-                btn.innerText = "CHECKING ACCOUNT...";
+            if(u.startsWith('@') && e.includes('@') && p.length >= 8) {
                 tUser = u.replace('@','');
                 socket.emit("validateUser", tUser);
+            } else {
+                alert("Please check all fields (Username must start with @)");
             }
         }
 
@@ -158,37 +135,33 @@
             if(res.success) {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('game-interface').style.display = 'block';
-            } else {
-                alert("Account not found. Please try again.");
-                document.getElementById('login-btn').innerText = "CONNECT SYSTEM";
             }
         });
 
-        // טיימר וניהול
-        let time = 60, active = false, intr;
-        function updateDisp() {
+        let time = 60, run = false, intr;
+        function updateD() {
             const m = Math.floor(time/60), s = time%60;
             document.getElementById('timer-display').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            if(time <= snipeSec && time > 0 && run) {
+                document.getElementById('timer-display').style.color = "var(--red)";
+                beep();
+            } else {
+                document.getElementById('timer-display').style.color = "white";
+            }
         }
+
         function toggleT() {
-            if(active) { clearInterval(intr); active = false; }
-            else { active = true; intr = setInterval(() => { if(time>0){time--; updateDisp();} }, 1000); }
+            if(run) { clearInterval(intr); run = false; }
+            else { 
+                run = true; 
+                intr = setInterval(() => { if(time>0){time--; updateD();} }, 1000); 
+            }
         }
-        function adj(n) { time = Math.max(0, time + n); updateDisp(); }
-        function reset() { time = 60; updateDisp(); }
-
-        function connectLive() {
-            socket.emit("connectToLive", { username: tUser });
-            document.getElementById('live-btn').innerText = "CONNECTING...";
-        }
-
-        socket.on("liveConnected", () => {
-            document.getElementById('live-btn').classList.add('active');
-            document.getElementById('live-btn').innerHTML = "CONNECTED ✅";
-        });
+        function adj(n) { time = Math.max(0, time + n); updateD(); }
+        function reset() { time = 60; updateD(); }
 
         const fill = (id, n) => {
-            let h = ""; for(let i=1; i<=n; i++) h += `<div class="row"><span>${i}. ---</span><span class="val">0</span></div>`;
+            let h = ""; for(let i=1; i<=n; i++) h += `<div class="row"><span>${i}. ---</span><span style="color:var(--cyan)">0</span></div>`;
             document.getElementById(id).innerHTML = h;
         };
         fill('likers-list', 10); fill('gifters-list', 3);
