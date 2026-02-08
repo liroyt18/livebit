@@ -22,14 +22,14 @@
         .status-text { font-size: 38px; font-weight: 900; text-align: center; animation: pop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); }
         @keyframes pop { from { transform: scale(0.5); } to { transform: scale(1); } }
 
-        /* עיצוב הלוח */
+        /* עיצוב הלוח - 3 עמודות מקורי */
         #main-dashboard { display: none; width: 100%; height: 100%; display: grid; grid-template-columns: 300px 1fr 300px; gap: 20px; padding: 20px; box-sizing: border-box; }
         .panel { background: var(--card); border: 1px solid rgba(255,255,255,0.05); border-radius: 15px; overflow: hidden; position: relative; }
         .content { padding: 20px; }
         .center-column { display: flex; flex-direction: column; gap: 20px; align-items: center; }
         
         /* טיימר וטבלאות */
-        .biggest-gifter { width: 100%; border: 2px solid var(--gold); border-radius: 12px; padding: 20px; text-align: center; }
+        .biggest-gifter { width: 100%; border: 2px solid var(--gold); border-radius: 12px; padding: 20px; text-align: center; background: rgba(255,204,0,0.05); }
         .timer-val { font-size: 100px; font-weight: 900; font-family: monospace; display: block; margin: 10px 0; color: white; }
         .mode-snipe { color: var(--red) !important; text-shadow: 0 0 30px var(--red); }
         .row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
@@ -45,7 +45,7 @@
         .custom-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 20000; align-items: center; justify-content: center; }
         .modal-card { background: #0d0d15; padding: 30px; border-radius: 20px; text-align: center; width: 340px; border: 2px solid transparent; }
 
-        /* קישורי העתקה (URL) */
+        /* קישורי העתקה לסטודיו */
         .url-copy-box { background: rgba(0,0,0,0.4); border: 1px solid var(--neon); padding: 8px; border-radius: 6px; font-size: 10px; color: var(--neon); cursor: pointer; margin-top: 10px; text-align: center; font-weight: bold; }
     </style>
 </head>
@@ -72,16 +72,16 @@
             <h2 style="color: var(--neon)">LiveBIT Login</h2>
             <div class="input-group">
                 <input type="text" id="log-user" placeholder="TikTok Username">
-                <div id="err-user" class="error-msg">System could not find your account. Try adding @ to your TikTok username.</div>
+                <div id="err-user" class="error-msg">The system did not find your account. Try to add @ in TikTok username.</div>
             </div>
             <div class="input-group">
                 <input type="text" id="log-email" placeholder="Email Address">
-                <div id="err-email" class="error-msg">System could not find your email. Please check it again.</div>
+                <div id="err-email" class="error-msg">The system did not find your email. Check it again.</div>
             </div>
             <div class="input-group">
                 <input type="password" id="log-pass" placeholder="Password">
                 <i class="fa-solid fa-eye eye-btn" onclick="togglePass()"></i>
-                <div id="err-pass" class="error-msg">Try to make 8 characters in the password.</div>
+                <div id="err-pass" class="error-msg">Try to make eight characters in password.</div>
             </div>
             <button onclick="validateLogin()" class="btn-connect">CONNECT SYSTEM</button>
         </div>
@@ -131,10 +131,10 @@
 
     <div id="live-modal" class="custom-modal">
         <div class="modal-card glow-green">
-            <h3 style="color: var(--green)">Live Connect</h3>
+            <h3 style="color: var(--green)">Live Sync</h3>
             <input type="text" id="tiktok-user-input" placeholder="@username">
             <button class="btn-main" style="background: var(--green); color:black;" onclick="tryConnectLive()">CONNECT</button>
-            <button class="btn-main" style="background: #222;" onclick="closeModal('live-modal')">X</button>
+            <button class="btn-main" style="background: #222;" onclick="closeModal('live-modal')">CLOSE</button>
         </div>
     </div>
 
@@ -143,17 +143,15 @@
             <h3 style="color: var(--purple)">Snipe Delay</h3>
             <input type="number" id="new-snipe-val" placeholder="Seconds">
             <button class="btn-main" style="background: var(--purple);" onclick="saveSnipe()">SAVE</button>
-            <button class="btn-main" style="background: #222;" onclick="closeModal('snipe-modal')">X</button>
+            <button class="btn-main" style="background: #222;" onclick="closeModal('snipe-modal')">CLOSE</button>
         </div>
     </div>
 
     <script>
-        // לוגיקת לוגין עם השגיאות שביקשת
         function validateLogin() {
             const user = document.getElementById('log-user').value;
             const email = document.getElementById('log-email').value;
             const pass = document.getElementById('log-pass').value;
-            
             let valid = true;
             document.querySelectorAll('.error-msg').forEach(e => e.style.display = 'none');
 
@@ -193,10 +191,9 @@
 
         async function tryConnectLive() {
             const user = document.getElementById('tiktok-user-input').value;
-            if(!user.startsWith('@')) return alert("Username must start with @");
+            if(!user.startsWith('@')) return alert("Please include @ in username");
             
             try {
-                // חיבור לשרת ב-Render
                 const res = await fetch(`https://livebit-server.onrender.com/check-live?user=${user.replace('@','')}`);
                 const data = await res.json();
                 closeModal('live-modal');
@@ -207,13 +204,15 @@
                     document.getElementById('overlay-error').style.display = 'flex';
                     setTimeout(() => document.getElementById('overlay-error').style.display = 'none', 3000);
                 }
-            } catch(e) { alert("Server is waking up..."); }
+            } catch(e) {
+                alert("Server is waking up... Please wait 30 seconds and try again.");
+            }
         }
 
         function copyLink(type) {
             const url = window.location.href.split('?')[0] + "?view=" + type;
             navigator.clipboard.writeText(url);
-            alert("URL Copied for TikTok Studio!");
+            alert("Copied! Paste this link in TikTok Studio Browser Source.");
         }
 
         function adjustTime(n) { timeLeft = Math.max(0, timeLeft + n); update(); }
