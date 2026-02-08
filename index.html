@@ -2,150 +2,164 @@
 <html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <title>LiveBIT Elite Pro - Final</title>
+    <title>LiveBIT Elite Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --neon: #00e5ff; --red: #ff2d55; --gold: #ffcc00; --purple: #8a2be2; --bg: #0d0d15; --card: #161625; --green: #00ff88; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
 
-        /* מסך לוגין */
+        /* מסך התחברות */
         #login-screen { position: fixed; inset: 0; background: #05050a; z-index: 10000; display: flex; align-items: center; justify-content: center; }
         .login-card { background: #111; padding: 40px; border-radius: 20px; border: 2px solid var(--neon); text-align: center; width: 380px; }
         .input-group { position: relative; width: 100%; margin: 12px 0; }
         input { width: 100%; padding: 15px; background: #000; border: 1px solid #222; color: white; border-radius: 8px; box-sizing: border-box; outline: none; }
-        .error-msg { color: var(--red); font-size: 13px; margin-top: 5px; display: none; font-weight: bold; text-align: left; padding-left: 5px; }
-        .btn-connect-system { background: var(--neon); color: black; border: none; padding: 16px; width: 100%; cursor: pointer; font-weight: 900; border-radius: 8px; text-transform: uppercase; margin-top: 10px; }
+        .eye-btn { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #555; }
+        .error-msg { color: var(--red); font-size: 12px; margin-bottom: 10px; display: none; font-weight: bold; }
+        .btn-connect { background: var(--neon); color: black; border: none; padding: 16px; width: 100%; cursor: pointer; font-weight: 900; border-radius: 8px; }
 
-        /* אנימציות הצלחה ושגיאה */
+        /* אנימציות הצלחה ושגיאה (שכבה עליונה) */
         .status-overlay {
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 30000;
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 30000;
             align-items: center; justify-content: center; flex-direction: column;
-            animation: fadeIn 0.4s ease;
         }
-        .status-text {
-            font-size: 42px; font-weight: 900; text-align: center;
-            transform: scale(0.8); animation: popUp 0.5s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .success-mode { color: var(--green); text-shadow: 0 0 20px var(--green); }
-        .error-mode { color: var(--red); text-shadow: 0 0 20px var(--red); }
+        .status-text { font-size: 40px; font-weight: 900; text-align: center; animation: pop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); }
+        @keyframes pop { from { transform: scale(0.5); } to { transform: scale(1); } }
 
-        @keyframes popUp { to { transform: scale(1); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* ממשק ניהול */
-        #admin-panel { display: none; width: 100%; height: 100%; }
-        #main-dashboard { width: 100%; height: 100%; display: grid; grid-template-columns: 300px 1fr 300px; gap: 20px; padding: 20px; box-sizing: border-box; }
+        /* מבנה 3 עמודות */
+        #main-dashboard { display: none; width: 100%; height: 100%; display: grid; grid-template-columns: 300px 1fr 300px; gap: 20px; padding: 20px; box-sizing: border-box; }
         .panel { background: var(--card); border: 1px solid rgba(255,255,255,0.05); border-radius: 15px; overflow: hidden; }
-        .center-column { display: flex; flex-direction: column; gap: 20px; align-items: center; }
+        .content { padding: 20px; }
+        .center-column { display: flex; flex-direction: column; gap: 20px; align-items: center; justify-content: flex-start; }
         
-        .timer-val { font-size: 110px; font-weight: 900; font-family: 'Courier New', monospace; color: white; line-height: 1; margin: 20px 0; }
-        .mode-snipe { color: var(--red) !important; text-shadow: 0 0 30px var(--red); animation: pulse 1s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+        .biggest-gifter { width: 100%; border: 2px solid var(--gold); border-radius: 12px; padding: 20px; text-align: center; background: rgba(255,204,0,0.05); }
+        .timer-val { font-size: 100px; font-weight: 900; font-family: monospace; display: block; margin: 10px 0; color: white; }
+        .mode-snipe { color: var(--red) !important; text-shadow: 0 0 30px var(--red); }
 
+        /* כפתורי שליטה */
         .btn-main { border: none; padding: 18px; border-radius: 10px; font-weight: 900; cursor: pointer; width: 100%; margin-bottom: 10px; text-transform: uppercase; }
         .btn-start { background: var(--neon); color: #000; }
-        .btn-live-connect { background: transparent; color: var(--green); border: 2px solid var(--green); padding: 15px; width: 100%; border-radius: 12px; font-weight: 900; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-adjust { background: #222; color: #fff; border: 1px solid #333; flex: 1; font-size: 18px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        
+        .btn-live-connect { background: transparent; color: var(--green); border: 2px solid var(--green); padding: 15px; width: 100%; border-radius: 12px; font-weight: 900; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        .btn-live-connect.active { background: var(--green); color: black; }
 
-        .custom-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 20000; align-items: center; justify-content: center; }
-        .modal-card { background: #0d0d15; padding: 30px; border-radius: 20px; border: 2px solid var(--purple); text-align: center; width: 340px; }
         .row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
+
+        /* מודאלים */
+        .custom-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 20000; align-items: center; justify-content: center; }
+        .modal-card { background: #0d0d15; padding: 30px; border-radius: 20px; border: 1px solid var(--purple); text-align: center; width: 340px; }
+        .modal-card.live-border { border-color: var(--green); }
+        .modal-card h3 { margin-top: 0; text-transform: uppercase; }
+        .modal-card input { margin-bottom: 10px; text-align: center; font-size: 18px; border: 1px solid #333; color: white; background: #000; padding: 12px; border-radius: 8px; width: 90%; outline: none; }
+        
+        .live-error-hint { color: var(--red); font-size: 11px; font-weight: bold; margin-bottom: 15px; display: none; line-height: 1.4; }
+
+        .links-footer { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); background: rgba(22, 22, 37, 0.9); border: 1px solid var(--neon); padding: 10px 25px; border-radius: 50px; display: flex; gap: 15px; z-index: 5000; }
+        .link-item { color: var(--neon); text-decoration: none; font-size: 11px; font-weight: bold; cursor: pointer; text-align: center; }
+        .link-item span { display: block; color: #888; font-size: 9px; font-weight: normal; }
     </style>
 </head>
 <body>
 
-    <audio id="snipe-sound" src="https://www.soundjay.com/buttons/beep-01a.mp3" loop></audio>
+    <audio id="snipe-sound" src="סאונד - מתח.mp3" loop></audio>
 
     <div id="overlay-success" class="status-overlay">
-        <div class="status-text success-mode">
-            <i class="fa-solid fa-circle-check" style="display:block; margin-bottom: 20px; font-size: 80px;"></i>
-            Connected to your Live!<br>
-            <span style="font-size: 26px; color: white; opacity: 0.9;">Get to work</span>
+        <div class="status-text" style="color: var(--green);">
+            <i class="fa-solid fa-circle-check" style="font-size: 80px; display: block; margin-bottom: 15px;"></i>
+            Connected!<br><span style="font-size: 20px; color: white;">Syncing with Live...</span>
         </div>
     </div>
 
     <div id="overlay-error" class="status-overlay">
-        <div class="status-text error-mode">
-            <i class="fa-solid fa-circle-xmark" style="display:block; margin-bottom: 20px; font-size: 80px;"></i>
-            Connection Failed!<br>
-            <span style="font-size: 26px; color: white; opacity: 0.9;">Live not found or offline</span>
-        </div>
-    </div>
-
-    <div id="login-screen">
-        <div class="login-card">
-            <h2 style="color: var(--neon); margin-bottom: 20px;">LiveBIT Login</h2>
-            <div class="input-group">
-                <input type="text" id="log-user" placeholder="TikTok Username">
-                <div id="err-user" class="error-msg">Username must start with @</div>
-            </div>
-            <div class="input-group">
-                <input type="text" id="log-email" placeholder="Email Address">
-                <div id="err-email" class="error-msg">Email is incorrect, please fix it</div>
-            </div>
-            <div class="input-group">
-                <input type="password" id="log-pass" placeholder="Password">
-                <div id="err-pass" class="error-msg">Incorrect password, must be 8 characters</div>
-            </div>
-            <button class="btn-connect-system" onclick="validateAndConnect()">Connect System</button>
-        </div>
-    </div>
-
-    <div id="admin-panel">
-        <div id="main-dashboard">
-            <div class="panel"><div style="padding:20px;"><h3 style="color:var(--red); text-align:center;">TOP 10 LIKERS</h3><div id="likers-list"></div></div></div>
-            <div class="center-column">
-                <div class="panel" style="width:100%; border:2px solid var(--gold); padding:20px; text-align:center;">
-                    <div style="color: var(--gold); font-size: 13px; font-weight: bold;">👑 BIGGEST GIFTER</div>
-                    <div id="top-name" style="font-size: 24px; font-weight: 900;">Waiting...</div>
-                </div>
-                <div class="panel" style="width: 100%; text-align: center; padding: 30px;">
-                    <div style="color:var(--red); font-weight:bold; letter-spacing: 1px;">Snipe Trigger: <span id="snipe-display">20</span>s</div>
-                    <div id="timer-display" class="timer-val">01:00</div>
-                    <button class="btn-main btn-start" onclick="toggleTimer()">START / PAUSE</button>
-                    <div style="display: flex; gap: 10px;">
-                        <button class="btn-main" style="background:#333; color:white; flex:1;" onclick="resetT()">RESET</button>
-                        <button class="btn-main" style="background:var(--purple); color:white; flex:1;" onclick="openModal('snipe-modal')">SNIPE DELAY</button>
-                    </div>
-                    <button id="live-btn" class="btn-live-connect" onclick="openModal('live-modal')">
-                        <i class="fa-solid fa-signal"></i> CONNECT TO LIVE
-                    </button>
-                </div>
-            </div>
-            <div class="panel"><div style="padding:20px;"><h3 style="color:var(--gold); text-align:center;">TOP 3 GIFTERS</h3><div id="gifters-list"></div></div></div>
+        <div class="status-text" style="color: var(--red);">
+            <i class="fa-solid fa-circle-xmark" style="font-size: 80px; display: block; margin-bottom: 15px;"></i>
+            Failed!<br><span style="font-size: 20px; color: white;">User is Offline</span>
         </div>
     </div>
 
     <div id="live-modal" class="custom-modal">
-        <div class="modal-card" style="border-color: var(--green);">
-            <h3 style="color: var(--green)">Live Sync</h3>
-            <p style="font-size: 12px; color: #555;">Enter username to start tracking</p>
+        <div class="modal-card live-border">
+            <h3 id="live-modal-title" style="color: var(--green)">Connect to Live</h3>
+            <p style="font-size: 12px; color: #666; margin-bottom: 15px;">Enter your TikTok username to sync</p>
             <input type="text" id="tiktok-user-input" placeholder="TikTok Username">
-            <div style="display: flex; gap: 10px; margin-top: 15px;">
-                <button id="modal-conn-btn" class="btn-main" style="background: var(--green); color:black; flex:2;" onclick="tryConnectLive()">CONNECT</button>
-                <button class="btn-main" style="background: #222; flex:1;" onclick="closeModal('live-modal')">X</button>
+            
+            <div id="live-connect-error" class="live-error-hint">
+                The system did not recognize you.<br>Check if you typed correctly or if you are currently broadcasting!
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button id="modal-conn-btn" class="btn-main" style="background: var(--green); color: black; margin: 0; flex:2;" onclick="tryConnectLive()">CONNECT</button>
+                <button class="btn-main" style="background: #222; margin: 0; flex:1;" onclick="closeModal('live-modal')">CANCEL</button>
             </div>
         </div>
     </div>
 
     <div id="snipe-modal" class="custom-modal">
         <div class="modal-card">
-            <h3 style="color: var(--purple)">Set Snipe</h3>
-            <input type="number" id="new-snipe-val" value="20" style="width: 80%; padding: 10px; margin-bottom: 20px;">
-            <button class="btn-main" style="background: var(--purple);" onclick="saveSnipe()">SAVE DELAY</button>
+            <h3 style="color: var(--purple)">Snipe Delay</h3>
+            <input type="number" id="new-snipe-val" placeholder="Seconds">
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-main" style="background: var(--purple); margin: 0; flex:1;" onclick="saveSnipe()">SAVE</button>
+                <button class="btn-main" style="background: #222; margin: 0; flex:1;" onclick="closeModal('snipe-modal')">CLOSE</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="login-screen">
+        <div class="login-card">
+            <h2 style="color: var(--neon)">Welcome to LiveBIT</h2>
+            <div class="input-group"><input type="text" id="user" placeholder="TikTok Username"></div>
+            <div class="input-group"><input type="text" id="email" placeholder="Email Address"></div>
+            <div class="input-group">
+                <input type="password" id="pass" placeholder="Password">
+                <i class="fa-solid fa-eye eye-btn" onclick="togglePass()"></i>
+            </div>
+            <div id="login-error" class="error-msg"></div>
+            <button onclick="validateAndConnect()" class="btn-connect">CONNECT SYSTEM</button>
+        </div>
+    </div>
+
+    <div id="admin-panel" style="display:none;">
+        <div id="main-dashboard" style="display: grid;">
+            <div class="panel"><div class="content"><h3 style="color:var(--red); text-align:center;">TOP 10 LIKERS</h3><div id="likers-list"></div></div></div>
+            <div class="center-column">
+                <div class="panel biggest-gifter">
+                    <div style="color: var(--gold); font-size: 13px;">👑 BIGGEST GIFTER</div>
+                    <div id="top-name" style="font-size: 22px; font-weight: bold;">Waiting...</div>
+                </div>
+                <div class="panel" style="width: 100%; text-align: center; padding: 25px;">
+                    <div style="color:var(--red); font-weight:bold;">Snipe Trigger: <span id="snipe-display">20</span>s</div>
+                    <div id="timer-display" class="timer-val">01:00</div>
+                    <button class="btn-main btn-start" onclick="toggleTimer()">START / PAUSE</button>
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <button class="btn-main btn-adjust" onclick="adjustTime(30)">▲ 30s</button>
+                        <button class="btn-main btn-adjust" onclick="adjustTime(-30)">▼ 30s</button>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn-main" style="background:#444; color:white; flex:1;" onclick="resetT()">RESET</button>
+                        <button class="btn-main" style="background:var(--purple); color:white; flex:1;" onclick="openModal('snipe-modal')">SNIPE DELAY</button>
+                    </div>
+                    <button id="live-btn" class="btn-live-connect" onclick="openModal('live-modal')"><i class="fa-solid fa-signal" style="margin-right:8px;"></i> CONNECT TO LIVE</button>
+                </div>
+            </div>
+            <div class="panel"><div class="content"><h3 style="color:var(--gold); text-align:center;">TOP 3 GIFTERS</h3><div id="gifters-list"></div></div></div>
+        </div>
+        <div class="links-footer">
+            <div class="link-item" onclick="copyL(1)">LINK 1<span>Timer Only</span></div>
+            <div class="link-item" onclick="copyL(2)">LINK 2<span>Top Gifter</span></div>
+            <div class="link-item" onclick="copyL(3)">LINK 3<span>Likers Table</span></div>
+            <div class="link-item" onclick="copyL(4)">LINK 4<span>Full Dash</span></div>
         </div>
     </div>
 
     <script>
         function validateAndConnect() {
-            const user = document.getElementById('log-user').value;
-            const email = document.getElementById('log-email').value;
-            const pass = document.getElementById('log-pass').value;
-            let isValid = true;
-            document.querySelectorAll('.error-msg').forEach(e => e.style.display = 'none');
-            if (!user.startsWith('@') || user.length < 2) { document.getElementById('err-user').style.display = 'block'; isValid = false; }
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { document.getElementById('err-email').style.display = 'block'; isValid = false; }
-            if (pass.length < 8) { document.getElementById('err-pass').style.display = 'block'; isValid = false; }
-            if (isValid) { document.getElementById('login-screen').style.display = 'none'; document.getElementById('admin-panel').style.display = 'block'; }
+            const email = document.getElementById('email').value, pass = document.getElementById('pass').value, errorDiv = document.getElementById('login-error');
+            const emailValid = email.includes('@') && email.includes('.') && (email.includes('gmail') || email.includes('.com'));
+            if (!emailValid) { errorDiv.innerText = "Email error, please try again"; errorDiv.style.display = "block"; return; }
+            if (pass.length < 8) { errorDiv.innerText = "Incorrect password, must be 8 characters"; errorDiv.style.display = "block"; return; }
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('admin-panel').style.display = 'block';
         }
 
         let timeLeft = 60, snipeTime = 20, isRunning = false, isSnipe = false, timerId;
@@ -153,54 +167,73 @@
 
         function update() {
             const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
-            const display = document.getElementById('timer-display');
-            display.innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-            if(isSnipe) { display.classList.add('mode-snipe'); if(isRunning) sound.play(); } 
-            else { display.classList.remove('mode-snipe'); sound.pause(); }
+            const t = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            document.getElementById('timer-display').innerText = t;
+            if(isSnipe) document.getElementById('timer-display').classList.add('mode-snipe');
+            else document.getElementById('timer-display').classList.remove('mode-snipe');
         }
 
         function toggleTimer() {
-            if (isRunning) { clearInterval(timerId); isRunning = false; sound.pause(); } 
-            else { isRunning = true; timerId = setInterval(() => {
-                if (timeLeft > 0) timeLeft--; 
-                else if (!isSnipe) { isSnipe = true; timeLeft = snipeTime; } 
-                else { clearInterval(timerId); isRunning = false; }
-                update();
-            }, 1000); }
-        }
-
-        function resetT() { clearInterval(timerId); isRunning = false; isSnipe = false; timeLeft = 60; update(); }
-        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        function saveSnipe() { snipeTime = document.getElementById('new-snipe-val').value; document.getElementById('snipe-display').innerText = snipeTime; closeModal('snipe-modal'); }
-
-        async function tryConnectLive() {
-            const userInput = document.getElementById('tiktok-user-input').value;
-            const modalBtn = document.getElementById('modal-conn-btn');
-            if(!userInput.startsWith('@')) return alert("Must start with @");
-            modalBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> CONNECTING...';
-            try {
-                // חיבור לשרת ה-Render האמיתי שלך
-                const serverURL = "https://livebit-server.onrender.com"; 
-                const response = await fetch(`${serverURL}/check-live?user=${userInput.replace('@', '')}`);
-                const data = await response.json();
-                closeModal('live-modal');
-                modalBtn.innerHTML = "CONNECT";
-                if (data.isLive) {
-                    document.getElementById('overlay-success').style.display = 'flex';
-                    document.getElementById('live-btn').innerHTML = `<i class="fa-solid fa-check"></i> LIVE: ${userInput}`;
-                    document.getElementById('live-btn').style.borderColor = "var(--green)";
-                    setTimeout(() => document.getElementById('overlay-success').style.display = 'none', 3000);
-                } else {
-                    document.getElementById('overlay-error').style.display = 'flex';
-                    setTimeout(() => document.getElementById('overlay-error').style.display = 'none', 3000);
-                }
-            } catch (err) {
-                alert("Server is waking up... Please try again in 30 seconds.");
-                modalBtn.innerHTML = "CONNECT";
+            if (isRunning) { clearInterval(timerId); isRunning = false; sound.pause(); }
+            else {
+                isRunning = true;
+                timerId = setInterval(() => {
+                    if (timeLeft > 0) { timeLeft--; update(); }
+                    else if (!isSnipe) { isSnipe = true; timeLeft = snipeTime; sound.play(); update(); }
+                    else { clearInterval(timerId); isRunning = false; sound.pause(); }
+                }, 1000);
             }
         }
 
+        function adjustTime(n) { timeLeft = Math.max(0, timeLeft + n); update(); }
+        function resetT() { clearInterval(timerId); isRunning = false; isSnipe = false; timeLeft = 60; sound.pause(); update(); }
+        function openModal(id) { 
+            document.getElementById(id).style.display = 'flex'; 
+            if(id === 'live-modal') document.getElementById('live-connect-error').style.display = 'none';
+        }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function saveSnipe() { let v = document.getElementById('new-snipe-val').value; if(v) { snipeTime = v; document.getElementById('snipe-display').innerText = v; closeModal('snipe-modal'); } }
+
+        async function tryConnectLive() {
+            const user = document.getElementById('tiktok-user-input').value;
+            const errorDiv = document.getElementById('live-connect-error');
+            const connBtn = document.getElementById('modal-conn-btn');
+            
+            if(!user) return;
+            if(!user.startsWith('@')) return alert("Username must start with @");
+
+            errorDiv.style.display = 'none';
+            connBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> CHECKING LIVE...`;
+            
+            try {
+                // ה-URL המדויק שלך ב-Render
+                const serverURL = "https://livebit-server.onrender.com"; 
+                const response = await fetch(`${serverURL}/check-live?user=${user.replace('@', '')}`);
+                const data = await response.json();
+
+                connBtn.innerHTML = "CONNECT";
+                closeModal('live-modal');
+
+                if (data.isLive) {
+                    // אנימציית V ירוק
+                    document.getElementById('overlay-success').style.display = 'flex';
+                    const mainBtn = document.getElementById('live-btn');
+                    mainBtn.classList.add('active');
+                    mainBtn.innerHTML = `<i class="fa-solid fa-check"></i> CONNECTED: ${user}`;
+                    setTimeout(() => document.getElementById('overlay-success').style.display = 'none', 2500);
+                } else {
+                    // אנימציית X אדום
+                    document.getElementById('overlay-error').style.display = 'flex';
+                    setTimeout(() => document.getElementById('overlay-error').style.display = 'none', 2500);
+                }
+            } catch (err) {
+                alert("Server is starting up... Please try again in 30 seconds.");
+                connBtn.innerHTML = "CONNECT";
+            }
+        }
+
+        function copyL(n) { navigator.clipboard.writeText(window.location.href.split('?')[0] + '?mode=' + n); alert("Link Copied!"); }
+        function togglePass() { const p = document.getElementById('pass'); p.type = p.type === 'password' ? 'text' : 'password'; }
         const fill = (id, n) => {
             let h = ""; for(let i=1; i<=n; i++) h += `<div class="row"><span>${i}. ---</span><span style="color:var(--neon)">0</span></div>`;
             document.getElementById(id).innerHTML = h;
