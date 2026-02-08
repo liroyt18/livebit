@@ -17,11 +17,8 @@
         .error-msg { color: var(--red); font-size: 12px; margin-bottom: 10px; display: none; font-weight: bold; }
         .btn-connect { background: var(--neon); color: black; border: none; padding: 16px; width: 100%; cursor: pointer; font-weight: 900; border-radius: 8px; }
 
-        /* אנימציות הצלחה ושגיאה (שכבה עליונה) */
-        .status-overlay {
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 30000;
-            align-items: center; justify-content: center; flex-direction: column;
-        }
+        /* שכבות אנימציה V ו-X */
+        .status-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 30000; align-items: center; justify-content: center; flex-direction: column; }
         .status-text { font-size: 40px; font-weight: 900; text-align: center; animation: pop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); }
         @keyframes pop { from { transform: scale(0.5); } to { transform: scale(1); } }
 
@@ -66,27 +63,23 @@
     <div id="overlay-success" class="status-overlay">
         <div class="status-text" style="color: var(--green);">
             <i class="fa-solid fa-circle-check" style="font-size: 80px; display: block; margin-bottom: 15px;"></i>
-            Connected!<br><span style="font-size: 20px; color: white;">Syncing with Live...</span>
+            Connected!
         </div>
     </div>
 
     <div id="overlay-error" class="status-overlay">
         <div class="status-text" style="color: var(--red);">
             <i class="fa-solid fa-circle-xmark" style="font-size: 80px; display: block; margin-bottom: 15px;"></i>
-            Failed!<br><span style="font-size: 20px; color: white;">User is Offline</span>
+            Failed!
         </div>
     </div>
 
     <div id="live-modal" class="custom-modal">
         <div class="modal-card live-border">
             <h3 id="live-modal-title" style="color: var(--green)">Connect to Live</h3>
-            <p style="font-size: 12px; color: #666; margin-bottom: 15px;">Enter your TikTok username to sync</p>
+            <p style="font-size: 12px; color: #666; margin-bottom: 15px;">Enter TikTok username</p>
             <input type="text" id="tiktok-user-input" placeholder="TikTok Username">
-            
-            <div id="live-connect-error" class="live-error-hint">
-                The system did not recognize you.<br>Check if you typed correctly or if you are currently broadcasting!
-            </div>
-
+            <div id="live-connect-error" class="live-error-hint">System did not recognize user.</div>
             <div style="display: flex; gap: 10px;">
                 <button id="modal-conn-btn" class="btn-main" style="background: var(--green); color: black; margin: 0; flex:2;" onclick="tryConnectLive()">CONNECT</button>
                 <button class="btn-main" style="background: #222; margin: 0; flex:1;" onclick="closeModal('live-modal')">CANCEL</button>
@@ -187,49 +180,33 @@
 
         function adjustTime(n) { timeLeft = Math.max(0, timeLeft + n); update(); }
         function resetT() { clearInterval(timerId); isRunning = false; isSnipe = false; timeLeft = 60; sound.pause(); update(); }
-        function openModal(id) { 
-            document.getElementById(id).style.display = 'flex'; 
-            if(id === 'live-modal') document.getElementById('live-connect-error').style.display = 'none';
-        }
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         function saveSnipe() { let v = document.getElementById('new-snipe-val').value; if(v) { snipeTime = v; document.getElementById('snipe-display').innerText = v; closeModal('snipe-modal'); } }
 
         async function tryConnectLive() {
             const user = document.getElementById('tiktok-user-input').value;
-            const errorDiv = document.getElementById('live-connect-error');
             const connBtn = document.getElementById('modal-conn-btn');
-            
             if(!user) return;
-            if(!user.startsWith('@')) return alert("Username must start with @");
-
-            errorDiv.style.display = 'none';
-            connBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> CHECKING LIVE...`;
-            
+            const cleanUser = user.startsWith('@') ? user.slice(1) : user;
+            connBtn.innerHTML = "CHECKING...";
             try {
-                // ה-URL המדויק שלך ב-Render
-                const serverURL = "https://livebit-server.onrender.com"; 
-                const response = await fetch(`${serverURL}/check-live?user=${user.replace('@', '')}`);
-                const data = await response.json();
-
-                connBtn.innerHTML = "CONNECT";
+                const res = await fetch(`https://livebit-server.onrender.com/check-live?user=${cleanUser}`);
+                const data = await res.json();
                 closeModal('live-modal');
-
                 if (data.isLive) {
-                    // אנימציית V ירוק
                     document.getElementById('overlay-success').style.display = 'flex';
-                    const mainBtn = document.getElementById('live-btn');
-                    mainBtn.classList.add('active');
-                    mainBtn.innerHTML = `<i class="fa-solid fa-check"></i> CONNECTED: ${user}`;
-                    setTimeout(() => document.getElementById('overlay-success').style.display = 'none', 2500);
+                    document.getElementById('live-btn').innerHTML = "CONNECTED: @" + cleanUser;
+                    document.getElementById('live-btn').classList.add('active');
+                    setTimeout(() => document.getElementById('overlay-success').style.display = 'none', 2000);
                 } else {
-                    // אנימציית X אדום
                     document.getElementById('overlay-error').style.display = 'flex';
-                    setTimeout(() => document.getElementById('overlay-error').style.display = 'none', 2500);
+                    setTimeout(() => document.getElementById('overlay-error').style.display = 'none', 2000);
                 }
             } catch (err) {
-                alert("Server is starting up... Please try again in 30 seconds.");
-                connBtn.innerHTML = "CONNECT";
+                alert("Server waking up... Try again in 30s");
             }
+            connBtn.innerHTML = "CONNECT";
         }
 
         function copyL(n) { navigator.clipboard.writeText(window.location.href.split('?')[0] + '?mode=' + n); alert("Link Copied!"); }
