@@ -5,164 +5,130 @@
     <title>LiveBIT Elite Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --neon: #00e5ff; --red: #ff2d55; --gold: #ffcc00; --purple: #8a2be2; --bg: #0d0d15; --card: #161625; --green: #00ff88; }
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
+        :root { --neon: #00e5ff; --red: #ff2d55; --gold: #ffcc00; --purple: #8a2be2; --bg: #0d0d15; --card: #11111d; --green: #00ff88; }
+        body { background: #05050a; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
 
-        /* לוגין */
-        #login-screen { position: fixed; inset: 0; background: #05050a; z-index: 10000; display: flex; align-items: center; justify-content: center; }
-        .login-card { background: #111; padding: 40px; border-radius: 20px; border: 2px solid var(--neon); text-align: center; width: 380px; }
-        .input-group { position: relative; width: 100%; margin: 12px 0; }
-        input { width: 100%; padding: 15px; background: #000; border: 1px solid #222; color: white; border-radius: 8px; box-sizing: border-box; outline: none; }
-        .error-msg { color: var(--red); font-size: 13px; margin-top: 8px; display: none; font-weight: bold; }
-        .btn-connect { background: var(--neon); color: black; border: none; padding: 16px; width: 100%; cursor: pointer; font-weight: 900; border-radius: 8px; }
+        /* מסך לוגין - לפי התמונה המדויקת */
+        #login-screen { position: fixed; inset: 0; background: #0d0d15; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .login-title { color: #00e5ff; font-size: 32px; font-weight: 900; margin-bottom: 40px; }
+        .login-input { width: 340px; padding: 18px; background: white; border: none; border-radius: 12px; margin-bottom: 20px; color: #333; font-size: 16px; outline: none; }
+        .btn-login { background: #00e5ff; color: black; border: none; padding: 15px 60px; border-radius: 15px; font-weight: 900; cursor: pointer; font-size: 20px; text-transform: uppercase; }
 
-        /* לוח ראשי */
-        #main-dashboard { display: none; width: 100%; height: 100%; display: grid; grid-template-columns: 300px 1fr 300px; gap: 20px; padding: 20px; box-sizing: border-box; }
-        .panel { background: var(--card); border: 1px solid rgba(255,255,255,0.05); border-radius: 15px; overflow: hidden; position: relative; }
-        .content { padding: 20px; }
-        .center-column { display: flex; flex-direction: column; gap: 20px; align-items: center; }
+        /* דאשבורד - פריסה מקורית מהתמונה */
+        #admin-panel { display: none; width: 100%; height: 100%; display: grid; grid-template-columns: 280px 1fr 280px; gap: 10px; padding: 15px; box-sizing: border-box; }
+        .panel { background: var(--card); border-radius: 15px; padding: 20px; position: relative; }
         
-        .biggest-gifter { width: 100%; border: 2px solid var(--gold); border-radius: 12px; padding: 20px; text-align: center; background: rgba(255,204,0,0.05); }
-        .timer-val { font-size: 120px; font-weight: 900; font-family: monospace; color: white; margin: 10px 0; }
+        .header-box { border: 2px solid var(--gold); border-radius: 10px; padding: 15px; text-align: center; margin-bottom: 20px; }
+        .timer-val { font-size: 120px; font-weight: 900; text-align: center; margin: 30px 0; font-family: 'Courier New', monospace; }
+        .snipe-trigger { color: var(--red); text-align: center; font-weight: bold; font-size: 16px; margin-bottom: 10px; }
+
+        /* כפתורים מהתמונה */
+        .btn-start { background: #00e5ff; color: black; width: 100%; padding: 18px; border-radius: 12px; border: none; font-weight: 900; font-size: 16px; margin-bottom: 15px; cursor: pointer; }
+        .btn-reset { background: #3d3d3d; color: white; flex: 1; padding: 18px; border-radius: 12px; border: none; font-weight: 900; cursor: pointer; }
+        .btn-snipe { background: #8a2be2; color: white; flex: 1; padding: 18px; border-radius: 12px; border: none; font-weight: 900; cursor: pointer; box-shadow: 0 0 15px rgba(138, 43, 226, 0.4); }
+        .btn-live { background: transparent; color: #00ff88; border: 2px solid #00ff88; width: 100%; padding: 15px; border-radius: 12px; font-weight: 900; margin-top: 15px; cursor: pointer; box-shadow: 0 0 10px rgba(0, 255, 136, 0.2); }
         
-        /* כפתורים */
-        .btn-main { border: none; padding: 18px; border-radius: 10px; font-weight: 900; cursor: pointer; width: 100%; margin-bottom: 10px; text-transform: uppercase; }
-        .btn-start { background: var(--neon); color: #000; font-size: 18px; }
-        .glow-purple { background: var(--purple); color: white; box-shadow: 0 0 15px var(--purple); }
-        .glow-green { background: transparent; color: var(--green); border: 2px solid var(--green) !important; box-shadow: 0 0 15px var(--green); }
+        .copy-btn { background: transparent; border: 1px solid #00e5ff; color: #00e5ff; font-size: 10px; padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-top: 15px; }
 
-        .copy-btn { background: transparent; border: 1px solid var(--neon); color: var(--neon); padding: 5px 10px; font-size: 10px; cursor: pointer; border-radius: 4px; margin-top: 10px; }
-
-        /* מודאל */
-        .custom-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 20000; align-items: center; justify-content: center; }
-        .modal-card { background: #0d0d15; padding: 30px; border-radius: 20px; text-align: center; width: 340px; border: 2px solid var(--green); }
-
-        /* מצב תצוגה שקוף בלבד */
-        body.overlay-mode { background: transparent !important; }
-        .overlay-mode #admin-panel { background: transparent !important; grid-template-columns: 1fr; }
-        .overlay-mode .panel:not(.center-p-view), .overlay-mode .btn-main, .overlay-mode #login-screen { display: none !important; }
-        .overlay-mode .center-p-view { background: transparent !important; border: none !important; }
+        /* מצב תצוגה שקוף (בשביל טיקטוק סטודיו בלבד) */
+        body.view-only { background: transparent !important; }
+        .view-only #admin-panel { background: transparent !important; grid-template-columns: 1fr; }
+        .view-only .panel:not(.center-p), .view-only .btn-start, .view-only .btn-reset, .view-only .btn-snipe, .view-only .btn-live, .view-only #login-screen { display: none !important; }
+        .view-only .center-p { background: transparent !important; }
+        
+        .rank-glow { border: 2px solid var(--gold); box-shadow: 0 0 15px var(--gold); border-radius: 8px; margin-bottom: 8px; }
     </style>
 </head>
 <body id="main-body">
 
-    <audio id="snipe-sound" src="סאונד - מתח.mp3" loop></audio>
-
     <div id="login-screen">
-        <div class="login-card">
-            <h2 style="color: var(--neon)">LiveBIT Login</h2>
-            <div class="input-group">
-                <input type="text" id="log-user" placeholder="TikTok Username">
-                <div id="err-user" class="error-msg">The system did not find your account.</div>
-            </div>
-            <div class="input-group">
-                <input type="password" id="log-pass" placeholder="Password">
-                <div id="err-pass" class="error-msg">Check your password again.</div>
-            </div>
-            <button onclick="validateLogin()" class="btn-connect">CONNECT SYSTEM</button>
-        </div>
+        <div class="login-title">LiveBIT Login</div>
+        <input type="text" class="login-input" placeholder="TikTok Username">
+        <input type="password" class="login-input" placeholder="Password">
+        <button class="btn-login" onclick="login()">CONNECT</button>
     </div>
 
-    <div id="admin-panel" style="display:none;">
-        <div id="main-dashboard" style="display: grid;">
-            <div class="panel">
-                <div class="content">
-                    <h3 style="color:var(--red); text-align:center;">TOP 10 LIKERS</h3>
-                    <div id="likers-list"></div>
-                    <button class="copy-btn" onclick="copy('likers')">COPY LIKERS URL</button>
-                </div>
-            </div>
-            <div class="panel center-column center-p-view" style="border:none; background:transparent;">
-                <div class="panel biggest-gifter">
-                    <div style="color: var(--gold); font-size: 13px;">👑 BIGGEST GIFTER</div>
-                    <div id="top-name" style="font-size: 22px; font-weight: bold;">Waiting...</div>
-                </div>
-                <div class="panel" style="width: 100%; text-align: center; padding: 25px;">
-                    <div style="color:var(--red); font-size:14px; font-weight:bold;">Snipe Trigger: 20s</div>
-                    <div id="timer-display" class="timer-val">01:00</div>
-                    <button class="btn-main btn-start" onclick="toggleTimer()">START / PAUSE</button>
-                    <div style="display: flex; gap: 10px;">
-                        <button class="btn-main" style="background:#444; flex:1;" onclick="resetT()">RESET</button>
-                        <button class="btn-main glow-purple" style="flex:1;" onclick="openModal('snipe-modal')">SNIPE DELAY</button>
-                    </div>
-                    <button class="btn-main glow-green" onclick="openModal('live-modal')">CONNECT TO YOUR LIVE</button>
-                </div>
-            </div>
-            <div class="panel">
-                <div class="content">
-                    <h3 style="color:var(--gold); text-align:center;">TOP 3 GIFTERS</h3>
-                    <div id="gifters-list"></div>
-                    <button class="copy-btn" onclick="copy('timer')">COPY OVERLAY URL</button>
-                </div>
-            </div>
+    <div id="admin-panel">
+        <div class="panel">
+            <h3 style="color:var(--red); text-align:center; font-size:18px;">TOP 10 LIKERS</h3>
+            <div id="likers-list"></div>
+            <button class="copy-btn" onclick="copy('likers')">COPY LIKERS URL</button>
         </div>
-    </div>
 
-    <div id="live-modal" class="custom-modal">
-        <div class="modal-card">
-            <h3 style="color: var(--green)">Live Sync</h3>
-            <input type="text" id="tk-user" placeholder="@username" style="margin-bottom: 15px;">
-            <div style="display: flex; gap: 10px;">
-                <button class="btn-main" style="background:var(--green); color:black; margin:0;" onclick="conn()">CONNECT</button>
-                <button class="btn-main" style="background:#333; color:white; margin:0;" onclick="closeModal('live-modal')">X</button>
+        <div class="panel center-p" style="background:transparent;">
+            <div class="header-box">
+                <div style="color:var(--gold); font-size:12px; font-weight:bold;">👑 BIGGEST GIFTER</div>
+                <div style="font-size:24px; font-weight:900;">Waiting...</div>
             </div>
+            
+            <div class="snipe-trigger">Snipe Trigger: 20s</div>
+            <div class="timer-val" id="timer-display">01:00</div>
+            
+            <button class="btn-start" onclick="toggleTimer()">START / PAUSE</button>
+            <div style="display:flex; gap:15px;">
+                <button class="btn-reset" onclick="resetTimer()">RESET</button>
+                <button class="btn-snipe">SNIPE DELAY</button>
+            </div>
+            <button class="btn-live">CONNECT TO YOUR LIVE</button>
+        </div>
+
+        <div class="panel">
+            <h3 style="color:var(--gold); text-align:center; font-size:18px;">TOP 3 GIFTERS</h3>
+            <div id="gifters-list"></div>
+            <button class="copy-btn" onclick="copy('timer')">COPY OVERLAY URL</button>
         </div>
     </div>
 
     <script>
-        const syncChannel = new BroadcastChannel('livebit_timer_sync');
-        let timeLeft = 60, isRunning = false, timerId;
+        const bc = new BroadcastChannel('livebit_sync');
+        let timeLeft = 60, running = false, timerInterval;
 
+        // בדיקה אם להציג רק את הטיימר (בשביל ה-URL בטיקטוק סטודיו)
         if (window.location.search.includes('view=timer')) {
-            document.getElementById('main-body').classList.add('overlay-mode');
+            document.getElementById('main-body').classList.add('view-only');
             document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('admin-panel').style.display = 'block';
+            document.getElementById('admin-panel').style.display = 'grid';
         }
 
-        function validateLogin() {
+        function login() {
             document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('admin-panel').style.display = 'block';
+            document.getElementById('admin-panel').style.display = 'grid';
         }
-
-        function update() {
-            const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
-            const timeStr = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-            document.getElementById('timer-display').innerText = timeStr;
-            syncChannel.postMessage(timeStr);
-        }
-
-        syncChannel.onmessage = (e) => {
-            document.getElementById('timer-display').innerText = e.data;
-        };
 
         function toggleTimer() {
-            if (isRunning) { clearInterval(timerId); isRunning = false; }
-            else { 
-                isRunning = true; 
-                timerId = setInterval(() => { if(timeLeft > 0) {timeLeft--; update();} }, 1000); 
+            if (running) { clearInterval(timerInterval); running = false; }
+            else {
+                running = true;
+                timerInterval = setInterval(() => {
+                    if (timeLeft > 0) { timeLeft--; updateDisplay(); }
+                }, 1000);
             }
         }
 
-        function resetT() { timeLeft = 60; update(); clearInterval(timerId); isRunning = false; }
-        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        function copy(t) { alert("URL Copied! Use it in TikTok Studio."); }
-
-        async function conn() {
-            const user = document.getElementById('tk-user').value;
-            try {
-                const res = await fetch(`https://livebit-server.onrender.com/check-live?user=${user.replace('@','')}`);
-                const data = await res.json();
-                if(!data.isLive) alert("Server is waking up... Try again in 30s.");
-                else closeModal('live-modal');
-            } catch(e) { alert("Server is waking up..."); }
+        function updateDisplay() {
+            const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
+            const timeStr = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            document.getElementById('timer-display').innerText = timeStr;
+            bc.postMessage(timeStr); // מסנכרן עם טיקטוק סטודיו
         }
 
-        const fill = (id, n) => {
-            let h = ""; for(let i=1; i<=n; i++) h += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #222;"><span>${i}. ---</span><span style="color:var(--neon)">0</span></div>`;
-            document.getElementById(id).innerHTML = h;
+        bc.onmessage = (e) => { document.getElementById('timer-display').innerText = e.data; };
+
+        function resetTimer() { timeLeft = 60; updateDisplay(); clearInterval(timerInterval); running = false; }
+        function copy(t) { alert("URL Copied!"); }
+
+        const populate = (id, n, hasGlow = false) => {
+            let html = "";
+            for(let i=1; i<=n; i++) {
+                let style = (hasGlow && i <= 3) ? 'rank-glow' : '';
+                html += `<div class="${style}" style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #222;">
+                            <span>${i}. ---</span><span style="color:#00e5ff">0</span>
+                         </div>`;
+            }
+            document.getElementById(id).innerHTML = html;
         };
-        fill('likers-list', 10); fill('gifters-list', 3);
+        populate('likers-list', 10);
+        populate('gifters-list', 3, true);
     </script>
 </body>
 </html>
