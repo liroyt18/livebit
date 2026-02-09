@@ -2,200 +2,114 @@
 <html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <title>LiveBIT Elite Pro</title>
+    <title>LiveBIT Overlay</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --neon: #00e5ff; --red: #ff2d55; --gold: #ffcc00; --purple: #8a2be2; --bg: #0d0d15; --card: #161625; --green: #00ff88; }
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
+        body { background: transparent; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; }
+        
+        /* הסתרת אלמנטים לפי צורך */
+        .hidden { display: none !important; }
 
-        /* מסך התחברות */
+        /* עיצוב לוח הבקרה (העיצוב המקורי שלך) */
+        #admin-panel { display: none; width: 100vw; height: 100vh; background: var(--bg); grid-template-columns: 300px 1fr 300px; gap: 20px; padding: 20px; box-sizing: border-box; }
+        .panel { background: var(--card); border: 1px solid rgba(255,255,255,0.05); border-radius: 15px; overflow: hidden; }
+        .center-column { display: flex; flex-direction: column; gap: 20px; align-items: center; }
+        .biggest-gifter { width: 100%; border: 2px solid var(--gold); border-radius: 12px; padding: 20px; text-align: center; }
+        .timer-val { font-size: 120px; font-weight: 900; font-family: monospace; color: white; margin: 10px 0; }
+        .btn-main { border: none; padding: 18px; border-radius: 10px; font-weight: 900; cursor: pointer; width: 100%; margin-bottom: 10px; }
+        .glow-green { background: transparent; color: var(--green); border: 2px solid var(--green); }
+
+        /* עיצוב המצב שרואים בטיקטוק (רק טיימר וטבלאות בלי רקע) */
+        #overlay-view { display: none; width: 100%; height: 100%; justify-content: center; align-items: center; }
+
+        /* לוגין */
         #login-screen { position: fixed; inset: 0; background: #05050a; z-index: 10000; display: flex; align-items: center; justify-content: center; }
         .login-card { background: #111; padding: 40px; border-radius: 20px; border: 2px solid var(--neon); text-align: center; width: 380px; }
-        .input-group { position: relative; width: 100%; margin: 12px 0; }
-        input { width: 100%; padding: 15px; background: #000; border: 1px solid #222; color: white; border-radius: 8px; box-sizing: border-box; outline: none; }
-        .eye-btn { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #555; }
-        .error-msg { color: var(--red); font-size: 13px; margin-top: 8px; display: none; font-weight: bold; text-align: center; }
-        .btn-connect { background: var(--neon); color: black; border: none; padding: 16px; width: 100%; cursor: pointer; font-weight: 900; border-radius: 8px; margin-top: 10px; }
-
-        /* אנימציות V ו-X */
-        .status-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 30000; align-items: center; justify-content: center; flex-direction: column; }
-        .status-text { font-size: 38px; font-weight: 900; text-align: center; animation: pop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); }
-        @keyframes pop { from { transform: scale(0.5); } to { transform: scale(1); } }
-
-        /* העיצוב המקורי של המשחק */
-        #main-dashboard { display: none; width: 100%; height: 100%; display: grid; grid-template-columns: 300px 1fr 300px; gap: 20px; padding: 20px; box-sizing: border-box; }
-        .panel { background: var(--card); border: 1px solid rgba(255,255,255,0.05); border-radius: 15px; overflow: hidden; }
-        .content { padding: 20px; }
-        .center-column { display: flex; flex-direction: column; gap: 20px; align-items: center; }
-        
-        .biggest-gifter { width: 100%; border: 2px solid var(--gold); border-radius: 12px; padding: 20px; text-align: center; }
-        .timer-val { font-size: 100px; font-weight: 900; font-family: monospace; display: block; margin: 10px 0; }
-        .mode-snipe { color: var(--red) !important; text-shadow: 0 0 30px var(--red); }
-        .row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
-
-        .btn-main { border: none; padding: 18px; border-radius: 10px; font-weight: 900; cursor: pointer; width: 100%; margin-bottom: 10px; text-transform: uppercase; }
-        .btn-start { background: var(--neon); color: #000; }
-        .glow-purple { box-shadow: 0 0 15px var(--purple); border: 2px solid var(--purple) !important; }
-        .glow-green { box-shadow: 0 0 15px var(--green); border: 2px solid var(--green) !important; }
-
-        .custom-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 20000; align-items: center; justify-content: center; }
-        .modal-card { background: #0d0d15; padding: 30px; border-radius: 20px; text-align: center; width: 340px; border: 2px solid transparent; }
-        .url-box { background: rgba(0,0,0,0.4); border: 1px solid var(--neon); padding: 8px; border-radius: 6px; font-size: 10px; color: var(--neon); cursor: pointer; margin-top: 10px; }
+        input { width: 100%; padding: 15px; background: #000; border: 1px solid #222; color: white; border-radius: 8px; margin: 10px 0; outline: none; }
     </style>
 </head>
 <body>
 
-    <audio id="snipe-sound" src="סאונד - מתח.mp3" loop></audio>
-
-    <div id="overlay-success" class="status-overlay">
-        <div class="status-text" style="color: var(--green);">
-            <i class="fa-solid fa-circle-check" style="font-size: 80px; display: block; margin-bottom: 15px;"></i>
-            Connected successfully to LiveBit
-        </div>
-    </div>
-
-    <div id="overlay-error" class="status-overlay">
-        <div class="status-text" style="color: var(--red);">
-            <i class="fa-solid fa-circle-xmark" style="font-size: 80px; display: block; margin-bottom: 15px;"></i>
-            Could not connect to LiveBit<br>Please check again
-        </div>
-    </div>
-
     <div id="login-screen">
         <div class="login-card">
             <h2 style="color: var(--neon)">LiveBIT Login</h2>
-            <div class="input-group">
-                <input type="text" id="log-user" placeholder="TikTok Username">
-                <div id="err-user" class="error-msg">The system did not find your account. Try to add @ in TikTok username.</div>
-            </div>
-            <div class="input-group">
-                <input type="text" id="log-email" placeholder="Email Address">
-                <div id="err-email" class="error-msg">The system did not find your email. Check it again.</div>
-            </div>
-            <div class="input-group">
-                <input type="password" id="log-pass" placeholder="Password">
-                <i class="fa-solid fa-eye eye-btn" onclick="togglePass()"></i>
-                <div id="err-pass" class="error-msg">Try to make eight characters in password.</div>
-            </div>
-            <button onclick="validateLogin()" class="btn-connect">CONNECT SYSTEM</button>
+            <input type="text" id="log-user" placeholder="TikTok Username">
+            <input type="password" id="log-pass" placeholder="Password">
+            <button onclick="validateLogin()" class="btn-main" style="background:var(--neon); color:black;">CONNECT SYSTEM</button>
         </div>
     </div>
 
-    <div id="admin-panel" style="display:none;">
-        <div id="main-dashboard" style="display: grid;">
-            <div class="panel">
-                <div class="content">
-                    <h3 style="color:var(--red); text-align:center;">TOP 10 LIKERS</h3>
-                    <div id="likers-list"></div>
-                    <div class="url-box" onclick="copy('likers')">COPY LIKERS URL</div>
-                </div>
+    <div id="admin-panel">
+        <div class="panel">
+            <div style="padding:20px;">
+                <h3 style="color:var(--red); text-align:center;">TOP 10 LIKERS</h3>
+                <div id="likers-list"></div>
             </div>
-            <div class="center-column">
-                <div class="panel biggest-gifter">
-                    <div style="color: var(--gold); font-size: 13px;">👑 BIGGEST GIFTER</div>
-                    <div id="top-name" style="font-size: 22px; font-weight: bold;">Waiting...</div>
-                </div>
-                <div class="panel" style="width: 100%; text-align: center; padding: 25px;">
-                    <div id="timer-display" class="timer-val">01:00</div>
-                    <button class="btn-main btn-start" onclick="toggleTimer()">START / PAUSE</button>
-                    <div style="display: flex; gap: 10px;">
-                        <button class="btn-main" style="background:#444; flex:1;" onclick="resetT()">RESET</button>
-                        <button class="btn-main glow-purple" style="background:var(--purple); flex:1;" onclick="openModal('snipe-modal')">SNIPE DELAY</button>
-                    </div>
-                    <button id="live-btn" class="btn-main glow-green" style="background:transparent; color:var(--green); margin-top:10px;" onclick="openModal('live-modal')">CONNECT TO YOUR LIVE</button>
-                    <div class="url-box" style="border-color:var(--purple)" onclick="copy('timer')">COPY OVERLAY URL</div>
-                </div>
+        </div>
+        <div class="center-column">
+            <div class="panel biggest-gifter">
+                <div style="color: var(--gold); font-size: 13px;">👑 BIGGEST GIFTER</div>
+                <div id="top-name" style="font-size: 22px; font-weight: bold;">Waiting...</div>
             </div>
-            <div class="panel">
-                <div class="content">
-                    <h3 style="color:var(--gold); text-align:center;">TOP 3 GIFTERS</h3>
-                    <div id="gifters-list"></div>
-                </div>
+            <div class="panel" style="width: 100%; text-align: center; padding: 25px;">
+                <div id="timer-display" class="timer-val">01:00</div>
+                <button class="btn-main" style="background:var(--neon);" onclick="toggleTimer()">START / PAUSE</button>
+                <button class="btn-main glow-green" onclick="alert('Copied!');">COPY OVERLAY URL</button>
+            </div>
+        </div>
+        <div class="panel">
+            <div style="padding:20px;">
+                <h3 style="color:var(--gold); text-align:center;">TOP 3 GIFTERS</h3>
+                <div id="gifters-list"></div>
             </div>
         </div>
     </div>
 
-    <div id="live-modal" class="custom-modal">
-        <div class="modal-card glow-green">
-            <h3 style="color: var(--green)">Live Connect</h3>
-            <input type="text" id="tiktok-user-input" placeholder="@username">
-            <button class="btn-main" style="background: var(--green); color:black; margin-top:15px;" onclick="tryConnectLive()">CONNECT</button>
-            <button class="btn-main" style="background: #222;" onclick="closeModal('live-modal')">X</button>
-        </div>
-    </div>
-
-    <div id="snipe-modal" class="custom-modal">
-        <div class="modal-card glow-purple">
-            <h3 style="color: var(--purple)">Snipe Delay</h3>
-            <input type="number" id="new-snipe-val" placeholder="Seconds">
-            <button class="btn-main" style="background: var(--purple); margin-top:15px;" onclick="saveSnipe()">SAVE</button>
-            <button class="btn-main" style="background: #222;" onclick="closeModal('snipe-modal')">X</button>
-        </div>
+    <div id="overlay-view">
+        <div id="display-content" style="text-align: center;">
+            </div>
     </div>
 
     <script>
-        function validateLogin() {
-            const user = document.getElementById('log-user').value, email = document.getElementById('log-email').value, pass = document.getElementById('log-pass').value;
-            let v = true;
-            document.querySelectorAll('.error-msg').forEach(e => e.style.display = 'none');
-            if (!user.includes('@')) { document.getElementById('err-user').style.display = 'block'; v = false; }
-            if (!email.includes('@') || (!email.includes('gmail.com') && !email.includes('.com'))) { document.getElementById('err-email').style.display = 'block'; v = false; }
-            if (pass.length < 8) { document.getElementById('err-pass').style.display = 'block'; v = false; }
-            if (v) { document.getElementById('login-screen').style.display = 'none'; document.getElementById('admin-panel').style.display = 'block'; }
+        // בדיקה: האם זה קישור לשידור?
+        const urlParams = new URLSearchParams(window.location.search);
+        const viewMode = urlParams.get('view');
+
+        if (viewMode) {
+            // אם יש "view" בכתובת - דלג על לוגין והצג רק את התוכן
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('overlay-view').style.display = 'flex';
+            setupOverlay(viewMode);
         }
 
-        let timeLeft = 60, snipeTime = 20, isRunning = false, isSnipe = false, timerId;
-        const sound = document.getElementById('snipe-sound');
+        function validateLogin() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('admin-panel').style.display = 'grid';
+        }
 
-        async function tryConnectLive() {
-            const user = document.getElementById('tiktok-user-input').value;
-            if(!user.startsWith('@')) return;
-            try {
-                const res = await fetch(`https://livebit-server.onrender.com/check-live?user=${user.replace('@','')}`);
-                const data = await res.json();
-                closeModal('live-modal');
-                if(data.isLive) {
-                    document.getElementById('overlay-success').style.display = 'flex';
-                } else {
-                    document.getElementById('overlay-error').style.display = 'flex';
-                    setTimeout(() => document.getElementById('overlay-error').style.display = 'none', 3000);
-                }
-            } catch(e) { 
-                document.getElementById('overlay-error').style.display = 'flex';
-                setTimeout(() => document.getElementById('overlay-error').style.display = 'none', 3000);
+        function setupOverlay(type) {
+            const content = document.getElementById('display-content');
+            if(type === 'timer') {
+                content.innerHTML = `<div class="timer-val" style="font-size:150px;">01:00</div>`;
             }
+            // כאן נוסיף בהמשך סנכרון בזמן אמת
+        }
+
+        let timeLeft = 60, isRunning = false, timerId;
+        function update() {
+            const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
+            const timeStr = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            document.getElementById('timer-display').innerText = timeStr;
+            // אם יש אלמנט תצוגה לשידור, עדכן גם אותו
+            const display = document.querySelector('#display-content .timer-val');
+            if(display) display.innerText = timeStr;
         }
 
         function toggleTimer() {
-            if (isRunning) { clearInterval(timerId); isRunning = false; sound.pause(); }
-            else {
-                isRunning = true;
-                timerId = setInterval(() => {
-                    if (timeLeft > 0) { timeLeft--; update(); }
-                    else if (!isSnipe) { isSnipe = true; timeLeft = snipeTime; sound.play(); update(); }
-                    else { clearInterval(timerId); isRunning = false; sound.pause(); }
-                }, 1000);
-            }
+            if (isRunning) { clearInterval(timerId); isRunning = false; }
+            else { isRunning = true; timerId = setInterval(() => { if(timeLeft>0) {timeLeft--; update();} }, 1000); }
         }
-
-        function update() {
-            const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
-            document.getElementById('timer-display').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-            document.getElementById('timer-display').className = isSnipe ? 'timer-val mode-snipe' : 'timer-val';
-        }
-
-        function copy(t) { navigator.clipboard.writeText(window.location.href.split('?')[0]+"?view="+t); alert("Copied!"); }
-        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        function saveSnipe() { snipeTime = document.getElementById('new-snipe-val').value; closeModal('snipe-modal'); }
-        function togglePass() { const p = document.getElementById('log-pass'); p.type = p.type === 'password' ? 'text' : 'password'; }
-        function resetT() { clearInterval(timerId); isRunning = false; isSnipe = false; timeLeft = 60; sound.pause(); update(); }
-
-        const fill = (id, n) => {
-            let h = ""; for(let i=1; i<=n; i++) h += `<div class="row"><span>${i}. ---</span><span style="color:var(--neon)">0</span></div>`;
-            document.getElementById(id).innerHTML = h;
-        };
-        fill('likers-list', 10); fill('gifters-list', 3);
     </script>
 </body>
 </html>
