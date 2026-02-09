@@ -2,114 +2,117 @@
 <html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <title>LiveBIT Overlay</title>
+    <title>LiveBIT System</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --neon: #00e5ff; --red: #ff2d55; --gold: #ffcc00; --purple: #8a2be2; --bg: #0d0d15; --card: #161625; --green: #00ff88; }
         body { background: transparent; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; }
         
-        /* הסתרת אלמנטים לפי צורך */
+        /* תצוגת שידור (Overlay) */
+        #overlay-view { display: none; width: 100vw; height: 100vh; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        
+        .timer-val { font-size: 120px; font-weight: 900; font-family: monospace; line-height: 1; }
+        .snipe-text { color: var(--red); font-weight: bold; font-size: 24px; margin: 10px 0; text-shadow: 0 0 10px var(--red); }
+        
+        .gifters-container { width: 350px; background: rgba(22, 22, 37, 0.9); border-radius: 15px; padding: 15px; border: 1px solid rgba(255,255,255,0.1); }
+        .top-title { color: var(--gold); font-weight: 900; margin-bottom: 15px; font-size: 20px; }
+        
+        .gifter-row { display: flex; justify-content: space-between; padding: 10px; margin-bottom: 8px; border-radius: 8px; font-weight: bold; }
+        .rank-1 { border: 2px solid var(--gold); box-shadow: 0 0 15px var(--gold); color: var(--gold); }
+        .rank-2 { border: 2px solid #e5e4e2; box-shadow: 0 0 10px #e5e4e2; color: #e5e4e2; }
+        .rank-3 { border: 2px solid #cd7f32; box-shadow: 0 0 10px #cd7f32; color: #cd7f32; }
+
+        /* מסך ניהול ולוגין */
+        #login-screen, #admin-panel { background: var(--bg); height: 100vh; width: 100vw; position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .hidden { display: none !important; }
-
-        /* עיצוב לוח הבקרה (העיצוב המקורי שלך) */
-        #admin-panel { display: none; width: 100vw; height: 100vh; background: var(--bg); grid-template-columns: 300px 1fr 300px; gap: 20px; padding: 20px; box-sizing: border-box; }
-        .panel { background: var(--card); border: 1px solid rgba(255,255,255,0.05); border-radius: 15px; overflow: hidden; }
-        .center-column { display: flex; flex-direction: column; gap: 20px; align-items: center; }
-        .biggest-gifter { width: 100%; border: 2px solid var(--gold); border-radius: 12px; padding: 20px; text-align: center; }
-        .timer-val { font-size: 120px; font-weight: 900; font-family: monospace; color: white; margin: 10px 0; }
-        .btn-main { border: none; padding: 18px; border-radius: 10px; font-weight: 900; cursor: pointer; width: 100%; margin-bottom: 10px; }
-        .glow-green { background: transparent; color: var(--green); border: 2px solid var(--green); }
-
-        /* עיצוב המצב שרואים בטיקטוק (רק טיימר וטבלאות בלי רקע) */
-        #overlay-view { display: none; width: 100%; height: 100%; justify-content: center; align-items: center; }
-
-        /* לוגין */
-        #login-screen { position: fixed; inset: 0; background: #05050a; z-index: 10000; display: flex; align-items: center; justify-content: center; }
-        .login-card { background: #111; padding: 40px; border-radius: 20px; border: 2px solid var(--neon); text-align: center; width: 380px; }
-        input { width: 100%; padding: 15px; background: #000; border: 1px solid #222; color: white; border-radius: 8px; margin: 10px 0; outline: none; }
+        .btn-main { background: var(--neon); color: black; border: none; padding: 15px 30px; border-radius: 10px; font-weight: 900; cursor: pointer; }
+        input { padding: 15px; width: 300px; border-radius: 8px; border: none; margin: 10px; }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
-        <div class="login-card">
-            <h2 style="color: var(--neon)">LiveBIT Login</h2>
-            <input type="text" id="log-user" placeholder="TikTok Username">
-            <input type="password" id="log-pass" placeholder="Password">
-            <button onclick="validateLogin()" class="btn-main" style="background:var(--neon); color:black;">CONNECT SYSTEM</button>
-        </div>
+        <h2 style="color: var(--neon)">LiveBIT Login</h2>
+        <input type="text" id="log-user" placeholder="TikTok Username">
+        <input type="password" placeholder="Password">
+        <button class="btn-main" onclick="showAdmin()">CONNECT</button>
     </div>
 
-    <div id="admin-panel">
-        <div class="panel">
-            <div style="padding:20px;">
-                <h3 style="color:var(--red); text-align:center;">TOP 10 LIKERS</h3>
-                <div id="likers-list"></div>
-            </div>
-        </div>
-        <div class="center-column">
-            <div class="panel biggest-gifter">
-                <div style="color: var(--gold); font-size: 13px;">👑 BIGGEST GIFTER</div>
-                <div id="top-name" style="font-size: 22px; font-weight: bold;">Waiting...</div>
-            </div>
-            <div class="panel" style="width: 100%; text-align: center; padding: 25px;">
-                <div id="timer-display" class="timer-val">01:00</div>
-                <button class="btn-main" style="background:var(--neon);" onclick="toggleTimer()">START / PAUSE</button>
-                <button class="btn-main glow-green" onclick="alert('Copied!');">COPY OVERLAY URL</button>
-            </div>
-        </div>
-        <div class="panel">
-            <div style="padding:20px;">
-                <h3 style="color:var(--gold); text-align:center;">TOP 3 GIFTERS</h3>
-                <div id="gifters-list"></div>
-            </div>
-        </div>
+    <div id="admin-panel" class="hidden">
+        <div class="timer-val" id="admin-timer">01:00</div>
+        <button class="btn-main" onclick="toggleTimer()" style="margin-top:20px;">START / PAUSE</button>
+        <p style="color:var(--neon)">Copy this URL to TikTok Studio:</p>
+        <code id="copy-url" style="background:#000; padding:10px; border:1px solid var(--neon)"></code>
     </div>
 
     <div id="overlay-view">
-        <div id="display-content" style="text-align: center;">
-            </div>
+        <div class="timer-val" id="overlay-timer">01:00</div>
+        <div class="snipe-text" id="overlay-snipe">Snipe Trigger: 20s</div>
+        
+        <div class="gifters-container">
+            <div class="top-title">TOP GIFTERS</div>
+            <div class="gifter-row rank-1"><span>1. ---</span><span>0</span></div>
+            <div class="gifter-row rank-2"><span>2. ---</span><span>0</span></div>
+            <div class="gifter-row rank-3"><span>3. ---</span><span>0</span></div>
+        </div>
     </div>
 
     <script>
-        // בדיקה: האם זה קישור לשידור?
-        const urlParams = new URLSearchParams(window.location.search);
-        const viewMode = urlParams.get('view');
+        const channel = new BroadcastChannel('livebit_sync');
+        let timeLeft = 60;
+        let snipeTime = 20;
+        let isRunning = false;
+        let timerId;
 
-        if (viewMode) {
-            // אם יש "view" בכתובת - דלג על לוגין והצג רק את התוכן
+        // בדיקה אם אנחנו ב-Overlay
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('view') === 'timer') {
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('overlay-view').style.display = 'flex';
-            setupOverlay(viewMode);
         }
 
-        function validateLogin() {
+        function showAdmin() {
             document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('admin-panel').style.display = 'grid';
-        }
-
-        function setupOverlay(type) {
-            const content = document.getElementById('display-content');
-            if(type === 'timer') {
-                content.innerHTML = `<div class="timer-val" style="font-size:150px;">01:00</div>`;
-            }
-            // כאן נוסיף בהמשך סנכרון בזמן אמת
-        }
-
-        let timeLeft = 60, isRunning = false, timerId;
-        function update() {
-            const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
-            const timeStr = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-            document.getElementById('timer-display').innerText = timeStr;
-            // אם יש אלמנט תצוגה לשידור, עדכן גם אותו
-            const display = document.querySelector('#display-content .timer-val');
-            if(display) display.innerText = timeStr;
+            document.getElementById('admin-panel').classList.remove('hidden');
+            document.getElementById('copy-url').innerText = window.location.href.split('?')[0] + "?view=timer";
         }
 
         function toggleTimer() {
-            if (isRunning) { clearInterval(timerId); isRunning = false; }
-            else { isRunning = true; timerId = setInterval(() => { if(timeLeft>0) {timeLeft--; update();} }, 1000); }
+            if (isRunning) {
+                clearInterval(timerId);
+                isRunning = false;
+            } else {
+                isRunning = true;
+                timerId = setInterval(() => {
+                    if (timeLeft > 0) {
+                        timeLeft--;
+                        sync();
+                    }
+                }, 1000);
+            }
         }
+
+        function sync() {
+            const m = Math.floor(timeLeft / 60);
+            const s = timeLeft % 60;
+            const timeStr = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            
+            // עדכון מקומי
+            const timerAdmin = document.getElementById('admin-timer');
+            const timerOverlay = document.getElementById('overlay-timer');
+            if(timerAdmin) timerAdmin.innerText = timeStr;
+            if(timerOverlay) timerOverlay.innerText = timeStr;
+
+            // שליחה למסכים אחרים (טיקטוק סטודיו)
+            channel.postMessage({ type: 'TICK', time: timeStr });
+        }
+
+        // האזנה לעדכונים (בצד של הטיקטוק סטודיו)
+        channel.onmessage = (event) => {
+            if (event.data.type === 'TICK') {
+                document.getElementById('overlay-timer').innerText = event.data.time;
+            }
+        };
     </script>
 </body>
 </html>
