@@ -2,9 +2,10 @@
 <html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <title>LiveBIT Elite Pro - Final Production</title>
+    <title>LiveBIT Elite Pro - Final With Animations</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root { --neon: #00e5ff; --red: #ff2d55; --gold: #ffcc00; --purple: #8a2be2; --bg: #080810; --green: #00ff88; }
         body { background: #080810; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
@@ -23,13 +24,10 @@
         .side-panel { background: rgba(255,255,255,0.02); border-radius: 10px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); }
         .center-panel { display: flex; flex-direction: column; align-items: center; }
 
-        /* Biggest Gifter */
         .gifter-box { border: 1px solid var(--gold); border-radius: 8px; width: 100%; padding: 15px; text-align: center; margin-bottom: 20px; }
         .waiting-text { font-size: 24px; font-weight: bold; color: white; }
 
-        /* Snipe Label - קבוע באמצע מעל הטיימר */
         .snipe-middle-display { color: var(--red); font-size: 38px; font-weight: 900; margin-bottom: -15px; text-transform: uppercase; letter-spacing: 3px; }
-        
         .timer-val { font-size: 140px; font-weight: 800; font-family: monospace; margin: 10px 0; letter-spacing: -5px; }
         .timer-red { color: var(--red) !important; text-shadow: 0 0 30px var(--red); }
 
@@ -41,7 +39,7 @@
         .btn-dark-step { background: #1a1a1a; color: white; border: 1px solid #333; flex: 1; padding: 12px; }
 
         .list-item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #1a1a2a; color: #aaa; font-size: 14px; }
-        #live-status { color: var(--green); font-weight: bold; margin-top: 10px; display: none; text-align: center; }
+        #live-status { color: var(--green); font-weight: bold; margin-top: 10px; display: none; text-align: center; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -97,7 +95,7 @@
                        oninput="document.getElementById('current-snipe-val').innerText = this.value">
             </div>
             <button class="btn-action" style="background:transparent; color:var(--green); border:1px solid var(--green);" onclick="connectLive()">CONNECT TO YOUR LIVE</button>
-            <div id="live-status">CONNECTING...</div>
+            <div id="live-status">CHECKING...</div>
         </div>
 
         <div class="side-panel">
@@ -107,7 +105,6 @@
     </div>
 
     <script>
-        // חיבור לשרת ה-Render שלך
         const socket = io("https://livebit-server.onrender.com");
         let timeLeft = 60, active = false, isSnipeMode = false, timerTask;
         const sound = document.getElementById('tension-sound');
@@ -134,30 +131,49 @@
             }
         }
 
-        // פונקציית החיבור ללייב
+        // פונקציית חיבור עם אנימציות
         function connectLive() {
             const user = document.getElementById('log-user').value;
-            const status = document.getElementById('live-status');
-            status.style.display = 'block';
-            status.innerText = "CONNECTING TO " + user + "...";
+            if(!user.startsWith('@')) return;
+            
+            document.getElementById('live-status').style.display = 'block';
+            document.getElementById('live-status').innerText = "CHECKING TIKTOK STATUS...";
+            
+            // הצגת אנימציית טעינה בזמן הבדיקה
+            Swal.fire({
+                title: 'Connecting...',
+                text: 'Searching for your TikTok Live',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+
             socket.emit('joinRoom', user.replace('@', ''));
         }
 
-        // קבלת נתונים מהשרת בזמן אמת
+        // אנימציית הצלחה
         socket.on('connected', () => {
             document.getElementById('live-status').innerText = "LIVE CONNECTED! ✅";
+            Swal.fire({
+                icon: 'success',
+                title: 'Connected Successfully!',
+                text: 'Your Live is now synced with the system.',
+                timer: 3000,
+                showConfirmButton: false
+            });
         });
 
-        socket.on('gift', (data) => {
-            // כאן השרת יעדכן את ה-🪙 וה-Biggest Gifter
-            document.getElementById('top-gifter-name').innerText = data.uniqueId;
-            // אם מתנה מעלה זמן אפשר להוסיף כאן timeLeft += 10;
+        // אנימציית שגיאה - משתמש לא פעיל
+        socket.on('error', (msg) => {
+            document.getElementById('live-status').innerText = "CONNECTION FAILED";
+            Swal.fire({
+                icon: 'error',
+                title: 'User Not Active',
+                text: 'Make sure you are currently LIVE on TikTok and check the username again.',
+                confirmButtonColor: '#ff2d55'
+            });
         });
 
-        socket.on('like', (data) => {
-            // עדכון רשימת ה-❤️
-            console.log("Likes from server:", data.likeCount);
-        });
+        socket.on('gift', (data) => { document.getElementById('top-gifter-name').innerText = data.uniqueId; });
 
         function updateUI() {
             const m = Math.floor(timeLeft/60), s = timeLeft%60;
