@@ -12,34 +12,24 @@ const io = new Server(server, {
 });
 
 io.on('connection', (socket) => {
-    console.log('User connected to dashboard');
-
     socket.on('joinRoom', (tiktokUsername) => {
-        console.log(`Attempting to connect to TikTok: ${tiktokUsername}`);
+        console.log(`Checking: ${tiktokUsername}`);
         
-        // יצירת חיבור חדש לטיקטוק
         let tiktokConnection = new WebcastPushConnection(tiktokUsername);
 
         tiktokConnection.connect().then(state => {
-            console.log(`Connected to ${state.roomId}`);
-            socket.emit('connected');
+            console.log(`Success: Connected to ${tiktokUsername}`);
+            socket.emit('connected'); // שולח הצלחה לאתר
         }).catch(err => {
-            console.error('Failed to connect', err);
+            console.error('Error: User not found/not live');
+            socket.emit('error', 'User not active'); // שולח שגיאה לאתר
         });
 
-        // שליחת לייקים בזמן אמת
-        tiktokConnection.on('like', (data) => {
-            io.emit('like', data);
-        });
+        tiktokConnection.on('like', (data) => { io.emit('like', data); });
+        tiktokConnection.on('gift', (data) => { io.emit('gift', data); });
 
-        // שליחת מתנות בזמן אמת (כולל המטבעות 🪙)
-        tiktokConnection.on('gift', (data) => {
-            io.emit('gift', data);
-        });
-
-        // ניתוק מהטיקטוק כשהמשתמש סוגר את האתר
         socket.on('disconnect', () => {
-            tiktokConnection.disconnect();
+            try { tiktokConnection.disconnect(); } catch(e) {}
         });
     });
 });
