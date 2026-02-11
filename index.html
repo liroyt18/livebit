@@ -1,70 +1,119 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <title>LiveBIT Connection Test</title>
-    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <title>LiveBIT Elite Pro - Control Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        body { background: #080810; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .status-box { padding: 20px; border-radius: 15px; border: 2px solid #333; text-align: center; width: 80%; max-width: 500px; }
-        .loading { color: orange; font-weight: bold; }
-        .success { color: #00ff88; font-weight: bold; border-color: #00ff88; }
-        .error { color: #ff2d55; font-weight: bold; border-color: #ff2d55; }
-        #debug-info { margin-top: 20px; font-family: monospace; font-size: 12px; color: #888; text-align: left; background: #111; padding: 10px; width: 100%; overflow-x: auto; }
+        :root { --neon: #00e5ff; --red: #ff2d55; --gold: #ffcc00; --purple: #8a2be2; --bg: #080810; --green: #00ff88; }
+        body { background: #080810; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
+        #login-screen { position: fixed; inset: 0; background: #05050a; z-index: 10000; display: flex; align-items: center; justify-content: center; }
+        .login-card { background: #111; padding: 40px; border-radius: 20px; border: 2px solid var(--neon); text-align: center; width: 400px; box-shadow: 0 0 30px rgba(0, 229, 255, 0.4); }
+        input { width: 100%; padding: 15px; background: #000; border: 1px solid #333; color: white; border-radius: 10px; margin: 10px 0; box-sizing: border-box; }
+        .btn-connect-system { background: var(--neon); color: #000; border: none; padding: 18px; width: 100%; cursor: pointer; font-weight: 900; border-radius: 10px; text-transform: uppercase; }
+        #admin-panel { display: none; width: 100%; height: 100vh; grid-template-columns: 320px 1fr 320px; gap: 15px; padding: 15px; box-sizing: border-box; }
+        .side-panel { background: rgba(255,255,255,0.02); border-radius: 10px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); }
+        .center-panel { display: flex; flex-direction: column; align-items: center; }
+        .timer-val { font-size: 140px; font-weight: 800; font-family: monospace; margin: 10px 0; }
+        .timer-red { color: var(--red); text-shadow: 0 0 30px var(--red); }
+        .btn-action { width: 100%; border: none; border-radius: 8px; font-weight: 900; cursor: pointer; padding: 18px; margin-bottom: 10px; }
+        .btn-cyan { background: var(--neon); color: black; }
+        .list-item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #1a1a2a; color: #aaa; }
     </style>
 </head>
 <body>
 
-    <div id="status-card" class="status-box">
-        <h2>בדיקת חיבור לשרת</h2>
-        <p id="status-msg" class="loading">מנסה להתחבר לשרת ב-Render...</p>
-        <p id="server-url" style="font-size: 14px; color: #00e5ff;"></p>
+    <audio id="tension-sound"><source src="tension.mp3" type="audio/mpeg"></audio>
+
+    <div id="login-screen">
+        <div class="login-card">
+            <h2 style="color: var(--neon);">LiveBIT Login</h2>
+            <input type="text" id="log-user" placeholder="TikTok @Username">
+            <button onclick="doLogin()" class="btn-connect-system">ENTER PANEL</button>
+        </div>
     </div>
 
-    <div id="debug-info">
-        <b>יומן בדיקה (Debug):</b><br>
-        <div id="log"></div>
+    <div id="admin-panel">
+        <div class="side-panel"><h3 style="text-align: center;">LIKERS</h3><div id="likers-list"></div></div>
+        <div class="center-panel">
+            <div id="timer-display" class="timer-val">01:00</div>
+            <button class="btn-action btn-cyan" onclick="toggleClock()">START / PAUSE</button>
+            <button class="btn-action" style="background:transparent; color:var(--green); border:1px solid var(--green);" onclick="connectLive()">CONNECT TO TIKTOK LIVE</button>
+        </div>
+        <div class="side-panel"><h3 style="text-align: center;">TOP GIFTERS</h3><div id="gifters-list"></div></div>
     </div>
 
     <script>
-        // וודא שהכתובת הזו היא בדיוק מה שמופיע לך ב-Render!
-        const SERVER_URL = "https://livebit-server.onrender.com"; 
-        document.getElementById('server-url').innerText = "כתובת השרת: " + SERVER_URL;
+        // הקישור המדויק לשרת שלך
+        const SERVER_URL = "https://livebit-server.onrender.com";
+        
+        // הגדרת חיבור חזקה שעוקפת חסימות דפדפן
+        const socket = io(SERVER_URL, {
+            transports: ['websocket', 'polling'],
+            timeout: 20000,
+            reconnectionAttempts: 5
+        });
 
-        function addLog(msg) {
-            const logDiv = document.getElementById('log');
-            logDiv.innerHTML += "> " + msg + "<br>";
+        let timeLeft = 60, active = false, isSnipeMode = false, timerTask;
+        const sound = document.getElementById('tension-sound');
+
+        function doLogin() {
+            document.getElementById('login-screen').style.display = 'none'; 
+            document.getElementById('admin-panel').style.display = 'grid';
         }
 
-        addLog("מתחיל ניסיון חיבור ל-Socket.io...");
+        function connectLive() {
+            const user = document.getElementById('log-user').value;
+            Swal.fire({ title: 'Connecting...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+            socket.emit('joinRoom', user.replace('@', ''));
+        }
 
-        const socket = io(SERVER_URL, {
-            timeout: 10000,
-            reconnectionAttempts: 3
+        socket.on('connected', () => { 
+            Swal.fire({ icon: 'success', title: 'Connected!', timer: 2000, showConfirmButton: false }); 
         });
 
-        socket.on('connect', () => {
-            addLog("חיבור הצליח! ID: " + socket.id);
-            document.getElementById('status-msg').innerText = "מחובר בהצלחה! השרת עובד.";
-            document.getElementById('status-msg').className = "success";
+        socket.on('connect_error', (err) => {
+            console.error("Connection failed:", err);
         });
 
-        socket.on('connect_error', (error) => {
-            addLog("שגיאת חיבור: " + error.message);
-            document.getElementById('status-msg').innerText = "נכשל להתחבר לשרת. הכתובת לא נכונה או שהשרת כבוי.";
-            document.getElementById('status-msg').className = "error";
-        });
+        function updateUI() {
+            const m = Math.floor(timeLeft/60), s = timeLeft%60;
+            const timeStr = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            const d = document.getElementById('timer-display');
+            d.innerText = timeStr;
+            
+            if(isSnipeMode) d.classList.add('timer-red'); else d.classList.remove('timer-red');
 
-        socket.on('disconnect', () => {
-            addLog("החיבור נותק.");
-        });
+            // סנכרון עם ה-Overlay בטיקטוק סטודיו
+            socket.emit('syncOverlay', {
+                time: timeStr,
+                isSnipe: isSnipeMode
+            });
+        }
 
-        // בדיקה אם השרת בכלל חי בדפדפן
-        fetch(SERVER_URL).then(() => {
-            addLog("השרת הגיב לבקשת HTTP פשוטה.");
-        }).catch(err => {
-            addLog("השרת לא מגיב בכלל (HTTP Fail).");
-        });
+        function toggleClock() {
+            if(active) { clearInterval(timerTask); active = false; }
+            else {
+                active = true;
+                timerTask = setInterval(() => {
+                    if(timeLeft > 0) timeLeft--;
+                    else if(!isSnipeMode) {
+                        isSnipeMode = true;
+                        timeLeft = 20; 
+                        sound.play();
+                    } else { clearInterval(timerTask); active = false; }
+                    updateUI();
+                }, 1000);
+            }
+        }
+
+        const fill = (id, n, sym) => {
+            let h = ""; for(let i=1; i<=n; i++) h += `<div class="list-item"><span>${i}. ${sym}</span><span>0</span></div>`;
+            document.getElementById(id).innerHTML = h;
+        };
+        fill('likers-list', 10, '❤️'); fill('gifters-list', 3, '🪙');
     </script>
 </body>
 </html>
