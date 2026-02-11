@@ -2,91 +2,52 @@
 <html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <title>LiveBIT Elite Pro</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>LiveBIT Control Panel</title>
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        :root { --neon: #00e5ff; --red: #ff2d55; --bg: #080810; --card: #111116; --green: #00ff88; }
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-
-        /* תיקון מסך הלוגין */
-        #login-screen { position: fixed; inset: 0; background: #05050a; z-index: 10000; display: flex; align-items: center; justify-content: center; }
-        .login-card { 
-            background: var(--card); 
-            padding: 50px 40px; 
-            border-radius: 25px; 
-            border: 2px solid var(--neon); 
-            text-align: center; 
-            width: 100%;
-            max-width: 420px; 
-            box-shadow: 0 0 40px rgba(0, 229, 255, 0.25);
-        }
-        .login-card h2 { color: var(--neon); font-size: 32px; margin-bottom: 30px; letter-spacing: 2px; text-transform: uppercase; }
+        :root { --neon: #00e5ff; --red: #ff2d55; --bg: #080810; --green: #00ff88; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; }
         
-        .input-wrapper { margin-bottom: 25px; width: 100%; }
-        input { 
-            width: 100%; 
-            padding: 18px; 
-            background: #000; 
-            border: 1px solid #333; 
-            color: white; 
-            border-radius: 12px; 
-            font-size: 16px; 
-            outline: none; 
-            transition: 0.3s;
-            box-sizing: border-box; /* מבטיח שהפדינג לא יהרוס את הרוחב */
-        }
-        input:focus { border-color: var(--neon); box-shadow: 0 0 10px rgba(0, 229, 255, 0.2); }
+        /* עיצוב מסך הלוגין המקורי */
+        #login-screen { position: fixed; inset: 0; background: #05050a; z-index: 10000; display: flex; align-items: center; justify-content: center; }
+        .login-card { background: #111; padding: 40px; border-radius: 20px; border: 2px solid var(--neon); text-align: center; width: 400px; box-shadow: 0 0 30px rgba(0, 229, 255, 0.4); }
+        input { width: 100%; padding: 15px; background: #000; border: 1px solid #333; color: white; border-radius: 10px; margin: 10px 0; box-sizing: border-box; font-size: 16px; }
+        .btn-connect-system { background: var(--neon); color: #000; border: none; padding: 18px; width: 100%; cursor: pointer; font-weight: 900; border-radius: 10px; text-transform: uppercase; }
 
-        .btn-connect-system { 
-            background: var(--neon); 
-            color: #000; 
-            border: none; 
-            padding: 18px; 
-            width: 100%; 
-            cursor: pointer; 
-            font-weight: 900; 
-            border-radius: 12px; 
-            text-transform: uppercase; 
-            font-size: 18px;
-            transition: 0.3s;
-            box-shadow: 0 5px 15px rgba(0, 229, 255, 0.3);
-        }
-        .btn-connect-system:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 229, 255, 0.5); }
-
-        /* פאנל ניהול */
-        #admin-panel { display: none; width: 100%; height: 100vh; grid-template-columns: 320px 1fr 320px; gap: 15px; padding: 15px; box-sizing: border-box; }
-        .side-panel { background: rgba(255,255,255,0.02); border-radius: 15px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); }
+        /* פאנל ניהול - הסטייל שאהבת */
+        #admin-panel { display: none; width: 100%; height: 100vh; grid-template-columns: 300px 1fr 300px; gap: 10px; padding: 10px; box-sizing: border-box; }
+        .side-panel { background: rgba(255,255,255,0.02); border-radius: 5px; padding: 15px; border: 1px solid rgba(255,255,255,0.05); }
         .center-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .timer-val { font-size: 140px; font-weight: 800; font-family: 'Courier New', Courier, monospace; margin: 10px 0; }
-        .timer-red { color: var(--red); text-shadow: 0 0 30px var(--red); }
-        .btn-action { width: 100%; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; padding: 20px; margin-bottom: 15px; text-transform: uppercase; font-size: 16px; }
-        .btn-cyan { background: var(--neon); color: black; }
+        .timer-val { font-size: 160px; font-weight: 800; font-family: monospace; margin: 10px 0; }
+        
+        .btn-action { width: 100%; border: none; border-radius: 5px; font-weight: 900; cursor: pointer; padding: 20px; margin-bottom: 10px; font-size: 16px; text-transform: uppercase; }
+        .btn-cyan { background: var(--neon); color: black; box-shadow: 0 0 15px var(--neon); }
+        .btn-outline-green { background: transparent; color: var(--green); border: 1px solid var(--green); }
+        
+        .list-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #1a1a2a; color: #ccc; }
     </style>
 </head>
 <body>
 
-    <audio id="tension-sound"><source src="tension.mp3" type="audio/mpeg"></audio>
-
     <div id="login-screen">
         <div class="login-card">
-            <h2>LiveBIT Login</h2>
-            <div class="input-wrapper">
-                <input type="text" id="log-user" placeholder="Enter TikTok @Username">
-            </div>
+            <h2 style="color: var(--neon);">LiveBIT Login</h2>
+            <input type="text" id="log-user" placeholder="TikTok @Username">
             <button onclick="doLogin()" class="btn-connect-system">ENTER PANEL</button>
         </div>
     </div>
 
     <div id="admin-panel">
-        <div class="side-panel"><h3 style="text-align: center; color: var(--neon);">TOP LIKERS</h3><div id="likers-list"></div></div>
+        <div class="side-panel"><h3 style="text-align: center;">TOP LIKERS</h3><div id="likers-list"></div></div>
+        
         <div class="center-panel">
             <div id="timer-display" class="timer-val">01:00</div>
             <button class="btn-action btn-cyan" onclick="toggleClock()">START / PAUSE</button>
-            <button class="btn-action" style="background:transparent; color:var(--green); border:2px solid var(--green);" onclick="connectLive()">CONNECT TO LIVE</button>
+            <button class="btn-action btn-outline-green" onclick="connectLive()">CONNECT TIKTOK LIVE</button>
         </div>
-        <div class="side-panel"><h3 style="text-align: center; color: var(--neon);">GIFTERS</h3><div id="gifters-list"></div></div>
+
+        <div class="side-panel"><h3 style="text-align: center;">TOP GIFTERS</h3><div id="gifters-list"></div></div>
     </div>
 
     <script>
@@ -102,21 +63,19 @@
 
         function connectLive() {
             const user = document.getElementById('log-user').value;
-            if(!user) return Swal.fire('Error', 'Please enter username', 'error');
+            if(!user) return;
             Swal.fire({ title: 'Connecting...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
             socket.emit('joinRoom', user.replace('@', ''));
         }
 
         socket.on('connected', () => { 
-            Swal.fire({ icon: 'success', title: 'Live Connected!', timer: 2000, showConfirmButton: false }); 
+            Swal.fire({ icon: 'success', title: 'Connected!', timer: 2000, showConfirmButton: false }); 
         });
 
         function updateUI() {
             const m = Math.floor(timeLeft/60), s = timeLeft%60;
             const timeStr = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
             document.getElementById('timer-display').innerText = timeStr;
-            const d = document.getElementById('timer-display');
-            if(isSnipeMode) d.classList.add('timer-red'); else d.classList.remove('timer-red');
             socket.emit('syncOverlay', { time: timeStr, isSnipe: isSnipeMode });
         }
 
@@ -126,15 +85,16 @@
                 active = true;
                 timerTask = setInterval(() => {
                     if(timeLeft > 0) timeLeft--;
-                    else if(!isSnipeMode) {
-                        isSnipeMode = true;
-                        timeLeft = 20; 
-                        document.getElementById('tension-sound').play().catch(e => {});
-                    } else { clearInterval(timerTask); active = false; }
                     updateUI();
                 }, 1000);
             }
         }
+
+        const fill = (id, n, sym) => {
+            let h = ""; for(let i=1; i<=n; i++) h += `<div class="list-item"><span>${i}. ${sym}</span><span>0</span></div>`;
+            document.getElementById(id).innerHTML = h;
+        };
+        fill('likers-list', 10, '❤️'); fill('gifters-list', 3, '🪙');
     </script>
 </body>
 </html>
