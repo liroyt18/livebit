@@ -2,7 +2,7 @@
 <html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <title>LiveBIT Elite Pro - Restored & Animated</title>
+    <title>LiveBIT Elite Pro - Final With Eye</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -15,6 +15,12 @@
         .login-card { background: #111; padding: 40px; border-radius: 20px; border: 2px solid var(--neon); text-align: center; width: 380px; box-shadow: 0 0 20px var(--neon); }
         .input-group { position: relative; margin: 15px 0; }
         input { width: 100%; padding: 15px; background: #000; border: 1px solid #222; color: white; border-radius: 8px; box-sizing: border-box; outline: none; }
+        
+        /* עיצוב העין */
+        .eye-btn { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #555; font-size: 18px; }
+        .eye-btn:hover { color: var(--neon); }
+
+        .btn-connect-system { background: var(--neon); color: black; border: none; padding: 16px; width: 100%; cursor: pointer; font-weight: 900; border-radius: 8px; text-transform: uppercase; margin-top: 10px; font-size: 16px; }
         .error-msg { color: var(--red); font-size: 11px; margin-top: 5px; display: none; font-weight: bold; }
 
         /* דאשבורד */
@@ -22,18 +28,12 @@
         .side-panel { background: rgba(255,255,255,0.02); border-radius: 10px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); }
         .center-panel { display: flex; flex-direction: column; align-items: center; }
 
-        /* Biggest Gifter */
         .gifter-box { border: 1px solid var(--gold); border-radius: 8px; width: 100%; padding: 15px; text-align: center; margin-bottom: 20px; }
         .waiting-text { font-size: 24px; font-weight: bold; color: white; }
-
-        /* Snipe Label */
         .snipe-middle-display { color: var(--red); font-size: 38px; font-weight: 900; margin-bottom: -15px; text-transform: uppercase; letter-spacing: 3px; }
-        
-        /* טיימר */
         .timer-val { font-size: 140px; font-weight: 800; font-family: monospace; margin: 10px 0; letter-spacing: -5px; }
         .timer-red { color: var(--red) !important; text-shadow: 0 0 30px var(--red); }
 
-        /* כפתורים */
         .btn-action { width: 100%; border: none; border-radius: 8px; font-weight: 900; cursor: pointer; padding: 18px; text-transform: uppercase; margin-bottom: 10px; }
         .btn-cyan { background: var(--neon); color: black; }
         .btn-row { display: flex; gap: 10px; width: 100%; margin-bottom: 10px; }
@@ -58,6 +58,7 @@
             </div>
             <div class="input-group">
                 <input type="password" id="log-pass" placeholder="Password">
+                <i class="fa-solid fa-eye eye-btn" id="toggleEye" onclick="togglePass()"></i>
                 <div id="p-err" class="error-msg">Min 8 characters required</div>
             </div>
             <div class="input-group">
@@ -84,22 +85,17 @@
             <div id="timer-display" class="timer-val">01:00</div>
 
             <button class="btn-action btn-cyan" onclick="toggleClock()">START / PAUSE</button>
-            
             <div class="btn-row">
                 <button class="btn-action btn-grey" onclick="resetClock()">RESET</button>
                 <button class="btn-action btn-purple" onclick="toggleSnipeEdit()">SNIPE DELAY</button>
             </div>
-            
             <div class="btn-row">
                 <button class="btn-dark-step" onclick="adjustTime(-30)">▼ 30s</button>
                 <button class="btn-dark-step" onclick="adjustTime(30)">▲ 30s</button>
             </div>
-
             <div id="snipe-input-area" style="display:none; width:100%; margin-bottom:10px;">
-                <input type="number" id="snipe-input" value="20" style="text-align:center; border:1px solid var(--purple); font-size:20px; width:100%;" 
-                       oninput="document.getElementById('current-snipe-val').innerText = this.value">
+                <input type="number" id="snipe-input" value="20" style="text-align:center; border:1px solid var(--purple); font-size:20px; width:100%;" oninput="document.getElementById('current-snipe-val').innerText = this.value">
             </div>
-
             <button class="btn-action" style="background:transparent; color:var(--green); border:1px solid var(--green);" onclick="connectLive()">CONNECT TO YOUR LIVE</button>
             <div id="live-status">READY</div>
         </div>
@@ -114,6 +110,19 @@
         const socket = io("https://livebit-server.onrender.com");
         let timeLeft = 60, active = false, isSnipeMode = false, timerTask;
         const sound = document.getElementById('tension-sound');
+
+        // פונקציה להצגת/הסתרת סיסמה
+        function togglePass() {
+            const p = document.getElementById('log-pass');
+            const icon = document.getElementById('toggleEye');
+            if (p.type === "password") {
+                p.type = "text";
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                p.type = "password";
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
 
         function doLogin() {
             const e = document.getElementById('log-email').value, 
