@@ -1,1 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        /* רקע שקוף כדי שיראו את הלייב מאחורה */
+        body { background: transparent; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; }
+        
+        .overlay-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; }
 
+        /* עיצוב הטיימר והסנייפ */
+        .snipe-label { color: #ff2d55; font-size: 30px; font-weight: 900; text-transform: uppercase; text-shadow: 2px 2px 10px rgba(255,45,85,0.5); }
+        .timer-val { font-size: 120px; font-weight: 800; font-family: monospace; margin: -10px 0; text-shadow: 0 0 20px rgba(0,0,0,0.8); }
+        .timer-red { color: #ff2d55; text-shadow: 0 0 30px #ff2d55; }
+
+        /* טבלת ה-Top 3 */
+        .gifters-card { background: rgba(0,0,0,0.6); border: 2px solid #ffcc00; border-radius: 15px; padding: 15px; min-width: 250px; margin-top: 20px; }
+        .title { color: #ffcc00; font-weight: bold; font-size: 18px; margin-bottom: 10px; }
+        .list-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 20px; }
+        .coin { color: #00e5ff; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="overlay-container">
+        <div class="snipe-label">SNIPE: <span id="overlay-snipe">20</span>s</div>
+        <div id="overlay-timer" class="timer-val">01:00</div>
+
+        <div class="gifters-card">
+            <div class="title">🏆 TOP 3 GIFTERS</div>
+            <div id="overlay-gifters">
+                <div class="list-item"><span>1. 🪙</span><span class="coin">0</span></div>
+                <div class="list-item"><span>2. 🪙</span><span class="coin">0</span></div>
+                <div class="list-item"><span>3. 🪙</span><span class="coin">0</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // התחברות לשרת כדי לקבל עדכונים בזמן אמת מהפאנל שלך
+        const socket = io("https://livebit-server.onrender.com");
+
+        // האזנה לעדכונים מהפאנל ניהול (צריך להוסיף שליחה מהפאנל)
+        socket.on('updateUI', (data) => {
+            document.getElementById('overlay-timer').innerText = data.time;
+            document.getElementById('overlay-snipe').innerText = data.snipe;
+            if(data.isSnipe) document.getElementById('overlay-timer').classList.add('timer-red');
+            else document.getElementById('overlay-timer').classList.remove('timer-red');
+        });
+
+        socket.on('updateGifters', (data) => {
+            // כאן יתעדכנו התורמים בזמן אמת
+        });
+    </script>
+</body>
+</html>
