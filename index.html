@@ -2,23 +2,23 @@
 <html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <title>LiveBIT Elite Pro - Control Panel</title>
+    <title>LiveBIT Elite Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        :root { --neon: #00e5ff; --red: #ff2d55; --gold: #ffcc00; --purple: #8a2be2; --bg: #080810; --green: #00ff88; }
-        body { background: #080810; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
+        :root { --neon: #00e5ff; --red: #ff2d55; --gold: #ffcc00; --bg: #080810; --green: #00ff88; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
         #login-screen { position: fixed; inset: 0; background: #05050a; z-index: 10000; display: flex; align-items: center; justify-content: center; }
-        .login-card { background: #111; padding: 40px; border-radius: 20px; border: 2px solid var(--neon); text-align: center; width: 400px; box-shadow: 0 0 30px rgba(0, 229, 255, 0.4); }
-        input { width: 100%; padding: 15px; background: #000; border: 1px solid #333; color: white; border-radius: 10px; margin: 10px 0; box-sizing: border-box; }
-        .btn-connect-system { background: var(--neon); color: #000; border: none; padding: 18px; width: 100%; cursor: pointer; font-weight: 900; border-radius: 10px; text-transform: uppercase; }
+        .login-card { background: #111; padding: 40px; border-radius: 20px; border: 2px solid var(--neon); text-align: center; width: 400px; }
+        input { width: 100%; padding: 15px; background: #000; border: 1px solid #333; color: white; border-radius: 10px; margin: 10px 0; font-size: 16px; }
+        .btn-connect-system { background: var(--neon); color: #000; border: none; padding: 18px; width: 100%; cursor: pointer; font-weight: 900; border-radius: 10px; text-transform: uppercase; box-shadow: 0 0 20px var(--neon); }
         #admin-panel { display: none; width: 100%; height: 100vh; grid-template-columns: 320px 1fr 320px; gap: 15px; padding: 15px; box-sizing: border-box; }
-        .side-panel { background: rgba(255,255,255,0.02); border-radius: 10px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); }
-        .center-panel { display: flex; flex-direction: column; align-items: center; }
+        .side-panel { background: rgba(255,255,255,0.02); border-radius: 10px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); overflow-y: auto; }
+        .center-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .timer-val { font-size: 140px; font-weight: 800; font-family: monospace; margin: 10px 0; }
         .timer-red { color: var(--red); text-shadow: 0 0 30px var(--red); }
-        .btn-action { width: 100%; border: none; border-radius: 8px; font-weight: 900; cursor: pointer; padding: 18px; margin-bottom: 10px; }
+        .btn-action { width: 100%; border: none; border-radius: 8px; font-weight: 900; cursor: pointer; padding: 18px; margin-bottom: 10px; text-transform: uppercase; }
         .btn-cyan { background: var(--neon); color: black; }
         .list-item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #1a1a2a; color: #aaa; }
     </style>
@@ -29,31 +29,28 @@
 
     <div id="login-screen">
         <div class="login-card">
-            <h2 style="color: var(--neon);">LiveBIT Login</h2>
+            <h2 style="color: var(--neon); margin-bottom: 20px;">LiveBIT Login</h2>
             <input type="text" id="log-user" placeholder="TikTok @Username">
-            <button onclick="doLogin()" class="btn-connect-system">ENTER PANEL</button>
+            <button onclick="doLogin()" class="btn-connect-system">Enter Panel</button>
         </div>
     </div>
 
     <div id="admin-panel">
-        <div class="side-panel"><h3 style="text-align: center;">LIKERS</h3><div id="likers-list"></div></div>
+        <div class="side-panel"><h3 style="text-align: center;">TOP LIKERS</h3><div id="likers-list"></div></div>
         <div class="center-panel">
             <div id="timer-display" class="timer-val">01:00</div>
             <button class="btn-action btn-cyan" onclick="toggleClock()">START / PAUSE</button>
-            <button class="btn-action" style="background:transparent; color:var(--green); border:1px solid var(--green);" onclick="connectLive()">CONNECT TO TIKTOK LIVE</button>
+            <button class="btn-action" style="background:transparent; color:var(--green); border:1px solid var(--green);" onclick="connectLive()">CONNECT TIKTOK LIVE</button>
         </div>
         <div class="side-panel"><h3 style="text-align: center;">TOP GIFTERS</h3><div id="gifters-list"></div></div>
     </div>
 
     <script>
-        // הקישור המדויק לשרת שלך
+        // שימוש בכתובת שעבדה בבדיקה
         const SERVER_URL = "https://livebit-server.onrender.com";
         
-        // הגדרת חיבור חזקה שעוקפת חסימות דפדפן
         const socket = io(SERVER_URL, {
-            transports: ['websocket', 'polling'],
-            timeout: 20000,
-            reconnectionAttempts: 5
+            transports: ['websocket', 'polling']
         });
 
         let timeLeft = 60, active = false, isSnipeMode = false, timerTask;
@@ -66,6 +63,7 @@
 
         function connectLive() {
             const user = document.getElementById('log-user').value;
+            if(!user) return Swal.fire('Error', 'Please enter username', 'error');
             Swal.fire({ title: 'Connecting...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
             socket.emit('joinRoom', user.replace('@', ''));
         }
@@ -74,23 +72,15 @@
             Swal.fire({ icon: 'success', title: 'Connected!', timer: 2000, showConfirmButton: false }); 
         });
 
-        socket.on('connect_error', (err) => {
-            console.error("Connection failed:", err);
-        });
-
         function updateUI() {
             const m = Math.floor(timeLeft/60), s = timeLeft%60;
             const timeStr = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
             const d = document.getElementById('timer-display');
             d.innerText = timeStr;
-            
             if(isSnipeMode) d.classList.add('timer-red'); else d.classList.remove('timer-red');
 
-            // סנכרון עם ה-Overlay בטיקטוק סטודיו
-            socket.emit('syncOverlay', {
-                time: timeStr,
-                isSnipe: isSnipeMode
-            });
+            // סנכרון עם ה-Overlay
+            socket.emit('syncOverlay', { time: timeStr, isSnipe: isSnipeMode });
         }
 
         function toggleClock() {
@@ -102,7 +92,7 @@
                     else if(!isSnipeMode) {
                         isSnipeMode = true;
                         timeLeft = 20; 
-                        sound.play();
+                        sound.play().catch(e => {});
                     } else { clearInterval(timerTask); active = false; }
                     updateUI();
                 }, 1000);
