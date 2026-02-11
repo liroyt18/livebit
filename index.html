@@ -2,41 +2,52 @@
 <html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <title>LiveBIT Elite Pro - Final FIX</title>
+    <title>LiveBIT Elite Pro - Restored & Animated</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <style>
         :root { --neon: #00e5ff; --red: #ff2d55; --gold: #ffcc00; --purple: #8a2be2; --bg: #080810; --green: #00ff88; }
         body { background: #080810; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
 
-        /* לוגין */
+        /* מסך התחברות */
         #login-screen { position: fixed; inset: 0; background: #05050a; z-index: 10000; display: flex; align-items: center; justify-content: center; }
         .login-card { background: #111; padding: 40px; border-radius: 20px; border: 2px solid var(--neon); text-align: center; width: 380px; box-shadow: 0 0 20px var(--neon); }
         .input-group { position: relative; margin: 15px 0; }
         input { width: 100%; padding: 15px; background: #000; border: 1px solid #222; color: white; border-radius: 8px; box-sizing: border-box; outline: none; }
-        .btn-connect-system { background: var(--neon); color: black; border: none; padding: 16px; width: 100%; cursor: pointer; font-weight: 900; border-radius: 8px; text-transform: uppercase; margin-top: 10px; font-size: 16px; }
         .error-msg { color: var(--red); font-size: 11px; margin-top: 5px; display: none; font-weight: bold; }
 
-        /* פאנל ניהול */
+        /* דאשבורד */
         #admin-panel { display: none; width: 100%; height: 100vh; grid-template-columns: 320px 1fr 320px; gap: 15px; padding: 15px; box-sizing: border-box; }
         .side-panel { background: rgba(255,255,255,0.02); border-radius: 10px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); }
         .center-panel { display: flex; flex-direction: column; align-items: center; }
 
+        /* Biggest Gifter */
         .gifter-box { border: 1px solid var(--gold); border-radius: 8px; width: 100%; padding: 15px; text-align: center; margin-bottom: 20px; }
-        .waiting-text { font-size: 24px; font-weight: bold; }
+        .waiting-text { font-size: 24px; font-weight: bold; color: white; }
 
+        /* Snipe Label */
+        .snipe-middle-display { color: var(--red); font-size: 38px; font-weight: 900; margin-bottom: -15px; text-transform: uppercase; letter-spacing: 3px; }
+        
+        /* טיימר */
         .timer-val { font-size: 140px; font-weight: 800; font-family: monospace; margin: 10px 0; letter-spacing: -5px; }
+        .timer-red { color: var(--red) !important; text-shadow: 0 0 30px var(--red); }
+
+        /* כפתורים */
         .btn-action { width: 100%; border: none; border-radius: 8px; font-weight: 900; cursor: pointer; padding: 18px; text-transform: uppercase; margin-bottom: 10px; }
         .btn-cyan { background: var(--neon); color: black; }
-        
+        .btn-row { display: flex; gap: 10px; width: 100%; margin-bottom: 10px; }
+        .btn-grey { background: #333; color: white; flex: 1; }
+        .btn-purple { background: var(--purple); color: white; flex: 1; }
+        .btn-dark-step { background: #1a1a1a; color: white; border: 1px solid #333; flex: 1; padding: 12px; font-weight: bold; cursor: pointer; }
+
         .list-item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #1a1a2a; color: #aaa; font-size: 14px; }
-        #live-status { color: var(--green); font-weight: bold; margin-top: 10px; display: none; }
+        #live-status { color: var(--green); font-weight: bold; margin-top: 10px; display: none; text-align: center; }
     </style>
 </head>
 <body>
+
+    <audio id="tension-sound" src="סאונד - מתח.mp3"></audio>
 
     <div id="login-screen">
         <div class="login-card">
@@ -58,24 +69,51 @@
     </div>
 
     <div id="admin-panel">
-        <div class="side-panel"><h3 style="text-align: center;">TOP 10 LIKERS</h3><div id="likers-list"></div></div>
+        <div class="side-panel">
+            <h3 style="text-align: center;">TOP 10 LIKERS</h3>
+            <div id="likers-list"></div>
+        </div>
+
         <div class="center-panel">
             <div class="gifter-box">
                 <div style="color: var(--gold); font-size: 10px; font-weight: bold;">👑 BIGGEST GIFTER</div>
                 <div id="top-gifter-name" class="waiting-text">Waiting...</div>
             </div>
+
+            <div class="snipe-middle-display">SNIPE: <span id="current-snipe-val">20</span>s</div>
             <div id="timer-display" class="timer-val">01:00</div>
+
             <button class="btn-action btn-cyan" onclick="toggleClock()">START / PAUSE</button>
+            
+            <div class="btn-row">
+                <button class="btn-action btn-grey" onclick="resetClock()">RESET</button>
+                <button class="btn-action btn-purple" onclick="toggleSnipeEdit()">SNIPE DELAY</button>
+            </div>
+            
+            <div class="btn-row">
+                <button class="btn-dark-step" onclick="adjustTime(-30)">▼ 30s</button>
+                <button class="btn-dark-step" onclick="adjustTime(30)">▲ 30s</button>
+            </div>
+
+            <div id="snipe-input-area" style="display:none; width:100%; margin-bottom:10px;">
+                <input type="number" id="snipe-input" value="20" style="text-align:center; border:1px solid var(--purple); font-size:20px; width:100%;" 
+                       oninput="document.getElementById('current-snipe-val').innerText = this.value">
+            </div>
+
             <button class="btn-action" style="background:transparent; color:var(--green); border:1px solid var(--green);" onclick="connectLive()">CONNECT TO YOUR LIVE</button>
             <div id="live-status">READY</div>
         </div>
-        <div class="side-panel"><h3 style="text-align: center;">TOP 3 GIFTERS</h3><div id="gifters-list"></div></div>
+
+        <div class="side-panel">
+            <h3 style="text-align: center;">TOP 3 GIFTERS</h3>
+            <div id="gifters-list"></div>
+        </div>
     </div>
 
     <script>
-        // חיבור לשרת
         const socket = io("https://livebit-server.onrender.com");
-        let timeLeft = 60, active = false, timerTask;
+        let timeLeft = 60, active = false, isSnipeMode = false, timerTask;
+        const sound = document.getElementById('tension-sound');
 
         function doLogin() {
             const e = document.getElementById('log-email').value, 
@@ -97,19 +135,15 @@
 
         function connectLive() {
             const user = document.getElementById('log-user').value;
-            
-            // אנימציית טעינה מיידית
             Swal.fire({
                 title: 'Connecting...',
                 text: 'Searching for ' + user,
                 allowOutsideClick: false,
                 didOpen: () => { Swal.showLoading(); }
             });
-
             socket.emit('joinRoom', user.replace('@', ''));
         }
 
-        // טיפול בתגובות מהשרת
         socket.on('connected', () => {
             Swal.fire({ icon: 'success', title: 'Connected!', text: 'Live is synced.', timer: 2000, showConfirmButton: false });
             document.getElementById('live-status').style.display = 'block';
@@ -121,26 +155,36 @@
             document.getElementById('live-status').innerText = "OFFLINE ❌";
         });
 
-        // עדכון נתונים בזמן אמת
-        socket.on('gift', (data) => {
-            document.getElementById('top-gifter-name').innerText = data.uniqueId;
-        });
+        function updateUI() {
+            const m = Math.floor(timeLeft/60), s = timeLeft%60;
+            const d = document.getElementById('timer-display');
+            d.innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            if(isSnipeMode) d.classList.add('timer-red');
+            else d.classList.remove('timer-red');
+        }
 
         function toggleClock() {
-            if(active) { clearInterval(timerTask); active = false; }
+            if(active) { clearInterval(timerTask); active = false; sound.pause(); }
             else {
                 active = true;
                 timerTask = setInterval(() => {
                     if(timeLeft > 0) timeLeft--;
+                    else if(!isSnipeMode) {
+                        isSnipeMode = true;
+                        timeLeft = parseInt(document.getElementById('snipe-input').value);
+                        sound.play();
+                    } else {
+                        clearInterval(timerTask); active = false;
+                        sound.pause();
+                    }
                     updateUI();
                 }, 1000);
             }
         }
 
-        function updateUI() {
-            const m = Math.floor(timeLeft/60), s = timeLeft%60;
-            document.getElementById('timer-display').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-        }
+        function resetClock() { timeLeft = 60; isSnipeMode = false; active = false; clearInterval(timerTask); sound.pause(); updateUI(); }
+        function adjustTime(v) { timeLeft += v; if(timeLeft < 0) timeLeft = 0; updateUI(); }
+        function toggleSnipeEdit() { const a = document.getElementById('snipe-input-area'); a.style.display = a.style.display === 'block' ? 'none' : 'block'; }
 
         const fill = (id, n, sym) => {
             let h = ""; for(let i=1; i<=n; i++) h += `<div class="list-item"><span>${i}. ${sym}</span><span style="color:var(--neon)">0</span></div>`;
