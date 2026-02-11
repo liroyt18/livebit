@@ -7,34 +7,21 @@ const cors = require('cors');
 const app = express();
 app.use(cors());
 const server = http.createServer(app);
-const io = new Server(server, {
-    cors: { origin: "*", methods: ["GET", "POST"] }
-});
+const io = new Server(server, { cors: { origin: "*" } });
 
 io.on('connection', (socket) => {
-    socket.on('joinRoom', (tiktokUsername) => {
-        console.log(`Checking: ${tiktokUsername}`);
-        
-        let tiktokConnection = new WebcastPushConnection(tiktokUsername);
+    // מאזין לעדכונים מהפאנל ושולח אותם ל-Overlay
+    socket.on('syncOverlay', (data) => {
+        io.emit('updateUI', data); 
+    });
 
-        tiktokConnection.connect().then(state => {
-            console.log(`Success: Connected to ${tiktokUsername}`);
-            socket.emit('connected'); // שולח הצלחה לאתר
-        }).catch(err => {
-            console.error('Error: User not found/not live');
-            socket.emit('error', 'User not active'); // שולח שגיאה לאתר
-        });
+    socket.on('joinRoom', (username) => {
+        let tiktok = new WebcastPushConnection(username);
+        tiktok.connect().then(() => socket.emit('connected'))
+        .catch(() => socket.emit('error'));
 
-        tiktokConnection.on('like', (data) => { io.emit('like', data); });
-        tiktokConnection.on('gift', (data) => { io.emit('gift', data); });
-
-        socket.on('disconnect', () => {
-            try { tiktokConnection.disconnect(); } catch(e) {}
-        });
+        tiktok.on('gift', (data) => { io.emit('gift', data); });
     });
 });
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+server.listen(process.env.PORT || 3000);
