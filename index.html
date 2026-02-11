@@ -2,7 +2,7 @@
 <html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <title>LiveBIT Elite Pro - Fix Final</title>
+    <title>LiveBIT Elite Pro - Sound & Design Fix</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -10,34 +10,24 @@
         :root { --neon: #00e5ff; --red: #ff2d55; --gold: #ffcc00; --purple: #8a2be2; --bg: #080810; --green: #00ff88; }
         body { background: #080810; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
 
-        /* תיקון מסך התחברות */
+        /* כרטיס התחברות מעוצב מחדש */
         #login-screen { position: fixed; inset: 0; background: #05050a; z-index: 10000; display: flex; align-items: center; justify-content: center; }
-        .login-card { background: #111; padding: 40px; border-radius: 20px; border: 2px solid var(--neon); text-align: center; width: 400px; box-shadow: 0 0 30px rgba(0, 229, 255, 0.3); }
+        .login-card { background: #111; padding: 40px; border-radius: 20px; border: 2px solid var(--neon); text-align: center; width: 400px; box-shadow: 0 0 30px rgba(0, 229, 255, 0.4); }
         
-        .input-group { position: relative; margin: 20px 0; }
+        .input-group { position: relative; margin: 20px 0; text-align: left; }
         input { width: 100%; padding: 15px; background: #000; border: 1px solid #333; color: white; border-radius: 10px; box-sizing: border-box; outline: none; font-size: 16px; }
-        input:focus { border-color: var(--neon); }
         
-        /* העין חזרה */
-        .eye-btn { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #555; z-index: 10; font-size: 18px; }
+        /* העין חזרה ובגדול */
+        .eye-btn { position: absolute; right: 15px; top: 15px; cursor: pointer; color: #666; font-size: 18px; transition: 0.2s; }
+        .eye-btn:hover { color: var(--neon); }
 
-        /* תיקון כפתור ה-CONNECT SYSTEM */
+        /* הכפתור הניאוני שלך */
         .btn-connect-system { 
-            background: var(--neon); 
-            color: #000; 
-            border: none; 
-            padding: 18px; 
-            width: 100%; 
-            cursor: pointer; 
-            font-weight: 900; 
-            border-radius: 10px; 
-            text-transform: uppercase; 
-            font-size: 16px; 
-            margin-top: 10px;
-            transition: 0.3s;
-            box-shadow: 0 0 15px var(--neon);
+            background: var(--neon); color: #000; border: none; padding: 18px; width: 100%; 
+            cursor: pointer; font-weight: 900; border-radius: 10px; text-transform: uppercase; 
+            font-size: 18px; margin-top: 10px; box-shadow: 0 0 20px var(--neon); transition: 0.3s;
         }
-        .btn-connect-system:hover { transform: scale(1.02); filter: brightness(1.2); }
+        .btn-connect-system:hover { transform: translateY(-2px); filter: brightness(1.1); }
 
         .error-msg { color: var(--red); font-size: 11px; margin-top: 5px; display: none; font-weight: bold; }
 
@@ -45,27 +35,25 @@
         #admin-panel { display: none; width: 100%; height: 100vh; grid-template-columns: 320px 1fr 320px; gap: 15px; padding: 15px; box-sizing: border-box; }
         .side-panel { background: rgba(255,255,255,0.02); border-radius: 10px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); }
         .center-panel { display: flex; flex-direction: column; align-items: center; }
-
         .gifter-box { border: 1px solid var(--gold); border-radius: 8px; width: 100%; padding: 15px; text-align: center; margin-bottom: 20px; }
         .waiting-text { font-size: 24px; font-weight: bold; }
-        .snipe-middle-display { color: var(--red); font-size: 38px; font-weight: 900; margin-bottom: -15px; text-transform: uppercase; letter-spacing: 3px; }
-        .timer-val { font-size: 140px; font-weight: 800; font-family: monospace; margin: 10px 0; letter-spacing: -5px; }
+        .snipe-middle-display { color: var(--red); font-size: 38px; font-weight: 900; margin-bottom: -15px; text-transform: uppercase; }
+        .timer-val { font-size: 140px; font-weight: 800; font-family: monospace; margin: 10px 0; }
         .timer-red { color: var(--red) !important; text-shadow: 0 0 30px var(--red); }
-
         .btn-action { width: 100%; border: none; border-radius: 8px; font-weight: 900; cursor: pointer; padding: 18px; text-transform: uppercase; margin-bottom: 10px; }
         .btn-cyan { background: var(--neon); color: black; }
         .btn-row { display: flex; gap: 10px; width: 100%; margin-bottom: 10px; }
         .btn-grey { background: #333; color: white; flex: 1; }
         .btn-purple { background: var(--purple); color: white; flex: 1; }
         .btn-dark-step { background: #1a1a1a; color: white; border: 1px solid #333; flex: 1; padding: 12px; cursor: pointer; }
-
         .list-item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #1a1a2a; color: #aaa; }
-        #live-status { color: var(--green); font-weight: bold; margin-top: 10px; display: none; }
     </style>
 </head>
 <body>
 
-    <audio id="tension-sound" src="סאונד - מתח.mp3"></audio>
+    <audio id="tension-sound">
+        <source src="סאונד - מתח.mp3" type="audio/mpeg">
+    </audio>
 
     <div id="login-screen">
         <div class="login-card">
@@ -108,8 +96,7 @@
             <div id="snipe-input-area" style="display:none; width:100%; margin-bottom:10px;">
                 <input type="number" id="snipe-input" value="20" style="text-align:center; border:1px solid var(--purple); font-size:20px; width:100%;" oninput="document.getElementById('current-snipe-val').innerText = this.value">
             </div>
-            <button class="btn-action" style="background:transparent; color:var(--green); border:1px solid var(--green);" onclick="connectLive()">CONNECT TO YOUR LIVE</button>
-            <div id="live-status">READY</div>
+            <button class="btn-action" style="background:transparent; color:var(--green); border:1px solid var(--green); margin-top:20px;" onclick="connectLive()">CONNECT TO YOUR LIVE</button>
         </div>
         <div class="side-panel"><h3 style="text-align: center;">TOP 3 GIFTERS</h3><div id="gifters-list"></div></div>
     </div>
@@ -119,87 +106,70 @@
         let timeLeft = 60, active = false, isSnipeMode = false, timerTask;
         const sound = document.getElementById('tension-sound');
 
-        // פונקציית העין המתוקנת
         function togglePass() {
             const p = document.getElementById('log-pass');
             const icon = document.getElementById('toggleEye');
-            if (p.type === "password") {
-                p.type = "text";
-                icon.classList.replace('fa-eye', 'fa-eye-slash');
-            } else {
-                p.type = "password";
-                icon.classList.replace('fa-eye-slash', 'fa-eye');
-            }
+            p.type = p.type === "password" ? "text" : "password";
+            icon.classList.toggle('fa-eye-slash');
         }
 
         function doLogin() {
             const e = document.getElementById('log-email').value, 
                   u = document.getElementById('log-user').value, 
                   p = document.getElementById('log-pass').value;
-            let valid = true;
-            if(!e.toLowerCase().endsWith('@gmail.com')) { document.getElementById('e-err').style.display='block'; valid=false; }
-            else document.getElementById('e-err').style.display='none';
-            if(p.length < 8) { document.getElementById('p-err').style.display='block'; valid=false; }
-            else document.getElementById('p-err').style.display='none';
-            if(!u.startsWith('@')) { document.getElementById('u-err').style.display='block'; valid=false; }
-            else document.getElementById('u-err').style.display='none';
-
-            if(valid) { 
-                document.getElementById('login-screen').style.display = 'none'; 
-                document.getElementById('admin-panel').style.display = 'grid'; 
-            }
+            let v = true;
+            if(!e.toLowerCase().endsWith('@gmail.com')) { document.getElementById('e-err').style.display='block'; v=false; }
+            if(p.length < 8) { document.getElementById('p-err').style.display='block'; v=false; }
+            if(!u.startsWith('@')) { document.getElementById('u-err').style.display='block'; v=false; }
+            if(v) { document.getElementById('login-screen').style.display = 'none'; document.getElementById('admin-panel').style.display = 'grid'; }
         }
 
         function connectLive() {
             const user = document.getElementById('log-user').value;
-            Swal.fire({
-                title: 'Connecting...',
-                text: 'Searching for ' + user,
-                allowOutsideClick: false,
-                didOpen: () => { Swal.showLoading(); }
-            });
+            Swal.fire({ title: 'Connecting...', text: 'Searching for ' + user, allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
             socket.emit('joinRoom', user.replace('@', ''));
         }
 
-        socket.on('connected', () => {
-            Swal.fire({ icon: 'success', title: 'Connected!', text: 'Live is synced.', timer: 2000, showConfirmButton: false });
-            document.getElementById('live-status').style.display = 'block';
-            document.getElementById('live-status').innerText = "ONLINE ✅";
-        });
-
-        socket.on('error', () => {
-            Swal.fire({ icon: 'error', title: 'Connection Failed', text: 'User is not live or name is wrong.' });
-            document.getElementById('live-status').innerText = "OFFLINE ❌";
-        });
+        socket.on('connected', () => { Swal.fire({ icon: 'success', title: 'Connected!', timer: 2000, showConfirmButton: false }); });
+        socket.on('error', () => { Swal.fire({ icon: 'error', title: 'User Offline', text: 'Check if you are LIVE on TikTok.' }); });
 
         function updateUI() {
             const m = Math.floor(timeLeft/60), s = timeLeft%60;
             const d = document.getElementById('timer-display');
             d.innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-            if(isSnipeMode) d.classList.add('timer-red');
-            else d.classList.remove('timer-red');
+            if(isSnipeMode) d.classList.add('timer-red'); else d.classList.remove('timer-red');
         }
 
         function toggleClock() {
-            if(active) { clearInterval(timerTask); active = false; if(sound) sound.pause(); }
-            else {
+            if(active) { 
+                clearInterval(timerTask); active = false; 
+                sound.pause(); 
+            } else {
                 active = true;
                 timerTask = setInterval(() => {
-                    if(timeLeft > 0) timeLeft--;
-                    else if(!isSnipeMode) {
+                    if(timeLeft > 0) {
+                        timeLeft--;
+                    } else if(!isSnipeMode) {
+                        // כניסה למצב סנייפ והפעלת סאונד המתח
                         isSnipeMode = true;
                         timeLeft = parseInt(document.getElementById('snipe-input').value);
-                        if(sound) sound.play();
+                        sound.play().catch(e => console.log("Sound error:", e));
                     } else {
                         clearInterval(timerTask); active = false;
-                        if(sound) sound.pause();
+                        sound.pause();
                     }
                     updateUI();
                 }, 1000);
             }
         }
 
-        function resetClock() { timeLeft = 60; isSnipeMode = false; active = false; clearInterval(timerTask); if(sound) { sound.pause(); sound.currentTime = 0; } updateUI(); }
+        function resetClock() { 
+            timeLeft = 60; isSnipeMode = false; active = false; 
+            clearInterval(timerTask); 
+            sound.pause(); sound.currentTime = 0; 
+            updateUI(); 
+        }
+        
         function adjustTime(v) { timeLeft += v; if(timeLeft < 0) timeLeft = 0; updateUI(); }
         function toggleSnipeEdit() { const a = document.getElementById('snipe-input-area'); a.style.display = a.style.display === 'block' ? 'none' : 'block'; }
 
@@ -207,8 +177,7 @@
             let h = ""; for(let i=1; i<=n; i++) h += `<div class="list-item"><span>${i}. ${sym}</span><span style="color:var(--neon)">0</span></div>`;
             document.getElementById(id).innerHTML = h;
         };
-        fill('likers-list', 10, '❤️'); 
-        fill('gifters-list', 3, '🪙');
+        fill('likers-list', 10, '❤️'); fill('gifters-list', 3, '🪙');
     </script>
 </body>
 </html>
