@@ -6,22 +6,30 @@ const cors = require('cors');
 
 const app = express();
 app.use(cors());
+
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
+// הגדרת CORS מלאה ל-Socket.io
+const io = new Server(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
+});
 
 io.on('connection', (socket) => {
-    // מאזין לעדכונים מהפאנל ושולח אותם ל-Overlay
     socket.on('syncOverlay', (data) => {
-        io.emit('updateUI', data); 
+        io.emit('updateUI', data);
     });
 
     socket.on('joinRoom', (username) => {
-        let tiktok = new WebcastPushConnection(username);
-        tiktok.connect().then(() => socket.emit('connected'))
-        .catch(() => socket.emit('error'));
+        const tiktok = new WebcastPushConnection(username);
+        tiktok.connect()
+            .then(() => socket.emit('connected'))
+            .catch((err) => socket.emit('error', err));
 
-        tiktok.on('gift', (data) => { io.emit('gift', data); });
+        tiktok.on('gift', (data) => io.emit('gift', data));
     });
 });
 
-server.listen(process.env.PORT || 3000);
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
