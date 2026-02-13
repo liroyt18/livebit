@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>LiveBIT Elite Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
@@ -12,22 +13,27 @@
         /* Login Screen */
         #login-screen { position: fixed; inset: 0; background: #05050a; z-index: 10000; display: flex; align-items: center; justify-content: center; }
         .login-card { background: #111; padding: 40px; border-radius: 20px; border: 2px solid var(--neon); text-align: center; width: 400px; box-shadow: 0 0 30px rgba(0, 229, 255, 0.4); }
+        
         #error-msg { color: var(--red); font-weight: bold; font-size: 13px; margin-bottom: 20px; display: none; text-align: left; background: rgba(255, 45, 85, 0.1); padding: 12px; border-radius: 8px; border: 1px solid var(--red); }
-        input { width: 100%; padding: 15px; background: #000; border: 1px solid #333; color: white; border-radius: 10px; box-sizing: border-box; outline: none; margin-bottom: 15px; }
-        .btn-main { background: var(--neon); color: #000; border: none; padding: 18px; width: 100%; cursor: pointer; font-weight: 900; border-radius: 10px; text-transform: uppercase; }
+        
+        .input-wrapper { position: relative; width: 100%; margin-bottom: 15px; }
+        input { width: 100%; padding: 15px; background: #000; border: 1px solid #333; color: white; border-radius: 10px; box-sizing: border-box; outline: none; font-size: 15px; }
+        input:focus { border-color: var(--neon); }
+        
+        /* עיצוב העין */
+        .toggle-password { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #666; font-size: 18px; transition: 0.3s; }
+        .toggle-password:hover { color: var(--neon); }
 
-        /* Main Panel */
+        .btn-main { background: var(--neon); color: #000; border: none; padding: 18px; width: 100%; cursor: pointer; font-weight: 900; border-radius: 10px; text-transform: uppercase; transition: 0.3s; }
+        .btn-main:hover { box-shadow: 0 0 20px var(--neon); }
+
+        /* Main Panel Settings */
         #admin-panel { display: none; width: 100%; height: 100vh; grid-template-columns: 320px 1fr 320px; gap: 15px; padding: 15px; box-sizing: border-box; }
-        .side-panel { background: rgba(255,255,255,0.02); border-radius: 10px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); }
+        .side-panel { background: rgba(255,255,255,0.02); border-radius: 10px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); overflow-y: auto; }
         .center-panel { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 10px; }
-        
         .gifter-box { border: 2px solid var(--gold); border-radius: 12px; width: 85%; padding: 15px; text-align: center; margin-bottom: 20px; background: rgba(255, 204, 0, 0.05); }
-        .timer-val { font-size: 120px; font-weight: 800; font-family: monospace; margin: 0; }
-        .timer-red { color: var(--red) !important; text-shadow: 0 0 30px var(--red); }
-        
+        .timer-val { font-size: 120px; font-weight: 800; font-family: monospace; margin: 0; line-height: 1; }
         .btn-action { width: 100%; border: none; border-radius: 8px; font-weight: 900; cursor: pointer; padding: 15px; text-transform: uppercase; margin-bottom: 10px; }
-        .btn-cyan { background: var(--neon); color: black; }
-        .btn-row { display: flex; gap: 10px; width: 100%; }
         .list-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #1a1a2a; color: #aaa; }
     </style>
 </head>
@@ -35,11 +41,23 @@
 
     <div id="login-screen">
         <div class="login-card">
-            <h2 style="color: var(--neon); margin-bottom: 20px;">Welcome to LiveBIT</h2>
+            <h2 style="color: var(--neon); margin-bottom: 25px;">Welcome to LiveBIT</h2>
+            
             <div id="error-msg"></div>
-            <input type="text" id="log-email" placeholder="Email (@gmail.com)">
-            <input type="password" id="log-pass" placeholder="Password (8+ chars)">
-            <input type="text" id="log-user" placeholder="TikTok @Username">
+
+            <div class="input-wrapper">
+                <input type="text" id="log-email" placeholder="Email (@gmail.com)">
+            </div>
+
+            <div class="input-wrapper">
+                <input type="password" id="log-pass" placeholder="Password (8+ chars)">
+                <i class="fa-solid fa-eye toggle-password" onclick="togglePassView()"></i>
+            </div>
+
+            <div class="input-wrapper">
+                <input type="text" id="log-user" placeholder="TikTok @Username">
+            </div>
+
             <button onclick="doLogin()" class="btn-main">ENTER PANEL</button>
         </div>
     </div>
@@ -56,11 +74,11 @@
             <div style="color: var(--red); font-size: 18px; font-weight: 900;">SNIPE: <span id="current-snipe-val">20</span>s</div>
             <div id="timer-display" class="timer-val">01:00</div>
             
-            <div style="width: 100%; max-width: 380px; margin-top: 15px;">
-                <button class="btn-action btn-cyan" onclick="toggleClock()">START / PAUSE</button>
-                <div class="btn-row">
+            <div style="width: 100%; max-width: 380px; margin-top: 20px;">
+                <button class="btn-action" style="background:var(--neon); color:black" onclick="toggleClock()">START / PAUSE</button>
+                <div style="display:flex; gap:10px;">
                     <button class="btn-action" style="background:#333; color:white; flex:1" onclick="resetClock()">RESET</button>
-                    <button class="btn-action" style="background:var(--purple); color:white; flex:1" onclick="toggleSnipeEdit()">SNIPE</button>
+                    <button class="btn-action" style="background:purple; color:white; flex:1" onclick="toggleSnipeEdit()">SNIPE</button>
                 </div>
                 <button class="btn-action" style="background:transparent; color:var(--green); border:1px solid var(--green);" onclick="connectLive()">CONNECT TIKTOK LIVE</button>
             </div>
@@ -71,7 +89,20 @@
 
     <script>
         const socket = io("https://livebit-server.onrender.com");
-        let timeLeft = 60, active = false, isSnipeMode = false, timerTask;
+        let timeLeft = 60, active = false, timerTask;
+
+        // פונקציית העין החדשה
+        function togglePassView() {
+            const passInput = document.getElementById('log-pass');
+            const eyeIcon = document.querySelector('.toggle-password');
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                passInput.type = 'password';
+                eyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
 
         function doLogin() {
             const email = document.getElementById('log-email').value;
@@ -82,7 +113,7 @@
 
             if (!email.includes("@gmail.com")) m.push("Email must have @gmail.com");
             if (pass.length < 8) m.push("Password: 8+ characters");
-            if (!user.includes("@")) m.push("Username must have @");
+            if (!user.startsWith("@")) m.push("Username must start with '@'");
 
             if (m.length > 0) {
                 err.innerHTML = m.join("<br>");
@@ -96,13 +127,13 @@
 
         function connectLive() {
             const user = document.getElementById('log-user').value;
-            if(!socket.connected) { Swal.fire({icon:'info', title:'Waking up server... wait 5s'}); return; }
-            Swal.fire({ title:'CONNECTING...', text:'Checking TikTok Status', allowOutsideClick:false, didOpen:()=>Swal.showLoading()});
+            if(!socket.connected) { Swal.fire({icon:'info', title:'Server Waking Up...'}); return; }
+            Swal.fire({ title:'CONNECTING...', text:'Checking TikTok Live', allowOutsideClick:false, didOpen:()=>Swal.showLoading()});
             socket.emit('joinRoom', user.replace('@',''));
         }
 
-        socket.on('connected', () => { Swal.fire({icon:'success', title:'CONNECTED!', timer:2000, showConfirmButton:false}); });
-        socket.on('error', () => { Swal.fire({icon:'error', title:'CONNECTION FAILED', text:'Are you LIVE?'}); });
+        socket.on('connected', () => { Swal.fire({icon:'success', title:'CONNECTED!', timer:2500, showConfirmButton:false}); });
+        socket.on('error', () => { Swal.fire({icon:'error', title:'FAILED', text:'Are you LIVE?'}); });
 
         function fillLists() {
             const f = (id, n, s) => {
@@ -116,7 +147,7 @@
             const m = Math.floor(timeLeft/60), s = timeLeft%60;
             document.getElementById('timer-display').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
         }
-        function toggleClock() { /* ... */ }
+        function toggleClock() { /* Clock Logic Here */ }
         function resetClock() { timeLeft=60; updateUI(); }
     </script>
 </body>
