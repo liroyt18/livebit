@@ -7,28 +7,31 @@
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        :root { --neon: #00e5ff; --red: #ff2d55; --gold: #ffcc00; --purple: #8a2be2; --bg: #080810; --green: #00ff88; }
-        body { background: #080810; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
+        :root { --neon: #00e5ff; --red: #ff2d55; --bg: #080810; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
 
-        /* מסך התחברות */
         #login-screen { position: fixed; inset: 0; background: #05050a; z-index: 10000; display: flex; align-items: center; justify-content: center; }
         .login-card { background: #111; padding: 40px; border-radius: 20px; border: 2px solid var(--neon); text-align: center; width: 400px; box-shadow: 0 0 30px rgba(0, 229, 255, 0.4); }
-        .input-group { position: relative; margin: 15px 0; }
-        input { width: 100%; padding: 15px; background: #000; border: 1px solid #333; color: white; border-radius: 10px; box-sizing: border-box; outline: none; font-size: 16px; }
         
         /* הודעת שגיאה באדום */
-        #error-msg { color: var(--red); font-weight: bold; font-size: 14px; margin-bottom: 15px; display: none; text-transform: uppercase; }
-        
-        .btn-connect-system { background: var(--neon); color: #000; border: none; padding: 18px; width: 100%; cursor: pointer; font-weight: 900; border-radius: 10px; text-transform: uppercase; font-size: 18px; box-shadow: 0 0 20px var(--neon); margin-top: 10px; }
+        #error-msg { 
+            color: var(--red); 
+            font-weight: bold; 
+            font-size: 13px; 
+            margin-bottom: 15px; 
+            display: none; 
+            text-align: left;
+            background: rgba(255, 45, 85, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 3px solid var(--red);
+        }
 
-        /* פאנל ניהול (מוסתר בהתחלה) */
+        .input-group { position: relative; margin: 15px 0; }
+        input { width: 100%; padding: 15px; background: #000; border: 1px solid #333; color: white; border-radius: 10px; box-sizing: border-box; outline: none; }
+        .btn-connect-system { background: var(--neon); color: #000; border: none; padding: 18px; width: 100%; cursor: pointer; font-weight: 900; border-radius: 10px; text-transform: uppercase; margin-top: 10px; }
+
         #admin-panel { display: none; width: 100%; height: 100vh; grid-template-columns: 320px 1fr 320px; gap: 15px; padding: 15px; box-sizing: border-box; }
-        .side-panel { background: rgba(255,255,255,0.02); border-radius: 10px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); }
-        .center-panel { display: flex; flex-direction: column; align-items: center; }
-        .timer-val { font-size: 140px; font-weight: 800; font-family: monospace; margin: 10px 0; }
-        .btn-action { width: 100%; border: none; border-radius: 8px; font-weight: 900; cursor: pointer; padding: 18px; text-transform: uppercase; margin-bottom: 10px; }
-        .btn-cyan { background: var(--neon); color: black; }
-        .list-item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #1a1a2a; color: #aaa; }
     </style>
 </head>
 <body>
@@ -37,63 +40,63 @@
         <div class="login-card">
             <h2 style="color: var(--neon); margin-bottom: 20px;">LiveBIT Login</h2>
             
-            <div id="error-msg">ACCESS DENIED: INVALID CREDENTIALS</div>
+            <div id="error-msg"></div>
 
             <div class="input-group">
-                <input type="text" id="log-email" placeholder="Email Address">
+                <input type="text" id="log-email" placeholder="Email (must include @gmail.com)">
             </div>
             <div class="input-group">
-                <input type="password" id="log-pass" placeholder="Password">
+                <input type="password" id="log-pass" placeholder="Password (min 8 characters)">
             </div>
             <div class="input-group">
-                <input type="text" id="log-user" placeholder="TikTok @Username">
+                <input type="text" id="log-user" placeholder="TikTok Username (must include @)">
             </div>
             <button onclick="doLogin()" class="btn-connect-system">CONNECT SYSTEM</button>
         </div>
     </div>
 
     <div id="admin-panel">
-        <div class="side-panel"><h3>LIKERS</h3><div id="likers-list"></div></div>
-        <div class="center-panel">
-            <div id="timer-display" class="timer-val">01:00</div>
-            <button class="btn-action btn-cyan" onclick="toggleClock()">START / PAUSE</button>
-            <button class="btn-action" style="background:transparent; color:var(--green); border:1px solid var(--green);" onclick="connectLive()">CONNECT LIVE</button>
+        <div style="display:flex; align-items:center; justify-content:center; height:100%; width:100%; grid-column: 1/4;">
+            <h1 style="color:var(--neon)">WELCOME TO THE SYSTEM</h1>
         </div>
-        <div class="side-panel"><h3>GIFTERS</h3><div id="gifters-list"></div></div>
     </div>
 
     <script>
-        const socket = io("https://livebit-server.onrender.com");
-        
-        // הגדרות כניסה - חובה לדייק!
-        const VALID_EMAIL = "admin@livebit.com";
-        const VALID_PASS = "123456";
-
         function doLogin() {
             const email = document.getElementById('log-email').value;
             const pass = document.getElementById('log-pass').value;
             const user = document.getElementById('log-user').value;
             const errorDisplay = document.getElementById('error-msg');
+            
+            let errors = [];
 
-            // אימות חזק: בודק שכל השדות תואמים
-            if (email === VALID_EMAIL && pass === VALID_PASS && user.length > 2) {
+            // 1. בדיקת אימייל @gmail.com
+            if (!email.includes("@gmail.com")) {
+                errors.push("Missing '@gmail.com' in email. Please add it.");
+            }
+
+            // 2. בדיקת סיסמה 8+ תווים
+            if (pass.length < 8) {
+                errors.push("Password too short. Please add 8+ characters.");
+            }
+
+            // 3. בדיקת @ ביוזרניים
+            if (!user.includes("@")) {
+                errors.push("Missing '@' in TikTok username. Please add it.");
+            }
+
+            // הצגת שגיאות או מעבר לפאנל
+            if (errors.length > 0) {
+                errorDisplay.style.display = 'block';
+                // מחבר את כל השגיאות לרשימה אחת עם ירידת שורה
+                errorDisplay.innerHTML = errors.map(err => `• ${err}`).join("<br>");
+            } else {
+                // הצלחה!
                 errorDisplay.style.display = 'none';
                 document.getElementById('login-screen').style.display = 'none'; 
                 document.getElementById('admin-panel').style.display = 'grid';
-            } else {
-                // הצגת השגיאה באדום ובאנגלית
-                errorDisplay.style.display = 'block';
-                errorDisplay.innerText = "ACCESS DENIED: CHECK YOUR DETAILS";
-                
-                // ניקוי שדות כדי להכריח הקלדה מחדש
-                document.getElementById('log-pass').value = "";
             }
         }
-
-        // שאר הפונקציות (Clock, Sync וכו') נשארות כרגיל...
-        let timeLeft = 60, active = false;
-        function toggleClock() { /* ... */ }
-        function connectLive() { /* ... */ }
     </script>
 </body>
 </html>
