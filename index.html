@@ -2,63 +2,63 @@
 <html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <title>LiveBIT Elite Pro - Control Panel</title>
+    <title>LiveBIT Elite Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root { --neon: #00e5ff; --red: #ff2d55; --bg: #080810; }
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; }
 
         #login-screen { position: fixed; inset: 0; background: #05050a; z-index: 10000; display: flex; align-items: center; justify-content: center; }
         .login-card { background: #111; padding: 40px; border-radius: 20px; border: 2px solid var(--neon); text-align: center; width: 400px; box-shadow: 0 0 30px rgba(0, 229, 255, 0.4); }
         
-        /* הודעת שגיאה באדום */
+        /* עיצוב הודעת השגיאה באדום */
         #error-msg { 
             color: var(--red); 
             font-weight: bold; 
             font-size: 13px; 
-            margin-bottom: 15px; 
+            margin-bottom: 20px; 
             display: none; 
             text-align: left;
             background: rgba(255, 45, 85, 0.1);
-            padding: 10px;
-            border-radius: 5px;
-            border-left: 3px solid var(--red);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--red);
+            line-height: 1.5;
         }
 
-        .input-group { position: relative; margin: 15px 0; }
-        input { width: 100%; padding: 15px; background: #000; border: 1px solid #333; color: white; border-radius: 10px; box-sizing: border-box; outline: none; }
-        .btn-connect-system { background: var(--neon); color: #000; border: none; padding: 18px; width: 100%; cursor: pointer; font-weight: 900; border-radius: 10px; text-transform: uppercase; margin-top: 10px; }
-
-        #admin-panel { display: none; width: 100%; height: 100vh; grid-template-columns: 320px 1fr 320px; gap: 15px; padding: 15px; box-sizing: border-box; }
+        .input-group { margin: 15px 0; }
+        input { width: 100%; padding: 15px; background: #000; border: 1px solid #333; color: white; border-radius: 10px; box-sizing: border-box; outline: none; font-size: 15px; }
+        input:focus { border-color: var(--neon); }
+        
+        .btn-connect-system { background: var(--neon); color: #000; border: none; padding: 18px; width: 100%; cursor: pointer; font-weight: 900; border-radius: 10px; text-transform: uppercase; font-size: 16px; margin-top: 10px; }
+        
+        #admin-panel { display: none; color: var(--neon); font-size: 24px; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
         <div class="login-card">
-            <h2 style="color: var(--neon); margin-bottom: 20px;">LiveBIT Login</h2>
+            <h2 style="color: var(--neon); margin-bottom: 20px;">SYSTEM ACCESS</h2>
             
             <div id="error-msg"></div>
 
             <div class="input-group">
-                <input type="text" id="log-email" placeholder="Email (must include @gmail.com)">
+                <input type="text" id="log-email" placeholder="Email Address">
             </div>
             <div class="input-group">
-                <input type="password" id="log-pass" placeholder="Password (min 8 characters)">
+                <input type="password" id="log-pass" placeholder="Password">
             </div>
             <div class="input-group">
-                <input type="text" id="log-user" placeholder="TikTok Username (must include @)">
+                <input type="text" id="log-user" placeholder="TikTok Username">
             </div>
-            <button onclick="doLogin()" class="btn-connect-system">CONNECT SYSTEM</button>
+            <button onclick="doLogin()" class="btn-connect-system">LOGIN</button>
         </div>
     </div>
 
     <div id="admin-panel">
-        <div style="display:flex; align-items:center; justify-content:center; height:100%; width:100%; grid-column: 1/4;">
-            <h1 style="color:var(--neon)">WELCOME TO THE SYSTEM</h1>
-        </div>
+        WELCOME BACK, ADMIN.
     </div>
 
     <script>
@@ -66,35 +66,35 @@
             const email = document.getElementById('log-email').value;
             const pass = document.getElementById('log-pass').value;
             const user = document.getElementById('log-user').value;
-            const errorDisplay = document.getElementById('error-msg');
+            const errorBox = document.getElementById('error-msg');
             
-            let errors = [];
+            let messages = [];
 
-            // 1. בדיקת אימייל @gmail.com
+            // בדיקת אימייל
             if (!email.includes("@gmail.com")) {
-                errors.push("Missing '@gmail.com' in email. Please add it.");
+                messages.push("Missing '@gmail.com' in email. Please add it.");
             }
 
-            // 2. בדיקת סיסמה 8+ תווים
+            // בדיקת סיסמה
             if (pass.length < 8) {
-                errors.push("Password too short. Please add 8+ characters.");
+                messages.push("Password too short. You need at least 8 characters.");
             }
 
-            // 3. בדיקת @ ביוזרניים
-            if (!user.includes("@")) {
-                errors.push("Missing '@' in TikTok username. Please add it.");
+            // בדיקת טיקטוק
+            if (!user.startsWith("@")) {
+                messages.push("Missing '@' at the start of your TikTok username.");
             }
 
-            // הצגת שגיאות או מעבר לפאנל
-            if (errors.length > 0) {
-                errorDisplay.style.display = 'block';
-                // מחבר את כל השגיאות לרשימה אחת עם ירידת שורה
-                errorDisplay.innerHTML = errors.map(err => `• ${err}`).join("<br>");
+            // אם יש שגיאות
+            if (messages.length > 0) {
+                errorBox.innerHTML = messages.map(m => `• ${m}`).join("<br>");
+                errorBox.style.display = "block";
+                // שים לב: הורדתי את הפקודה שמנקה את ה-Password, אז הכל נשאר כתוב!
             } else {
-                // הצלחה!
-                errorDisplay.style.display = 'none';
-                document.getElementById('login-screen').style.display = 'none'; 
-                document.getElementById('admin-panel').style.display = 'grid';
+                // הצלחה
+                errorBox.style.display = "none";
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('admin-panel').style.display = 'block';
             }
         }
     </script>
