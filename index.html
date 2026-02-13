@@ -1,70 +1,48 @@
-<script>
-    // הגדרת שרת עם ניסיונות התחברות חוזרים
-    const socket = io("https://livebit-server.onrender.com", {
-        reconnection: true,
-        reconnectionAttempts: 5,
-        reconnectionDelay: 2000,
-        timeout: 10000 // מודיע על תקלה אם לא התחבר תוך 10 שניות
-    });
-
-    let timeLeft = 60, active = false, isSnipeMode = false, timerTask;
-    const sound = document.getElementById('tension-sound');
-
-    function doLogin() {
-        const email = document.getElementById('log-email').value;
-        const pass = document.getElementById('log-pass').value;
-        const user = document.getElementById('log-user').value;
-        const errorBox = document.getElementById('error-msg');
-        let msgs = [];
-
-        if (!email.includes("@gmail.com")) msgs.push("Missing '@gmail.com' in email.");
-        if (pass.length < 8) msgs.push("Password must be 8+ characters.");
-        if (!user.includes("@")) msgs.push("Username must include '@'.");
-
-        if (msgs.length > 0) {
-            errorBox.innerHTML = msgs.map(m => `• ${m}`).join("<br>");
-            errorBox.style.display = "block";
-        } else {
-            errorBox.style.display = "none";
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('admin-panel').style.display = 'grid';
-            fillLists(); 
-        }
-    }
-
-    function connectLive() {
-        const user = document.getElementById('log-user').value;
-        
-        // בדיקה אם ה-Socket בכלל מחובר לשרת לפני שמנסים להתחבר לטיקטוק
-        if (!socket.connected) {
-            Swal.fire({ icon: 'error', title: 'Server is waking up...', text: 'Please wait 10 seconds and try again.' });
-            return;
-        }
-
-        Swal.fire({ 
-            title: 'Connecting to TikTok...', 
-            text: `Looking for ${user}`,
-            allowOutsideClick: false, 
-            didOpen: () => { Swal.showLoading(); } 
+function connectLive() {
+    const user = document.getElementById('log-user').value;
+    
+    // בדיקה אם השרת מחובר
+    if (!socket.connected) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'SERVER WAKING UP',
+            text: 'Please wait 10 seconds and try again.',
+            confirmButtonColor: '#00e5ff'
         });
-
-        // שליחת בקשת הצטרפות
-        socket.emit('joinRoom', user.replace('@', ''));
+        return;
     }
 
-    // כשמתקבל אישור מהשרת שהחיבור ללייב הצליח
-    socket.on('connected', () => { 
-        Swal.fire({ icon: 'success', title: 'Live Connected!', timer: 2000, showConfirmButton: false }); 
+    // הודעת טעינה בזמן החיבור
+    Swal.fire({
+        title: 'CONNECTING...',
+        text: 'Checking if you are live on TikTok',
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading(); }
     });
 
-    // אם יש שגיאה מהשרת (למשל יוזר לא נמצא או לייב סגור)
-    socket.on('error', (msg) => {
-        Swal.fire({ icon: 'error', title: 'Connection Failed', text: msg });
-    });
+    // שליחת בקשה לשרת
+    socket.emit('joinRoom', user.replace('@', ''));
+}
 
-    // --- שאר פונקציות השעון והטבלאות נשארות אותו דבר ---
-    function updateUI() { /* ... */ }
-    function toggleClock() { /* ... */ }
-    function resetClock() { /* ... */ }
-    function fillLists() { /* ... */ }
-</script>
+// הצלחה - אנימציית V ירוק
+socket.on('connected', () => {
+    Swal.fire({
+        icon: 'success',
+        title: 'CONNECTED SUCCESSFULLY!',
+        text: 'LiveBIT is now synced with your TikTok.',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true
+    });
+});
+
+// כישלון - אנימציית X אדום
+socket.on('error', (err) => {
+    Swal.fire({
+        icon: 'error',
+        title: 'CONNECTION FAILED',
+        text: 'Are you sure you are LIVE? Check your TikTok and try again.',
+        confirmButtonText: 'TRY AGAIN',
+        confirmButtonColor: '#ff2d55'
+    });
+});
