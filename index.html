@@ -87,6 +87,10 @@
         let timeLeft = 60, active = false, isSnipeMode = false, timerTask;
         const sound = document.getElementById('tension-sound');
 
+        // הגדרות התחברות (תוכל לשנות כאן)
+        const ADMIN_EMAIL = "admin@livebit.com";
+        const ADMIN_PASS = "123456";
+
         function togglePass() {
             const p = document.getElementById('log-pass');
             p.type = p.type === "password" ? "text" : "password";
@@ -98,9 +102,24 @@
         }
 
         function doLogin() {
-            unlockAudio();
-            document.getElementById('login-screen').style.display = 'none'; 
-            document.getElementById('admin-panel').style.display = 'grid';
+            const email = document.getElementById('log-email').value;
+            const pass = document.getElementById('log-pass').value;
+            const user = document.getElementById('log-user').value;
+
+            // בדיקת תקינות שדות
+            if (!email || !pass || !user) {
+                Swal.fire({ icon: 'error', title: 'Missing Info', text: 'Please fill in all fields!' });
+                return;
+            }
+
+            // אימות פרטים
+            if (email === ADMIN_EMAIL && pass === ADMIN_PASS) {
+                unlockAudio();
+                document.getElementById('login-screen').style.display = 'none'; 
+                document.getElementById('admin-panel').style.display = 'grid';
+            } else {
+                Swal.fire({ icon: 'error', title: 'Access Denied', text: 'Invalid Email or Password!' });
+            }
         }
 
         function connectLive() {
@@ -111,7 +130,6 @@
 
         socket.on('connected', () => { Swal.fire({ icon: 'success', title: 'Connected!', timer: 2000, showConfirmButton: false }); });
 
-        // פונקציית עדכון הזמן ששולחת נתונים ל-Overlay
         function updateUI() {
             const m = Math.floor(timeLeft/60), s = timeLeft%60;
             const timeStr = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
@@ -120,7 +138,6 @@
             
             if(isSnipeMode) d.classList.add('timer-red'); else d.classList.remove('timer-red');
 
-            // שליחת נתונים לשרת כדי שיעדכן את ה-Overlay
             socket.emit('syncOverlay', {
                 time: timeStr,
                 snipe: document.getElementById('snipe-input').value,
