@@ -8,73 +8,79 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root { --neon: #00e5ff; --red: #ff2d55; --gold: #ffcc00; --bg: #080810; --green: #00ff88; --purple: #a020f0; }
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 
         /* Login Screen */
         #login-screen { position: fixed; inset: 0; background: #05050a; z-index: 10000; display: flex; align-items: center; justify-content: center; }
         .login-card { background: #111; padding: 40px; border-radius: 20px; border: 2px solid var(--neon); text-align: center; width: 420px; box-shadow: 0 0 30px rgba(0, 229, 255, 0.4); }
         .input-wrapper { position: relative; width: 100%; margin-bottom: 15px; }
         input { width: 100%; padding: 15px; background: #000; border: 1px solid #333; color: white; border-radius: 10px; box-sizing: border-box; outline: none; font-size: 16px; }
-        .toggle-password { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #666; z-index: 10; padding: 5px; }
-
-        /* Admin Panel */
-        #admin-panel { display: none; width: 100%; height: 100vh; grid-template-columns: 350px 1fr 350px; gap: 20px; padding: 20px; box-sizing: border-box; }
-        .side-panel { background: rgba(255,255,255,0.02); border-radius: 15px; padding: 25px; border: 1px solid rgba(255,255,255,0.05); overflow-y: auto; }
-        .center-panel { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 10px; }
         
-        .timer-val { font-size: 140px; font-weight: 800; font-family: monospace; margin: 5px 0; line-height: 1; transition: 0.3s; }
+        /* Layout Structure */
+        #admin-panel { display: none; flex: 1; grid-template-columns: 300px 1fr 300px; gap: 20px; padding: 20px; height: 100%; box-sizing: border-box; position: relative; }
+        .side-panel { background: rgba(255,255,255,0.02); border-radius: 15px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); overflow-y: auto; height: calc(100vh - 40px); }
         
-        /* Snipe Mode Styles - From Code 1 & 2 */
+        /* Center Content - המרכז של המסך */
+        .center-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        
+        /* Timer & Snipe */
+        .timer-val { font-size: 160px; font-weight: 800; font-family: monospace; margin: 10px 0; line-height: 1; }
         .timer-red { color: var(--red) !important; text-shadow: 0 0 30px var(--red); animation: blink 0.6s infinite; }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-        .controls-container { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 10px; }
-        .btn-action { width: 100%; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; padding: 18px; text-transform: uppercase; font-size: 15px; }
+        /* Controls */
+        .controls-container { width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 12px; }
+        .btn-action { width: 100%; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; padding: 16px; text-transform: uppercase; font-size: 16px; }
         .btn-cyan { background: var(--neon); color: black; }
-        .btn-row { display: flex; gap: 10px; width: 100%; }
-        .btn-grey { background: #333; color: white; flex: 1; }
+        .btn-row { display: flex; gap: 10px; }
+        .btn-grey { background: #222; color: white; flex: 1; border: 1px solid #444; }
         .btn-purple { background: var(--purple); color: white; flex: 1; }
-        .btn-adjust { background: #1a1a1a; color: white; border: 1px solid #333; flex: 1; padding: 12px; cursor: pointer; border-radius: 8px; font-weight: bold; font-size: 16px; }
-        
-        #snipe-input-area { width: 100%; margin: 5px 0; display: none; }
-        .list-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #1a1a2a; color: #aaa; font-size: 17px; }
+        .btn-adjust { background: #111; color: white; border: 1px solid #333; flex: 1; padding: 12px; cursor: pointer; border-radius: 8px; font-weight: bold; }
+
+        /* Biggest Gifter - בתחתית האמצע */
+        .gifter-box-bottom { 
+            position: absolute; bottom: 20px; 
+            border: 2px solid var(--gold); border-radius: 15px; 
+            width: 80%; padding: 15px; text-align: center; 
+            background: rgba(255, 204, 0, 0.05); box-shadow: 0 0 20px rgba(255, 204, 0, 0.1); 
+        }
+
+        #snipe-input-area { width: 100%; display: none; margin-bottom: 10px; }
+        .list-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #1a1a2a; color: #aaa; }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
         <div class="login-card">
-            <h2 style="color: var(--neon); margin-bottom: 25px;">Welcome to LiveBIT</h2>
+            <h2 style="color: var(--neon); margin-bottom: 25px;">SYSTEM ACCESS</h2>
             <div id="error-msg" style="display:none; color:var(--red); margin-bottom:10px;"></div>
             <div class="input-wrapper"><input type="text" id="log-email" placeholder="Email (@gmail.com)"></div>
-            <div class="input-wrapper">
-                <input type="password" id="log-pass" placeholder="Password (8+ chars)">
-                <i class="fas fa-eye toggle-password" id="eyeIcon" onclick="togglePassView()"></i>
-            </div>
+            <div class="input-wrapper"><input type="password" id="log-pass" placeholder="Password (8+ chars)"></div>
             <div class="input-wrapper"><input type="text" id="log-user" placeholder="TikTok @Username"></div>
             <button onclick="doLogin()" class="btn-action btn-cyan">ENTER PANEL</button>
         </div>
     </div>
 
     <div id="admin-panel">
-        <div class="side-panel"><h3>TOP 10 LIKERS</h3><div id="likers-list"></div></div>
+        <div class="side-panel"><h3>TOP LIKERS</h3><div id="likers-list"></div></div>
         
         <div class="center-panel">
-            <div style="color: var(--red); font-size: 20px; font-weight: 900; text-transform: uppercase;">
+            <div style="color: var(--red); font-size: 22px; font-weight: 900; letter-spacing: 2px;">
                 SNIPE: <span id="current-snipe-val">20</span>s
             </div>
             <div id="timer-display" class="timer-val">01:00</div>
             
             <div class="controls-container">
-                <button id="main-timer-btn" class="btn-action btn-cyan" onclick="toggleClock()">START</button>
+                <button id="main-timer-btn" class="btn-action btn-cyan" onclick="toggleClock()">START / PAUSE</button>
                 
                 <div class="btn-row">
                     <button class="btn-action btn-grey" onclick="resetClock()">RESET</button>
-                    <button class="btn-action btn-purple" onclick="toggleSnipeEdit()">SNIPE DELAY</button>
+                    <button class="btn-action btn-purple" onclick="toggleSnipeEdit()">SNIPE</button>
                 </div>
 
                 <div id="snipe-input-area">
-                    <input type="number" id="snipe-input" value="20" placeholder="Seconds..." style="text-align:center; border:1px solid var(--purple);" 
+                    <input type="number" id="snipe-input" value="20" style="text-align:center; border:1px solid var(--purple);" 
                            oninput="document.getElementById('current-snipe-val').innerText = this.value">
                 </div>
 
@@ -83,37 +89,30 @@
                     <button class="btn-adjust" onclick="adjustTime(30)">30 <i class="fas fa-arrow-up"></i></button>
                 </div>
 
-                <button class="btn-action" style="background:transparent; color:var(--green); border:2px solid var(--green); margin-top:5px;" onclick="connectLive()">CONNECT TIKTOK LIVE</button>
+                <button class="btn-action" style="background:transparent; color:var(--green); border:2px solid var(--green);" onclick="connectLive()">CONNECT TIKTOK LIVE</button>
+            </div>
+
+            <div class="gifter-box-bottom">
+                <div style="color: var(--gold); font-size: 14px; font-weight: 900; margin-bottom: 5px;">👑 BIGGEST GIFTER</div>
+                <div id="top-gifter-name" style="font-size: 28px; font-weight: bold; color: white;">Waiting...</div>
             </div>
         </div>
 
-        <div class="side-panel"><h3>TOP 3 GIFTERS</h3><div id="gifters-list"></div></div>
+        <div class="side-panel"><h3>TOP GIFTERS</h3><div id="gifters-list"></div></div>
     </div>
 
     <script>
         const socket = io("https://livebit-server.onrender.com");
         let timeLeft = 60, active = false, isSnipeMode = false, timerTask;
 
-        function togglePassView() {
-            const p = document.getElementById('log-pass'), e = document.getElementById('eyeIcon');
-            if (p.type === 'password') { p.type = 'text'; e.classList.replace('fa-eye', 'fa-eye-slash'); }
-            else { p.type = 'password'; e.classList.replace('fa-eye-slash', 'fa-eye'); }
-        }
-
-        // לוגיקת ההתחברות התקינה מקוד 2
         function doLogin() {
             const email = document.getElementById('log-email').value;
             const pass = document.getElementById('log-pass').value;
             const user = document.getElementById('log-user').value;
             const errBox = document.getElementById('error-msg');
-            let errors = [];
-
-            if (!email.includes("@gmail.com")) errors.push("Missing '@gmail.com'");
-            if (pass.length < 8) errors.push("Password must be 8+ chars");
-            if (!user.startsWith("@")) errors.push("Username must start with '@'");
-
-            if (errors.length > 0) {
-                errBox.innerHTML = errors.join("<br>");
+            
+            if (!email.includes("@gmail.com") || pass.length < 8 || !user.startsWith("@")) {
+                errBox.innerText = "Check your details and try again";
                 errBox.style.display = "block";
             } else {
                 errBox.style.display = "none";
@@ -126,14 +125,10 @@
         function toggleClock() {
             const btn = document.getElementById('main-timer-btn');
             const display = document.getElementById('timer-display');
-            
             if(active) {
-                clearInterval(timerTask);
-                active = false;
-                btn.innerText = "START";
+                clearInterval(timerTask); active = false; btn.innerText = "START / PAUSE";
             } else {
-                active = true;
-                btn.innerText = "PAUSE";
+                active = true; btn.innerText = "PAUSE";
                 timerTask = setInterval(() => {
                     if(timeLeft > 0) {
                         timeLeft--;
@@ -142,9 +137,7 @@
                         timeLeft = parseInt(document.getElementById('snipe-input').value);
                         display.classList.add('timer-red');
                     } else {
-                        clearInterval(timerTask);
-                        active = false;
-                        btn.innerText = "FINISH";
+                        clearInterval(timerTask); active = false; btn.innerText = "FINISH";
                     }
                     updateUI();
                 }, 1000);
@@ -152,21 +145,17 @@
         }
 
         function resetClock() { 
-            clearInterval(timerTask); 
-            active = false; isSnipeMode = false; timeLeft = 60; 
-            const display = document.getElementById('timer-display');
-            display.classList.remove('timer-red');
-            document.getElementById('main-timer-btn').innerText = "START";
+            clearInterval(timerTask); active = false; isSnipeMode = false; timeLeft = 60; 
+            document.getElementById('timer-display').classList.remove('timer-red');
+            document.getElementById('main-timer-btn').innerText = "START / PAUSE";
             updateUI(); 
         }
 
         function adjustTime(v) { timeLeft += v; if(timeLeft < 0) timeLeft = 0; updateUI(); }
-
         function updateUI() {
             const m = Math.floor(timeLeft/60), s = timeLeft%60;
             document.getElementById('timer-display').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
         }
-
         function toggleSnipeEdit() {
             const a = document.getElementById('snipe-input-area');
             a.style.display = (a.style.display === 'block') ? 'none' : 'block';
@@ -174,19 +163,19 @@
 
         function connectLive() {
             const user = document.getElementById('log-user').value;
-            Swal.fire({ title:'CONNECTING...', text:'Checking TikTok Live', allowOutsideClick:false, didOpen:()=>Swal.showLoading()});
+            Swal.fire({ title:'CONNECTING...', text:'Syncing with TikTok', allowOutsideClick:false, didOpen:()=>Swal.showLoading()});
             socket.emit('joinRoom', user.replace('@',''));
         }
 
-        socket.on('connected', () => { Swal.fire({icon:'success', title:'CONNECTED!', timer:2000, showConfirmButton:false}); });
-        socket.on('error', () => { Swal.fire({icon:'error', title:'FAILED', text:'Are you LIVE?'}); });
+        socket.on('connected', () => { Swal.fire({icon:'success', title:'CONNECTED SUCCESSFULLY!', timer:3000, showConfirmButton:false}); });
+        socket.on('error', () => { Swal.fire({icon:'error', title:'CONNECTION FAILED', text:'Are you live?'}); });
 
         function fillLists() {
             const f = (id, n, s) => {
-                let h = ""; for(let i=1; i<=n; i++) h+=`<div class="list-item"><span>${i}. ${s}</span><span>0</span></div>`;
+                let h = ""; for(let i=1; i<=n; i++) h+=`<div class="list-item"><span>${i}. ${s} USER</span><span>0</span></div>`;
                 document.getElementById(id).innerHTML = h;
             };
-            f('likers-list', 10, '❤️'); f('gifters-list', 3, '🪙');
+            f('likers-list', 15, '❤️'); f('gifters-list', 10, '🪙');
         }
     </script>
 </body>
