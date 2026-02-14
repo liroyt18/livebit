@@ -13,6 +13,7 @@
         /* Login Screen */
         #login-screen { position: fixed; inset: 0; background: #05050a; z-index: 10000; display: flex; align-items: center; justify-content: center; }
         .login-card { background: #111; padding: 40px; border-radius: 20px; border: 2px solid var(--neon); text-align: center; width: 420px; box-shadow: 0 0 30px rgba(0, 229, 255, 0.4); }
+        #error-msg { color: var(--red); font-weight: bold; font-size: 13px; margin-bottom: 20px; display: none; text-align: left; background: rgba(255, 45, 85, 0.1); padding: 12px; border-radius: 8px; border: 1px solid var(--red); }
         .input-wrapper { position: relative; width: 100%; margin-bottom: 15px; }
         input { width: 100%; padding: 15px; background: #000; border: 1px solid #333; color: white; border-radius: 10px; box-sizing: border-box; outline: none; font-size: 16px; }
         .toggle-password { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #666; z-index: 10; padding: 5px; }
@@ -25,7 +26,6 @@
         .gifter-box { border: 2px solid var(--gold); border-radius: 15px; width: 90%; padding: 15px; text-align: center; margin-bottom: 15px; background: rgba(255, 204, 0, 0.05); }
         .timer-val { font-size: 140px; font-weight: 800; font-family: monospace; margin: 5px 0; line-height: 1; }
         
-        /* Controls */
         .controls-container { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 10px; }
         .btn-action { width: 100%; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; padding: 18px; text-transform: uppercase; font-size: 15px; }
         .btn-cyan { background: var(--neon); color: black; }
@@ -43,6 +43,7 @@
     <div id="login-screen">
         <div class="login-card">
             <h2 style="color: var(--neon); margin-bottom: 25px;">Welcome to LiveBIT</h2>
+            <div id="error-msg"></div>
             <div class="input-wrapper"><input type="text" id="log-email" placeholder="Email (@gmail.com)"></div>
             <div class="input-wrapper">
                 <input type="password" id="log-pass" placeholder="Password (8+ chars)">
@@ -99,21 +100,38 @@
             else { p.type = 'password'; e.classList.replace('fa-eye-slash', 'fa-eye'); }
         }
 
+        // פונקציית הלוגין המתוקנת
         function doLogin() {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('admin-panel').style.display = 'grid';
-            fillLists();
+            const email = document.getElementById('log-email').value;
+            const pass = document.getElementById('log-pass').value;
+            const user = document.getElementById('log-user').value;
+            const errBox = document.getElementById('error-msg');
+            let errors = [];
+
+            if (!email.includes("@gmail.com")) errors.push("Missing '@gmail.com'");
+            if (pass.length < 8) errors.push("Password must be 8+ chars");
+            if (!user.startsWith("@")) errors.push("Username must start with '@'");
+
+            if (errors.length > 0) {
+                errBox.innerHTML = errors.join("<br>");
+                errBox.style.display = "block";
+            } else {
+                errBox.style.display = "none";
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('admin-panel').style.display = 'grid';
+                fillLists();
+            }
         }
 
-        // פונקציית הטיימר המתוקנת
         function toggleClock() {
+            const btn = document.getElementById('main-timer-btn');
             if(active) {
                 clearInterval(timerTask);
                 active = false;
-                document.getElementById('main-timer-btn').innerText = "START";
+                btn.innerText = "START";
             } else {
                 active = true;
-                document.getElementById('main-timer-btn').innerText = "PAUSE";
+                btn.innerText = "PAUSE";
                 timerTask = setInterval(() => {
                     if(timeLeft > 0) {
                         timeLeft--;
@@ -121,7 +139,7 @@
                     } else {
                         clearInterval(timerTask);
                         active = false;
-                        document.getElementById('main-timer-btn').innerText = "START";
+                        btn.innerText = "START";
                     }
                 }, 1000);
             }
@@ -152,8 +170,9 @@
         }
 
         function connectLive() {
+            const user = document.getElementById('log-user').value;
             Swal.fire({ title:'CONNECTING...', text:'Checking TikTok Live', allowOutsideClick:false, didOpen:()=>Swal.showLoading()});
-            socket.emit('joinRoom', document.getElementById('log-user').value.replace('@',''));
+            socket.emit('joinRoom', user.replace('@',''));
         }
 
         socket.on('connected', () => { Swal.fire({icon:'success', title:'CONNECTED!', timer:2000, showConfirmButton:false}); });
