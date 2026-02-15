@@ -14,7 +14,7 @@
             margin: 0; height: 100vh; width: 100vw; overflow: hidden; 
         }
 
-        /* מירכוז מוחלט למסך ההתחברות */
+        /* מסך התחברות - ממורכז וקומפקטי */
         #login-screen { 
             position: fixed; top: 50%; left: 50%; 
             transform: translate(-50%, -50%); z-index: 9999;
@@ -22,53 +22,43 @@
         }
         .login-card { 
             background: #111; padding: 40px; border-radius: 20px; 
-            border: 2px solid var(--neon); text-align: center; width: 420px; 
+            border: 2px solid var(--neon); text-align: center; width: 380px; /* רוחב שדות כתיבה נכון */
             box-shadow: 0 0 30px rgba(0, 229, 255, 0.4); 
         }
 
-        /* פאנל ניהול עם חלוקה למרכז */
+        /* פאנל ניהול */
         #admin-panel { 
             display: none; width: 100%; height: 100%; 
             grid-template-columns: 320px 1fr 320px; gap: 20px; padding: 20px; box-sizing: border-box; 
         }
 
-        /* מירכוז הטבלאות בצדדים */
-        .side-container {
-            display: flex;
-            flex-direction: column;
-            justify-content: center; /* ממרכז את הטבלה לאמצע הגובה */
-            height: 100%;
-        }
-
-        .side-panel { 
-            background: rgba(255,255,255,0.02); border-radius: 15px; 
-            padding: 20px; border: 1px solid rgba(255,255,255,0.05); 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        }
-
+        .side-container { display: flex; flex-direction: column; justify-content: center; height: 100%; }
+        .side-panel { background: rgba(255,255,255,0.02); border-radius: 15px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); }
         .center-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
 
         /* כפתורי URL */
         .url-badge {
             background: rgba(0, 229, 255, 0.1); border: 1px solid var(--neon); color: var(--neon);
             padding: 4px 8px; border-radius: 5px; font-size: 10px; cursor: pointer;
-            text-transform: uppercase; font-weight: bold; transition: 0.2s;
+            text-transform: uppercase; font-weight: bold;
         }
-        .url-badge:hover { background: var(--neon); color: black; }
 
         /* UI */
         .timer-val { font-size: 150px; font-weight: 800; font-family: monospace; line-height: 1; margin: 10px 0; }
         .btn-action { width: 100%; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; padding: 18px; text-transform: uppercase; margin-top: 5px; }
         .btn-cyan { background: var(--neon); color: black; }
-        .input-style { width: 100%; padding: 15px; margin-bottom: 10px; background:#000; border: 1px solid #333; color: white; border-radius: 10px; outline: none; }
+        .btn-adjust { background: #1a1a1a; color: white; border: 1px solid #333; flex: 1; padding: 12px; cursor: pointer; border-radius: 8px; font-weight: bold; font-size: 14px; }
+        .btn-adjust:hover { background: #333; }
+        
+        .input-style { width: 100%; padding: 15px; margin-bottom: 12px; background:#000; border: 1px solid #333; color: white; border-radius: 10px; outline: none; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
         <div class="login-card">
-            <h2 style="color: var(--neon); margin-bottom: 10px;">Welcome to LiveBIT</h2>
-            <div id="error-msg" style="color:var(--red); font-size:14px; margin-bottom:15px; display:none; font-weight: bold;"></div>
+            <h2 style="color: var(--neon); margin-bottom: 20px;">Welcome to LiveBIT</h2>
+            <div id="error-msg" style="color:var(--red); font-size:14px; margin-bottom:15px; display:none;"></div>
             <input type="text" id="log-email" class="input-style" placeholder="Email (@gmail.com)">
             <input type="password" id="log-pass" class="input-style" placeholder="Password (8+ chars)">
             <input type="text" id="log-user" class="input-style" placeholder="TikTok @Username">
@@ -99,17 +89,18 @@
             <div style="color: var(--red); font-size: 22px; font-weight: 900; margin-top: 60px;">SNIPE: 20s</div>
             <div id="timer-display" class="timer-val">01:00</div>
             
-            <div style="width: 100%; max-width: 480px;">
-                <button class="btn-action btn-cyan">START</button>
+            <div style="width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 8px;">
+                <button class="btn-action btn-cyan" onclick="toggleClock()">START / PAUSE</button>
                 <div style="display:flex; gap:10px;">
-                    <button class="btn-action" style="background:#333; color:white; flex:1;">RESET</button>
-                    <button class="btn-action" style="background:var(--purple); color:white; flex:1;">SNIPE DELAY</button>
+                    <button class="btn-action" style="background:#333; color:white; flex:1;" onclick="resetClock()">RESET</button>
+                    <button class="btn-action" style="background:var(--purple); color:white; flex:1;" onclick="toggleSnipeEdit()">SNIPE DELAY</button>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-adjust" onclick="adjustTime(-30)">30 ↓</button>
+                    <button class="btn-adjust" onclick="adjustTime(30)">30 ↑</button>
                 </div>
                 <button class="btn-action" style="background:transparent; color:var(--green); border:2px solid var(--green);" onclick="connectLive()">CONNECT TIKTOK LIVE</button>
-                
-                <div style="text-align:center; margin-top: 10px;">
-                    <span class="url-badge" onclick="copyLink('timer')" style="padding: 6px 15px;">TIMER URL</span>
-                </div>
+                <div style="text-align:center;"><span class="url-badge" onclick="copyLink('timer')">TIMER URL</span></div>
             </div>
         </div>
 
@@ -125,32 +116,40 @@
     </div>
 
     <script>
+        let timeLeft = 60, active = false, timerTask;
+
         function doLogin() {
             const email = document.getElementById('log-email').value;
             const pass = document.getElementById('log-pass').value;
             const user = document.getElementById('log-user').value;
-            const err = document.getElementById('error-msg');
-
             if (email.includes("@gmail.com") && pass.length >= 8 && user.startsWith("@")) {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('admin-panel').style.display = 'grid';
                 fillLists();
             } else {
+                const err = document.getElementById('error-msg');
                 err.style.display = "block";
-                err.innerHTML = "Login Failed: Invalid Details";
+                err.innerText = "Login Failed: Check Credentials";
             }
+        }
+
+        function adjustTime(v) { timeLeft += v; if(timeLeft<0)timeLeft=0; updateUI(); }
+
+        function updateUI() {
+            const m = Math.floor(timeLeft/60), s = timeLeft%60;
+            document.getElementById('timer-display').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
         }
 
         function copyLink(type) {
             const url = window.location.href.split('?')[0] + "?view=" + type;
             navigator.clipboard.writeText(url).then(() => {
-                Swal.fire({ icon: 'success', title: 'URL Copied', timer: 800, showConfirmButton: false });
+                Swal.fire({ icon: 'success', title: 'Copied!', timer: 800, showConfirmButton: false });
             });
         }
 
         function fillLists() {
             const f = (id, n, s) => {
-                let h = ""; for(let i=1; i<=n; i++) h+=`<div style="display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid #1a1a2a; color:#aaa;"><span>${i}. ${s}</span><span>0</span></div>`;
+                let h = ""; for(let i=1; i<=n; i++) h+=`<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #1a1a2a; color:#aaa;"><span>${i}. ${s}</span><span>0</span></div>`;
                 document.getElementById(id).innerHTML = h;
             };
             f('likers-list', 10, '❤️'); f('gifters-list', 3, '🪙');
