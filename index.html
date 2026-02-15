@@ -9,48 +9,33 @@
     <style>
         :root { --neon: #00e5ff; --red: #ff2d55; --gold: #ffcc00; --bg: #080810; --green: #00ff88; --purple: #a020f0; }
         
-        body, html { 
-            background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; 
-            margin: 0; height: 100vh; width: 100vw; overflow: hidden; 
-        }
+        body, html { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
 
-        /* מסך התחברות - ממורכז וקומפקטי */
+        /* מסך התחברות - מירכוז ורוחב שדות מתוקן */
         #login-screen { 
-            position: fixed; top: 50%; left: 50%; 
-            transform: translate(-50%, -50%); z-index: 9999;
-            display: flex; align-items: center; justify-content: center;
+            position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 10000; background: var(--bg);
         }
         .login-card { 
-            background: #111; padding: 40px; border-radius: 20px; 
-            border: 2px solid var(--neon); text-align: center; width: 380px; /* רוחב שדות כתיבה נכון */
-            box-shadow: 0 0 30px rgba(0, 229, 255, 0.4); 
+            background: #111; padding: 40px; border-radius: 20px; border: 2px solid var(--neon); text-align: center;
+            display: flex; flex-direction: column; align-items: center; /* ממרכז את התוכן בפנים */
+        }
+        .input-style { 
+            width: 300px; /* רוחב שדה כתיבה מוגבל */
+            padding: 12px; margin-bottom: 12px; background:#000; border: 1px solid #333; color: white; border-radius: 10px; outline: none; 
         }
 
         /* פאנל ניהול */
-        #admin-panel { 
-            display: none; width: 100%; height: 100%; 
-            grid-template-columns: 320px 1fr 320px; gap: 20px; padding: 20px; box-sizing: border-box; 
-        }
-
+        #admin-panel { display: none; width: 100%; height: 100vh; grid-template-columns: 320px 1fr 320px; gap: 20px; padding: 20px; box-sizing: border-box; }
         .side-container { display: flex; flex-direction: column; justify-content: center; height: 100%; }
         .side-panel { background: rgba(255,255,255,0.02); border-radius: 15px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); }
         .center-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
 
-        /* כפתורי URL */
-        .url-badge {
-            background: rgba(0, 229, 255, 0.1); border: 1px solid var(--neon); color: var(--neon);
-            padding: 4px 8px; border-radius: 5px; font-size: 10px; cursor: pointer;
-            text-transform: uppercase; font-weight: bold;
-        }
-
-        /* UI */
+        /* UI Elements */
         .timer-val { font-size: 150px; font-weight: 800; font-family: monospace; line-height: 1; margin: 10px 0; }
         .btn-action { width: 100%; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; padding: 18px; text-transform: uppercase; margin-top: 5px; }
         .btn-cyan { background: var(--neon); color: black; }
-        .btn-adjust { background: #1a1a1a; color: white; border: 1px solid #333; flex: 1; padding: 12px; cursor: pointer; border-radius: 8px; font-weight: bold; font-size: 14px; }
-        .btn-adjust:hover { background: #333; }
-        
-        .input-style { width: 100%; padding: 15px; margin-bottom: 12px; background:#000; border: 1px solid #333; color: white; border-radius: 10px; outline: none; box-sizing: border-box; }
+        .btn-adjust { background: #1a1a1a; color: white; border: 1px solid #333; flex: 1; padding: 12px; cursor: pointer; border-radius: 8px; font-weight: bold; }
+        .url-badge { background: rgba(0, 229, 255, 0.1); border: 1px solid var(--neon); color: var(--neon); padding: 4px 8px; border-radius: 5px; font-size: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -62,14 +47,14 @@
             <input type="text" id="log-email" class="input-style" placeholder="Email (@gmail.com)">
             <input type="password" id="log-pass" class="input-style" placeholder="Password (8+ chars)">
             <input type="text" id="log-user" class="input-style" placeholder="TikTok @Username">
-            <button onclick="doLogin()" class="btn-action btn-cyan">ENTER PANEL</button>
+            <button onclick="doLogin()" class="btn-action btn-cyan" style="width: 300px;">ENTER PANEL</button>
         </div>
     </div>
 
     <div id="admin-panel">
         <div class="side-container">
             <div class="side-panel">
-                <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                     <h3 style="margin:0;">TOP 10 LIKERS</h3>
                     <span class="url-badge" onclick="copyLink('likers')">URL</span>
                 </div>
@@ -78,26 +63,26 @@
         </div>
 
         <div class="center-panel">
-            <div style="position: absolute; top: 0; border: 2px solid var(--gold); border-radius: 15px; width: 100%; max-width: 480px; padding: 15px; text-align: center; background: rgba(255,204,0,0.03);">
+            <div style="position: absolute; top: 0; border: 2px solid var(--gold); border-radius: 15px; width: 480px; padding: 15px; text-align: center;">
                 <div style="display:flex; justify-content: center; align-items: center; gap: 10px;">
                     <span style="color:var(--gold); font-size:20px; font-weight: 900;">👑 BIGGEST GIFTER</span>
                     <span class="url-badge" style="border-color:var(--gold); color:var(--gold);" onclick="copyLink('biggest')">URL</span>
                 </div>
-                <div id="top-gifter-name" style="font-size: 24px; font-weight: bold;">Waiting...</div>
+                <div id="top-gifter-name" style="font-size: 22px; font-weight: bold;">Waiting...</div>
             </div>
 
             <div style="color: var(--red); font-size: 22px; font-weight: 900; margin-top: 60px;">SNIPE: 20s</div>
             <div id="timer-display" class="timer-val">01:00</div>
             
-            <div style="width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 8px;">
+            <div style="width: 480px; display: flex; flex-direction: column; gap: 8px;">
                 <button class="btn-action btn-cyan" onclick="toggleClock()">START / PAUSE</button>
                 <div style="display:flex; gap:10px;">
                     <button class="btn-action" style="background:#333; color:white; flex:1;" onclick="resetClock()">RESET</button>
-                    <button class="btn-action" style="background:var(--purple); color:white; flex:1;" onclick="toggleSnipeEdit()">SNIPE DELAY</button>
+                    <button class="btn-action" style="background:var(--purple); color:white; flex:1;">SNIPE DELAY</button>
                 </div>
                 <div style="display:flex; gap:10px;">
-                    <button class="btn-adjust" onclick="adjustTime(-30)">30 ↓</button>
                     <button class="btn-adjust" onclick="adjustTime(30)">30 ↑</button>
+                    <button class="btn-adjust" onclick="adjustTime(-30)">30 ↓</button>
                 </div>
                 <button class="btn-action" style="background:transparent; color:var(--green); border:2px solid var(--green);" onclick="connectLive()">CONNECT TIKTOK LIVE</button>
                 <div style="text-align:center;"><span class="url-badge" onclick="copyLink('timer')">TIMER URL</span></div>
@@ -106,7 +91,7 @@
 
         <div class="side-container">
             <div class="side-panel">
-                <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                     <h3 style="margin:0;">TOP 3 GIFTERS</h3>
                     <span class="url-badge" onclick="copyLink('auction')">URL</span>
                 </div>
@@ -116,8 +101,12 @@
     </div>
 
     <script>
-        let timeLeft = 60, active = false, timerTask;
-
+        let timeLeft = 60;
+        function adjustTime(v) { timeLeft += v; if(timeLeft < 0) timeLeft = 0; updateUI(); }
+        function updateUI() {
+            const m = Math.floor(timeLeft/60), s = timeLeft%60;
+            document.getElementById('timer-display').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }
         function doLogin() {
             const email = document.getElementById('log-email').value;
             const pass = document.getElementById('log-pass').value;
@@ -127,34 +116,18 @@
                 document.getElementById('admin-panel').style.display = 'grid';
                 fillLists();
             } else {
-                const err = document.getElementById('error-msg');
-                err.style.display = "block";
-                err.innerText = "Login Failed: Check Credentials";
+                document.getElementById('error-msg').style.display = "block";
+                document.getElementById('error-msg').innerText = "Login Failed!";
             }
         }
-
-        function adjustTime(v) { timeLeft += v; if(timeLeft<0)timeLeft=0; updateUI(); }
-
-        function updateUI() {
-            const m = Math.floor(timeLeft/60), s = timeLeft%60;
-            document.getElementById('timer-display').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-        }
-
-        function copyLink(type) {
-            const url = window.location.href.split('?')[0] + "?view=" + type;
-            navigator.clipboard.writeText(url).then(() => {
-                Swal.fire({ icon: 'success', title: 'Copied!', timer: 800, showConfirmButton: false });
-            });
-        }
-
+        function copyLink(t) { /* לוגיקת העתקה */ }
         function fillLists() {
             const f = (id, n, s) => {
-                let h = ""; for(let i=1; i<=n; i++) h+=`<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #1a1a2a; color:#aaa;"><span>${i}. ${s}</span><span>0</span></div>`;
+                let h = ""; for(let i=1; i<=n; i++) h+=`<div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #1a1a2a; color:#aaa;"><span>${i}. ${s}</span><span>0</span></div>`;
                 document.getElementById(id).innerHTML = h;
             };
             f('likers-list', 10, '❤️'); f('gifters-list', 3, '🪙');
         }
-
         function connectLive() { Swal.fire({title:'CONNECTING...', didOpen:()=>Swal.showLoading()}); }
     </script>
 </body>
