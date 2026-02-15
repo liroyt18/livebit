@@ -10,42 +10,41 @@
         :root { --neon: #00e5ff; --red: #ff2d55; --gold: #ffcc00; --bg: #080810; --green: #00ff88; --purple: #a020f0; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
 
-        /* הסתרה ראשונית של הכל */
         #login-screen, #admin-panel, #auction-overlay { display: none; }
 
-        /* Login Screen */
+        /* Login */
         .login-card { background: #111; padding: 40px; border-radius: 20px; border: 2px solid var(--neon); text-align: center; width: 420px; box-shadow: 0 0 30px rgba(0, 229, 255, 0.4); }
         #error-msg { color: var(--red); font-size: 14px; margin-bottom: 15px; font-weight: bold; min-height: 40px; }
         .input-wrapper { margin-bottom: 15px; position: relative; width: 100%; }
         input { width: 100%; padding: 15px; background: #000; border: 1px solid #333; color: white; border-radius: 10px; box-sizing: border-box; outline: none; }
         .toggle-password { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #666; }
 
-        /* Admin Panel Layout */
+        /* Admin */
         #admin-panel { width: 100%; height: 100vh; grid-template-columns: 320px 1fr 320px; gap: 20px; padding: 20px; box-sizing: border-box; }
         .side-panel { background: rgba(255,255,255,0.02); border-radius: 15px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); }
         .center-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; position: relative; }
 
-        /* Auction Overlay - הצצוגה לטיקטוק */
+        /* Auction Overlay - TikTok Studio */
         #auction-overlay { flex-direction: column; align-items: center; justify-content: center; height: 100vh; width: 100%; background: transparent; }
         .overlay-card { 
             background: rgba(10, 10, 20, 0.95); border: 4px solid var(--neon); border-radius: 25px; padding: 40px; 
             text-align: center; box-shadow: 0 0 40px var(--neon); min-width: 500px;
         }
-        .top-title { color: var(--neon); font-size: 38px; font-weight: 900; margin-bottom: 25px; text-shadow: 0 0 15px var(--neon); letter-spacing: 2px; }
+        .top-title { color: var(--neon); font-size: 38px; font-weight: 900; margin-bottom: 25px; text-shadow: 0 0 15px var(--neon); }
         .gifter-row { display: flex; justify-content: space-between; padding: 18px; border-bottom: 2px solid rgba(160, 32, 240, 0.4); font-size: 28px; font-weight: bold; }
         .gifter-row span:first-child { color: var(--purple); text-shadow: 0 0 5px var(--purple); }
 
-        /* UI Elements */
-        .gifter-box { position: absolute; top: 0; border: 2px solid var(--gold); border-radius: 15px; width: 100%; max-width: 480px; padding: 15px; text-align: center; background: rgba(255, 204, 0, 0.05); }
+        /* Common UI */
         .timer-val { font-size: 150px; font-weight: 800; font-family: monospace; line-height: 1; margin: 10px 0; }
         .timer-red { color: var(--red) !important; animation: blink 0.8s infinite; text-shadow: 0 0 20px var(--red); }
         @keyframes blink { 50% { opacity: 0.3; } }
         
         .controls-container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 10px; }
-        .btn-action { width: 100%; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; padding: 18px; text-transform: uppercase; font-size: 16px; }
+        .btn-action { width: 100%; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; padding: 18px; text-transform: uppercase; font-size: 16px; transition: 0.2s; }
         .btn-cyan { background: var(--neon); color: black; }
+        .btn-cyan:hover { box-shadow: 0 0 15px var(--neon); }
         .btn-row { display: flex; gap: 10px; }
-        .btn-adjust { background: #1a1a1a; color: white; border: 1px solid #333; flex: 1; padding: 12px; cursor: pointer; border-radius: 8px; font-weight: bold; }
+        .btn-copy { background: #111; color: var(--gold); border: 1px solid var(--gold); margin-top: 5px; padding: 12px; }
     </style>
 </head>
 <body>
@@ -67,17 +66,21 @@
     <div id="admin-panel">
         <div class="side-panel"><h3>TOP 10 LIKERS</h3><div id="likers-list"></div></div>
         <div class="center-panel">
-            <div class="gifter-box">
-                <span style="color:var(--gold); font-size:24px; display:block;">👑 BIGGEST GIFTER</span>
-                <div id="top-gifter-name" style="font-size: 24px; font-weight: bold;">Waiting...</div>
-            </div>
-            <div style="color: var(--red); font-size: 22px; font-weight: 900; margin-top: 40px;">SNIPE: <span id="current-snipe-val">20</span>s</div>
+            <div style="color: var(--red); font-size: 22px; font-weight: 900;">SNIPE: <span id="current-snipe-val">20</span>s</div>
             <div id="timer-display" class="timer-val">01:00</div>
+            
             <div class="controls-container">
                 <button id="main-timer-btn" class="btn-action btn-cyan" onclick="toggleClock()">START / PAUSE</button>
-                <div class="btn-row"><button class="btn-action" style="background:#333; color:white; flex:1;" onclick="resetClock()">RESET</button><button class="btn-action" style="background:var(--purple); color:white; flex:1;" onclick="toggleSnipeEdit()">SNIPE DELAY</button></div>
+                <div class="btn-row">
+                    <button class="btn-action" style="background:#333; color:white; flex:1;" onclick="resetClock()">RESET</button>
+                    <button class="btn-action" style="background:var(--purple); color:white; flex:1;" onclick="toggleSnipeEdit()">SNIPE DELAY</button>
+                </div>
                 <div id="snipe-input-area" style="display:none;"><input type="number" id="snipe-input" value="20" style="text-align:center; border:1px solid var(--purple);"></div>
-                <div class="btn-row"><button class="btn-adjust" onclick="adjustTime(-30)">30 ↓</button><button class="btn-adjust" onclick="adjustTime(30)">30 ↑</button></div>
+                
+                <button class="btn-action btn-copy" onclick="copyOverlayLink()">
+                    <i class="fas fa-link"></i> COPY OVERLAY LINK (FOR TIKTOK)
+                </button>
+
                 <button class="btn-action" style="background:transparent; color:var(--green); border:2px solid var(--green);" onclick="connectLive()">CONNECT TIKTOK LIVE</button>
             </div>
         </div>
@@ -101,7 +104,6 @@
         const socket = io("https://livebit-server.onrender.com");
         let timeLeft = 60, active = false, isSnipeMode = false, timerTask;
 
-        // בדיקה מיידית של הכתובת
         function checkRoute() {
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('view') === 'auction') {
@@ -113,6 +115,14 @@
             }
         }
         checkRoute();
+
+        function copyOverlayLink() {
+            const currentUrl = window.location.href.split('?')[0];
+            const overlayUrl = currentUrl + "?view=auction";
+            navigator.clipboard.writeText(overlayUrl).then(() => {
+                Swal.fire({ icon: 'success', title: 'Link Copied!', text: 'Paste this into TikTok Studio as a Browser Source.', timer: 2000, showConfirmButton: false });
+            });
+        }
 
         function togglePass() {
             const p = document.getElementById('log-pass');
@@ -127,7 +137,7 @@
 
             if (!email.includes("@gmail.com") || pass.length < 8 || !user.startsWith("@")) {
                 err.style.display = "block";
-                err.innerHTML = "Login Failed<br>Make sure: Email is @gmail.com, Password is 8+ chars, and Username starts with @";
+                err.innerHTML = "Login Failed<br>Invalid Credentials";
                 return;
             }
             document.getElementById('login-screen').style.display = 'none';
@@ -142,16 +152,6 @@
             if(document.getElementById('ov-timer')) document.getElementById('ov-timer').innerText = str;
             socket.emit('syncData', { time: str, isSnipe: isSnipeMode, snipeVal: document.getElementById('snipe-input').value });
         }
-
-        socket.on('timerSync', (data) => {
-            const ovTimer = document.getElementById('ov-timer');
-            if (ovTimer) {
-                ovTimer.innerText = data.time;
-                document.getElementById('ov-snipe').innerText = data.snipeVal;
-                if (data.isSnipe) ovTimer.classList.add('timer-red');
-                else ovTimer.classList.remove('timer-red');
-            }
-        });
 
         function toggleClock() {
             const btn = document.getElementById('main-timer-btn');
@@ -177,9 +177,6 @@
             updateUI(); 
         }
 
-        function adjustTime(v) { timeLeft += v; if(timeLeft<0)timeLeft=0; updateUI(); }
-        function toggleSnipeEdit() { const s = document.getElementById('snipe-input-area'); s.style.display = s.style.display==='none'?'block':'none'; }
-        
         function fillLists() {
             const f = (id, n, s) => {
                 let h = ""; for(let i=1; i<=n; i++) h+=`<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #1a1a2a; color:#aaa;"><span>${i}. ${s}</span><span>0</span></div>`;
@@ -188,6 +185,7 @@
             f('likers-list', 10, '❤️'); f('gifters-list', 3, '🪙');
         }
 
+        function toggleSnipeEdit() { const s = document.getElementById('snipe-input-area'); s.style.display = s.style.display==='none'?'block':'none'; }
         function connectLive() { Swal.fire({title:'CONNECTING...', didOpen:()=>Swal.showLoading()}); }
     </script>
 </body>
