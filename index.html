@@ -14,27 +14,38 @@
             margin: 0; height: 100vh; width: 100vw; overflow: hidden; 
         }
 
-        /* --- מירכוז מוחלט של מסך ההתחברות --- */
+        /* מירכוז מוחלט למסך ההתחברות */
         #login-screen { 
-            position: fixed; 
-            top: 50%; left: 50%; 
-            transform: translate(-50%, -50%); /* זה מה ששומר עליו במרכז המדויק */
-            z-index: 9999;
+            position: fixed; top: 50%; left: 50%; 
+            transform: translate(-50%, -50%); z-index: 9999;
             display: flex; align-items: center; justify-content: center;
         }
-
         .login-card { 
             background: #111; padding: 40px; border-radius: 20px; 
             border: 2px solid var(--neon); text-align: center; width: 420px; 
             box-shadow: 0 0 30px rgba(0, 229, 255, 0.4); 
         }
 
-        /* --- פאנל הניהול --- */
+        /* פאנל ניהול עם חלוקה למרכז */
         #admin-panel { 
             display: none; width: 100%; height: 100%; 
             grid-template-columns: 320px 1fr 320px; gap: 20px; padding: 20px; box-sizing: border-box; 
         }
-        .side-panel { background: rgba(255,255,255,0.02); border-radius: 15px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); }
+
+        /* מירכוז הטבלאות בצדדים */
+        .side-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* ממרכז את הטבלה לאמצע הגובה */
+            height: 100%;
+        }
+
+        .side-panel { 
+            background: rgba(255,255,255,0.02); border-radius: 15px; 
+            padding: 20px; border: 1px solid rgba(255,255,255,0.05); 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
         .center-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
 
         /* כפתורי URL */
@@ -66,16 +77,18 @@
     </div>
 
     <div id="admin-panel">
-        <div class="side-panel">
-            <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h3 style="margin:0;">TOP 10 LIKERS</h3>
-                <span class="url-badge" onclick="copyLink('likers')">URL</span>
+        <div class="side-container">
+            <div class="side-panel">
+                <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="margin:0;">TOP 10 LIKERS</h3>
+                    <span class="url-badge" onclick="copyLink('likers')">URL</span>
+                </div>
+                <div id="likers-list"></div>
             </div>
-            <div id="likers-list"></div>
         </div>
 
         <div class="center-panel">
-            <div style="position: absolute; top: 0; border: 2px solid var(--gold); border-radius: 15px; width: 100%; max-width: 480px; padding: 15px; text-align: center;">
+            <div style="position: absolute; top: 0; border: 2px solid var(--gold); border-radius: 15px; width: 100%; max-width: 480px; padding: 15px; text-align: center; background: rgba(255,204,0,0.03);">
                 <div style="display:flex; justify-content: center; align-items: center; gap: 10px;">
                     <span style="color:var(--gold); font-size:20px; font-weight: 900;">👑 BIGGEST GIFTER</span>
                     <span class="url-badge" style="border-color:var(--gold); color:var(--gold);" onclick="copyLink('biggest')">URL</span>
@@ -100,12 +113,14 @@
             </div>
         </div>
 
-        <div class="side-panel">
-            <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h3 style="margin:0;">TOP 3 GIFTERS</h3>
-                <span class="url-badge" onclick="copyLink('auction')">URL</span>
+        <div class="side-container">
+            <div class="side-panel">
+                <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="margin:0;">TOP 3 GIFTERS</h3>
+                    <span class="url-badge" onclick="copyLink('auction')">URL</span>
+                </div>
+                <div id="gifters-list"></div>
             </div>
-            <div id="gifters-list"></div>
         </div>
     </div>
 
@@ -122,7 +137,7 @@
                 fillLists();
             } else {
                 err.style.display = "block";
-                err.innerHTML = "Login Failed: Check Email, Password & @Username";
+                err.innerHTML = "Login Failed: Invalid Details";
             }
         }
 
