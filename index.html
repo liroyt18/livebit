@@ -8,21 +8,12 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root { --neon: #00e5ff; --red: #ff2d55; --gold: #ffcc00; --bg: #080810; --green: #00ff88; --purple: #a020f0; }
-        
         body, html { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
 
-        /* מסך התחברות - מירכוז ורוחב שדות מתוקן */
-        #login-screen { 
-            position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 10000; background: var(--bg);
-        }
-        .login-card { 
-            background: #111; padding: 40px; border-radius: 20px; border: 2px solid var(--neon); text-align: center;
-            display: flex; flex-direction: column; align-items: center; /* ממרכז את התוכן בפנים */
-        }
-        .input-style { 
-            width: 300px; /* רוחב שדה כתיבה מוגבל */
-            padding: 12px; margin-bottom: 12px; background:#000; border: 1px solid #333; color: white; border-radius: 10px; outline: none; 
-        }
+        /* מסך התחברות - מיושר וצר */
+        #login-screen { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 10000; background: var(--bg); }
+        .login-card { background: #111; padding: 40px; border-radius: 20px; border: 2px solid var(--neon); text-align: center; display: flex; flex-direction: column; align-items: center; width: 400px; }
+        .input-style { width: 300px; padding: 12px; margin-bottom: 12px; background:#000; border: 1px solid #333; color: white; border-radius: 10px; outline: none; box-sizing: border-box; }
 
         /* פאנל ניהול */
         #admin-panel { display: none; width: 100%; height: 100vh; grid-template-columns: 320px 1fr 320px; gap: 20px; padding: 20px; box-sizing: border-box; }
@@ -30,12 +21,14 @@
         .side-panel { background: rgba(255,255,255,0.02); border-radius: 15px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); }
         .center-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
 
-        /* UI Elements */
+        /* UI */
         .timer-val { font-size: 150px; font-weight: 800; font-family: monospace; line-height: 1; margin: 10px 0; }
+        .timer-red { color: var(--red) !important; animation: blink 0.8s infinite; }
+        @keyframes blink { 50% { opacity: 0.3; } }
         .btn-action { width: 100%; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; padding: 18px; text-transform: uppercase; margin-top: 5px; }
         .btn-cyan { background: var(--neon); color: black; }
         .btn-adjust { background: #1a1a1a; color: white; border: 1px solid #333; flex: 1; padding: 12px; cursor: pointer; border-radius: 8px; font-weight: bold; }
-        .url-badge { background: rgba(0, 229, 255, 0.1); border: 1px solid var(--neon); color: var(--neon); padding: 4px 8px; border-radius: 5px; font-size: 10px; cursor: pointer; }
+        .url-badge { background: rgba(0, 229, 255, 0.1); border: 1px solid var(--neon); color: var(--neon); padding: 4px 8px; border-radius: 5px; font-size: 10px; cursor: pointer; text-transform: uppercase; }
     </style>
 </head>
 <body>
@@ -71,14 +64,17 @@
                 <div id="top-gifter-name" style="font-size: 22px; font-weight: bold;">Waiting...</div>
             </div>
 
-            <div style="color: var(--red); font-size: 22px; font-weight: 900; margin-top: 60px;">SNIPE: 20s</div>
+            <div style="color: var(--red); font-size: 22px; font-weight: 900; margin-top: 60px;">SNIPE: <span id="current-snipe-val">20</span>s</div>
             <div id="timer-display" class="timer-val">01:00</div>
             
             <div style="width: 480px; display: flex; flex-direction: column; gap: 8px;">
-                <button class="btn-action btn-cyan" onclick="toggleClock()">START / PAUSE</button>
+                <button id="main-timer-btn" class="btn-action btn-cyan" onclick="toggleClock()">START / PAUSE</button>
                 <div style="display:flex; gap:10px;">
                     <button class="btn-action" style="background:#333; color:white; flex:1;" onclick="resetClock()">RESET</button>
-                    <button class="btn-action" style="background:var(--purple); color:white; flex:1;">SNIPE DELAY</button>
+                    <button class="btn-action" style="background:var(--purple); color:white; flex:1;" onclick="toggleSnipeEdit()">SNIPE DELAY</button>
+                </div>
+                <div id="snipe-input-area" style="display:none; margin-bottom: 5px;">
+                    <input type="number" id="snipe-input" value="20" style="width:100%; padding:10px; text-align:center; background:#000; border:1px solid var(--purple); color:white; border-radius:5px;">
                 </div>
                 <div style="display:flex; gap:10px;">
                     <button class="btn-adjust" onclick="adjustTime(30)">30 ↑</button>
@@ -101,12 +97,57 @@
     </div>
 
     <script>
-        let timeLeft = 60;
-        function adjustTime(v) { timeLeft += v; if(timeLeft < 0) timeLeft = 0; updateUI(); }
+        let timeLeft = 60, active = false, isSnipeMode = false, timerTask;
+
         function updateUI() {
             const m = Math.floor(timeLeft/60), s = timeLeft%60;
             document.getElementById('timer-display').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            document.getElementById('current-snipe-val').innerText = document.getElementById('snipe-input').value;
         }
+
+        function toggleClock() {
+            const btn = document.getElementById('main-timer-btn');
+            if(active) { 
+                clearInterval(timerTask); 
+                active = false; 
+                btn.innerText = "START / PAUSE"; 
+            } else {
+                active = true; 
+                btn.innerText = "PAUSE";
+                timerTask = setInterval(() => {
+                    if(timeLeft > 0) {
+                        timeLeft--;
+                    } else if(!isSnipeMode) { 
+                        isSnipeMode = true; 
+                        timeLeft = parseInt(document.getElementById('snipe-input').value); 
+                        document.getElementById('timer-display').classList.add('timer-red'); 
+                    } else {
+                        clearInterval(timerTask);
+                        active = false;
+                        btn.innerText = "START / PAUSE";
+                    }
+                    updateUI();
+                }, 1000);
+            }
+        }
+
+        function resetClock() { 
+            clearInterval(timerTask);
+            active = false;
+            timeLeft = 60; 
+            isSnipeMode = false; 
+            document.getElementById('timer-display').classList.remove('timer-red'); 
+            document.getElementById('main-timer-btn').innerText = "START / PAUSE";
+            updateUI(); 
+        }
+
+        function adjustTime(v) { timeLeft += v; if(timeLeft < 0) timeLeft = 0; updateUI(); }
+        
+        function toggleSnipeEdit() { 
+            const s = document.getElementById('snipe-input-area'); 
+            s.style.display = s.style.display === 'none' ? 'block' : 'none'; 
+        }
+
         function doLogin() {
             const email = document.getElementById('log-email').value;
             const pass = document.getElementById('log-pass').value;
@@ -116,18 +157,27 @@
                 document.getElementById('admin-panel').style.display = 'grid';
                 fillLists();
             } else {
-                document.getElementById('error-msg').style.display = "block";
-                document.getElementById('error-msg').innerText = "Login Failed!";
+                const err = document.getElementById('error-msg');
+                err.style.display = "block";
+                err.innerText = "Login Failed!";
             }
         }
-        function copyLink(t) { /* לוגיקת העתקה */ }
+
+        function copyLink(type) {
+            const url = window.location.href.split('?')[0] + "?view=" + type;
+            navigator.clipboard.writeText(url).then(() => {
+                Swal.fire({ icon: 'success', title: 'Copied!', timer: 800, showConfirmButton: false });
+            });
+        }
+
         function fillLists() {
             const f = (id, n, s) => {
-                let h = ""; for(let i=1; i<=n; i++) h+=`<div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #1a1a2a; color:#aaa;"><span>${i}. ${s}</span><span>0</span></div>`;
+                let h = ""; for(let i=1; i<=n; i++) h+=`<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #1a1a2a; color:#aaa;"><span>${i}. ${s}</span><span>0</span></div>`;
                 document.getElementById(id).innerHTML = h;
             };
             f('likers-list', 10, '❤️'); f('gifters-list', 3, '🪙');
         }
+
         function connectLive() { Swal.fire({title:'CONNECTING...', didOpen:()=>Swal.showLoading()}); }
     </script>
 </body>
