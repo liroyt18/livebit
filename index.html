@@ -10,36 +10,39 @@
         :root { --neon: #00e5ff; --red: #ff2d55; --gold: #ffcc00; --bg: #080810; --green: #00ff88; --purple: #a020f0; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
 
+        /* הסתרה ראשונית של הכל */
+        #login-screen, #admin-panel, #auction-overlay { display: none; }
+
         /* Login Screen */
-        #login-screen { position: fixed; inset: 0; background: #05050a; z-index: 10000; display: flex; align-items: center; justify-content: center; }
         .login-card { background: #111; padding: 40px; border-radius: 20px; border: 2px solid var(--neon); text-align: center; width: 420px; box-shadow: 0 0 30px rgba(0, 229, 255, 0.4); }
-        #error-msg { color: var(--red); font-size: 14px; margin-bottom: 15px; font-weight: bold; min-height: 40px; display: none; }
-        .input-wrapper { margin-bottom: 15px; position: relative; }
+        #error-msg { color: var(--red); font-size: 14px; margin-bottom: 15px; font-weight: bold; min-height: 40px; }
+        .input-wrapper { margin-bottom: 15px; position: relative; width: 100%; }
         input { width: 100%; padding: 15px; background: #000; border: 1px solid #333; color: white; border-radius: 10px; box-sizing: border-box; outline: none; }
         .toggle-password { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #666; }
 
-        /* Admin Panel */
-        #admin-panel { display: none; width: 100%; height: 100vh; grid-template-columns: 320px 1fr 320px; gap: 20px; padding: 20px; box-sizing: border-box; }
+        /* Admin Panel Layout */
+        #admin-panel { width: 100%; height: 100vh; grid-template-columns: 320px 1fr 320px; gap: 20px; padding: 20px; box-sizing: border-box; }
         .side-panel { background: rgba(255,255,255,0.02); border-radius: 15px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); }
         .center-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; position: relative; }
 
-        /* Auction Overlay - צופים */
-        #auction-overlay { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100vh; width: 100%; }
+        /* Auction Overlay - הצצוגה לטיקטוק */
+        #auction-overlay { flex-direction: column; align-items: center; justify-content: center; height: 100vh; width: 100%; background: transparent; }
         .overlay-card { 
-            background: rgba(10, 10, 20, 0.9); border: 3px solid var(--neon); border-radius: 20px; padding: 30px; 
-            text-align: center; box-shadow: 0 0 25px var(--neon); min-width: 450px; 
+            background: rgba(10, 10, 20, 0.95); border: 4px solid var(--neon); border-radius: 25px; padding: 40px; 
+            text-align: center; box-shadow: 0 0 40px var(--neon); min-width: 500px;
         }
-        .top-title { color: var(--neon); font-size: 32px; font-weight: 900; margin-bottom: 20px; text-shadow: 0 0 10px var(--neon); }
-        .gifter-row { display: flex; justify-content: space-between; padding: 15px; border-bottom: 1px solid rgba(160, 32, 240, 0.3); font-size: 24px; font-weight: bold; }
-        .gifter-row span:first-child { color: var(--purple); }
+        .top-title { color: var(--neon); font-size: 38px; font-weight: 900; margin-bottom: 25px; text-shadow: 0 0 15px var(--neon); letter-spacing: 2px; }
+        .gifter-row { display: flex; justify-content: space-between; padding: 18px; border-bottom: 2px solid rgba(160, 32, 240, 0.4); font-size: 28px; font-weight: bold; }
+        .gifter-row span:first-child { color: var(--purple); text-shadow: 0 0 5px var(--purple); }
 
-        /* Elements */
+        /* UI Elements */
         .gifter-box { position: absolute; top: 0; border: 2px solid var(--gold); border-radius: 15px; width: 100%; max-width: 480px; padding: 15px; text-align: center; background: rgba(255, 204, 0, 0.05); }
         .timer-val { font-size: 150px; font-weight: 800; font-family: monospace; line-height: 1; margin: 10px 0; }
-        .timer-red { color: var(--red) !important; animation: blink 0.8s infinite; }
+        .timer-red { color: var(--red) !important; animation: blink 0.8s infinite; text-shadow: 0 0 20px var(--red); }
         @keyframes blink { 50% { opacity: 0.3; } }
+        
         .controls-container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 10px; }
-        .btn-action { width: 100%; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; padding: 18px; text-transform: uppercase; }
+        .btn-action { width: 100%; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; padding: 18px; text-transform: uppercase; font-size: 16px; }
         .btn-cyan { background: var(--neon); color: black; }
         .btn-row { display: flex; gap: 10px; }
         .btn-adjust { background: #1a1a1a; color: white; border: 1px solid #333; flex: 1; padding: 12px; cursor: pointer; border-radius: 8px; font-weight: bold; }
@@ -47,7 +50,7 @@
 </head>
 <body>
 
-    <div id="login-screen">
+    <div id="login-screen" style="display: flex; align-items: center; justify-content: center;">
         <div class="login-card">
             <h2 style="color: var(--neon); margin-bottom: 10px;">Welcome to LiveBIT</h2>
             <div id="error-msg"></div>
@@ -89,8 +92,8 @@
                 <div class="gifter-row"><span>2. Waiting</span><span>0 🪙</span></div>
                 <div class="gifter-row"><span>3. Waiting</span><span>0 🪙</span></div>
             </div>
-            <div style="color: var(--red); font-size: 24px; font-weight: 900; margin-top: 20px;">SNIPE: <span id="ov-snipe">20</span>s</div>
-            <div id="ov-timer" class="timer-val" style="font-size: 110px;">01:00</div>
+            <div style="color: var(--red); font-size: 30px; font-weight: 900; margin-top: 30px;">SNIPE: <span id="ov-snipe">20</span>s</div>
+            <div id="ov-timer" class="timer-val" style="font-size: 130px;">01:00</div>
         </div>
     </div>
 
@@ -98,12 +101,18 @@
         const socket = io("https://livebit-server.onrender.com");
         let timeLeft = 60, active = false, isSnipeMode = false, timerTask;
 
-        // בדיקת מצב תצוגה
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('view') === 'auction') {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('auction-overlay').style.display = 'flex';
+        // בדיקה מיידית של הכתובת
+        function checkRoute() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('view') === 'auction') {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('admin-panel').style.display = 'none';
+                document.getElementById('auction-overlay').style.display = 'flex';
+            } else {
+                document.getElementById('login-screen').style.display = 'flex';
+            }
         }
+        checkRoute();
 
         function togglePass() {
             const p = document.getElementById('log-pass');
@@ -126,25 +135,24 @@
             fillLists();
         }
 
-        // לוגיקה של הטיימר וה-Socket (אותו דבר לשני המסכים)
         function updateUI() {
             const m = Math.floor(timeLeft/60), s = timeLeft%60;
             const str = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
             document.getElementById('timer-display').innerText = str;
             if(document.getElementById('ov-timer')) document.getElementById('ov-timer').innerText = str;
-            // שליחת עדכון לכל מי שצופה ב-Overlay
-            socket.emit('syncTimer', { time: str, isSnipe: isSnipeMode });
+            socket.emit('syncData', { time: str, isSnipe: isSnipeMode, snipeVal: document.getElementById('snipe-input').value });
         }
 
-        // כשתפתח את הקישור עם ?view=auction, הוא יקשיב לעדכונים מהניהול
-        socket.on('timerUpdate', (data) => {
-            if (document.getElementById('ov-timer')) {
-                document.getElementById('ov-timer').innerText = data.time;
-                if (data.isSnipe) document.getElementById('ov-timer').classList.add('timer-red');
+        socket.on('timerSync', (data) => {
+            const ovTimer = document.getElementById('ov-timer');
+            if (ovTimer) {
+                ovTimer.innerText = data.time;
+                document.getElementById('ov-snipe').innerText = data.snipeVal;
+                if (data.isSnipe) ovTimer.classList.add('timer-red');
+                else ovTimer.classList.remove('timer-red');
             }
         });
 
-        /* שאר הפונקציות (toggleClock, resetClock, וכו') נשארות כמו קודם */
         function toggleClock() {
             const btn = document.getElementById('main-timer-btn');
             if(active) { clearInterval(timerTask); active = false; btn.innerText = "START / PAUSE"; }
@@ -152,22 +160,34 @@
                 active = true; btn.innerText = "PAUSE";
                 timerTask = setInterval(() => {
                     if(timeLeft > 0) timeLeft--;
-                    else if(!isSnipeMode) { isSnipeMode = true; timeLeft = 20; document.getElementById('timer-display').classList.add('timer-red'); }
+                    else if(!isSnipeMode) { 
+                        isSnipeMode = true; 
+                        timeLeft = parseInt(document.getElementById('snipe-input').value); 
+                        document.getElementById('timer-display').classList.add('timer-red'); 
+                    }
                     else { clearInterval(timerTask); active = false; }
                     updateUI();
                 }, 1000);
             }
         }
-        function resetClock() { timeLeft = 60; isSnipeMode = false; document.getElementById('timer-display').classList.remove('timer-red'); updateUI(); }
-        function adjustTime(v) { timeLeft += v; updateUI(); }
+
+        function resetClock() { 
+            timeLeft = 60; isSnipeMode = false; 
+            document.getElementById('timer-display').classList.remove('timer-red'); 
+            updateUI(); 
+        }
+
+        function adjustTime(v) { timeLeft += v; if(timeLeft<0)timeLeft=0; updateUI(); }
         function toggleSnipeEdit() { const s = document.getElementById('snipe-input-area'); s.style.display = s.style.display==='none'?'block':'none'; }
+        
         function fillLists() {
             const f = (id, n, s) => {
-                let h = ""; for(let i=1; i<=n; i++) h+=`<div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #1a1a2a; color:#aaa;"><span>${i}. ${s}</span><span>0</span></div>`;
+                let h = ""; for(let i=1; i<=n; i++) h+=`<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #1a1a2a; color:#aaa;"><span>${i}. ${s}</span><span>0</span></div>`;
                 document.getElementById(id).innerHTML = h;
             };
             f('likers-list', 10, '❤️'); f('gifters-list', 3, '🪙');
         }
+
         function connectLive() { Swal.fire({title:'CONNECTING...', didOpen:()=>Swal.showLoading()}); }
     </script>
 </body>
