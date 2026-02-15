@@ -10,53 +10,35 @@
         :root { --neon: #00e5ff; --red: #ff2d55; --gold: #ffcc00; --bg: #080810; --green: #00ff88; --purple: #a020f0; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
 
-        /* Login */
+        /* Login Screen */
         #login-screen { position: fixed; inset: 0; background: #05050a; z-index: 10000; display: flex; align-items: center; justify-content: center; }
         .login-card { background: #111; padding: 40px; border-radius: 20px; border: 2px solid var(--neon); text-align: center; width: 420px; }
-        input { width: 100%; padding: 15px; background: #000; border: 1px solid #333; color: white; border-radius: 10px; margin-bottom: 15px; box-sizing: border-box; }
+        .input-wrapper { margin-bottom: 15px; }
+        input { width: 100%; padding: 15px; background: #000; border: 1px solid #333; color: white; border-radius: 10px; box-sizing: border-box; outline: none; }
 
         /* Admin Panel Structure */
-        #admin-panel { display: none; width: 100%; height: 100vh; grid-template-columns: 320px 1fr 320px; gap: 15px; padding: 20px; box-sizing: border-box; }
+        #admin-panel { display: none; width: 100%; height: 100vh; grid-template-columns: 320px 1fr 320px; gap: 20px; padding: 20px; box-sizing: border-box; }
         .side-panel { background: rgba(255,255,255,0.02); border-radius: 15px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); overflow-y: auto; }
         
-        /* Central Content Centering */
-        .center-panel { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; /* זה מה שמרכז לאמצע הגובה */
-            height: 100%; 
-        }
+        /* המרכוז האמיתי לאמצע המסך */
+        .center-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
 
-        /* Biggest Gifter - Top of Center */
-        .gifter-box { 
-            border: 2px solid var(--gold); 
-            border-radius: 15px; 
-            width: 100%; 
-            max-width: 450px; 
-            padding: 15px; 
-            text-align: center; 
-            margin-bottom: 40px; /* רווח בין התורם לטיימר */
-            background: rgba(255, 204, 0, 0.05);
-        }
+        /* Biggest Gifter - למעלה */
+        .gifter-box { border: 2px solid var(--gold); border-radius: 15px; width: 100%; max-width: 480px; padding: 15px; text-align: center; margin-bottom: 30px; background: rgba(255, 204, 0, 0.05); }
         .crown { color: var(--gold); font-size: 24px; display: block; margin-bottom: 5px; }
 
-        /* Timer UI */
-        .timer-val { font-size: 150px; font-weight: 800; font-family: monospace; line-height: 1; margin: 10px 0; }
+        .timer-val { font-size: 140px; font-weight: 800; font-family: monospace; line-height: 1; margin: 10px 0; }
         .timer-red { color: var(--red) !important; text-shadow: 0 0 30px var(--red); animation: blink 0.6s infinite; }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
 
-        /* Controls */
-        .controls-container { width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 10px; }
+        .controls-container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 10px; }
         .btn-action { width: 100%; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; padding: 18px; text-transform: uppercase; font-size: 15px; }
         .btn-cyan { background: var(--neon); color: black; }
-        .btn-row { display: flex; gap: 10px; }
-        .btn-grey { background: #333; color: white; flex: 1; }
-        .btn-purple { background: var(--purple); color: white; flex: 1; }
+        .btn-row { display: flex; gap: 10px; width: 100%; }
         .btn-adjust { background: #1a1a1a; color: white; border: 1px solid #333; flex: 1; padding: 12px; cursor: pointer; border-radius: 8px; font-weight: bold; }
-
-        #snipe-input-area { width: 100%; display: none; margin-bottom: 10px; }
-        .list-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #1a1a2a; color: #aaa; }
+        
+        #snipe-input-area { width: 100%; display: none; margin-bottom: 5px; }
+        .list-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #1a1a2a; color: #aaa; }
     </style>
 </head>
 <body>
@@ -64,15 +46,16 @@
     <div id="login-screen">
         <div class="login-card">
             <h2 style="color: var(--neon); margin-bottom: 25px;">SYSTEM ACCESS</h2>
-            <input type="text" id="log-email" placeholder="Email (@gmail.com)">
-            <input type="password" id="log-pass" placeholder="Password (8+ chars)">
-            <input type="text" id="log-user" placeholder="TikTok @Username">
+            <div id="error-msg" style="display:none; color:var(--red); margin-bottom:10px;"></div>
+            <div class="input-wrapper"><input type="text" id="log-email" placeholder="Email (@gmail.com)"></div>
+            <div class="input-wrapper"><input type="password" id="log-pass" placeholder="Password (8+ chars)"></div>
+            <div class="input-wrapper"><input type="text" id="log-user" placeholder="TikTok @Username"></div>
             <button onclick="doLogin()" class="btn-action btn-cyan">ENTER PANEL</button>
         </div>
     </div>
 
     <div id="admin-panel">
-        <div class="side-panel"><h3>TOP LIKERS</h3><div id="likers-list"></div></div>
+        <div class="side-panel"><h3>TOP 10 LIKERS</h3><div id="likers-list"></div></div>
         
         <div class="center-panel">
             <div class="gifter-box">
@@ -85,27 +68,20 @@
             
             <div class="controls-container">
                 <button id="main-timer-btn" class="btn-action btn-cyan" onclick="toggleClock()">START / PAUSE</button>
-                
                 <div class="btn-row">
-                    <button class="btn-action btn-grey" onclick="resetClock()">RESET</button>
-                    <button class="btn-action btn-purple" onclick="toggleSnipeEdit()">SNIPE DELAY</button>
+                    <button class="btn-action" style="background:#333; color:white; flex:1;" onclick="resetClock()">RESET</button>
+                    <button class="btn-action" style="background:var(--purple); color:white; flex:1;" onclick="toggleSnipeEdit()">SNIPE DELAY</button>
                 </div>
-
-                <div id="snipe-input-area">
-                    <input type="number" id="snipe-input" value="20" style="text-align:center; border:1px solid var(--purple);" 
-                           oninput="document.getElementById('current-snipe-val').innerText = this.value">
-                </div>
-
+                <div id="snipe-input-area"><input type="number" id="snipe-input" value="20" style="text-align:center; border:1px solid var(--purple);" oninput="document.getElementById('current-snipe-val').innerText = this.value"></div>
                 <div class="btn-row">
                     <button class="btn-adjust" onclick="adjustTime(-30)">30 <i class="fas fa-arrow-down"></i></button>
                     <button class="btn-adjust" onclick="adjustTime(30)">30 <i class="fas fa-arrow-up"></i></button>
                 </div>
-
                 <button class="btn-action" style="background:transparent; color:var(--green); border:2px solid var(--green);" onclick="connectLive()">CONNECT TIKTOK LIVE</button>
             </div>
         </div>
 
-        <div class="side-panel"><h3>TOP GIFTERS</h3><div id="gifters-list"></div></div>
+        <div class="side-panel"><h3>TOP 3 GIFTERS</h3><div id="gifters-list"></div></div>
     </div>
 
     <script>
@@ -116,12 +92,18 @@
             const email = document.getElementById('log-email').value;
             const pass = document.getElementById('log-pass').value;
             const user = document.getElementById('log-user').value;
+
+            // בדיקת תקינות - חייב @gmail.com, סיסמה 8 תווים, ויוזר שמתחיל ב-@
             if (email.includes("@gmail.com") && pass.length >= 8 && user.startsWith("@")) {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('admin-panel').style.display = 'grid';
                 fillLists();
             } else {
-                Swal.fire({icon:'error', title:'Invalid Details'});
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Login Failed',
+                    text: 'Make sure: Email is @gmail.com, Password is 8+ chars, and Username starts with @'
+                });
             }
         }
 
