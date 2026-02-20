@@ -8,164 +8,189 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root { --neon: #00e5ff; --red: #ff2d55; --gold: #ffcc00; --bg: #080810; --green: #00ff88; --purple: #a020f0; }
-        body, html { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
 
-        /* מסך התחברות */
-        #login-screen { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 10000; background: var(--bg); }
-        .login-card { background: #111; padding: 50px; border-radius: 20px; border: 2px solid var(--neon); text-align: center; width: 450px; }
-        .input-wrapper { position: relative; width: 100%; margin-bottom: 15px; }
-        .input-style { width: 100%; padding: 15px; background:#000; border: 1px solid #333; color: white; border-radius: 10px; outline: none; box-sizing: border-box; }
-        .toggle-eye { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #666; }
-
-        /* פאנל ניהול */
-        #admin-panel { display: none; width: 100%; height: 100vh; grid-template-columns: 320px 1fr 320px; gap: 20px; padding: 20px; box-sizing: border-box; }
+        /* Login Screen */
+        #login-screen { position: fixed; inset: 0; background: #05050a; z-index: 10000; display: flex; align-items: center; justify-content: center; }
+        .login-card { background: #111; padding: 40px; border-radius: 20px; border: 2px solid var(--neon); text-align: center; width: 420px; box-shadow: 0 0 30px rgba(0, 229, 255, 0.4); }
         
-        /* --- עיצוב ה-URL (מה שהצופים רואים) --- */
-        #gifters-overlay { 
-            display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center; background: transparent; 
-        }
-        .ov-card { background: rgba(0,0,0,0.8); padding: 40px; border-radius: 30px; border: 4px solid var(--purple); text-align: center; min-width: 500px; }
-        .ov-title { font-size: 40px; font-weight: 900; color: var(--purple); margin-bottom: 10px; }
-        .ov-snipe { font-size: 24px; color: var(--red); font-weight: bold; margin-bottom: 5px; }
-        .ov-timer { font-size: 120px; font-weight: 800; font-family: monospace; line-height: 1; margin: 20px 0; }
-        .ov-list { width: 100%; font-size: 28px; }
-        .ov-item { display: flex; justify-content: space-between; padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        /* הודעת שגיאה אדומה פנימית */
+        #error-msg { color: var(--red); font-size: 14px; margin-bottom: 15px; font-weight: bold; min-height: 40px; display: none; line-height: 1.4; }
+        
+        .input-wrapper { margin-bottom: 15px; position: relative; }
+        input { width: 100%; padding: 15px; background: #000; border: 1px solid #333; color: white; border-radius: 10px; box-sizing: border-box; outline: none; }
+        
+        /* אייקון העין */
+        .toggle-password { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #666; transition: 0.2s; }
+        .toggle-password:hover { color: var(--neon); }
 
-        /* UI כללי */
-        .side-container { display: flex; flex-direction: column; justify-content: center; height: 100%; }
-        .side-panel { background: rgba(255,255,255,0.02); border-radius: 15px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); }
-        .center-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        /* Layout */
+        #admin-panel { display: none; width: 100%; height: 100vh; grid-template-columns: 320px 1fr 320px; gap: 20px; padding: 20px; box-sizing: border-box; }
+        .side-panel { background: rgba(255,255,255,0.02); border-radius: 15px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); overflow-y: auto; }
+        .center-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; position: relative; }
+
+        /* Biggest Gifter - Top */
+        .gifter-box { 
+            position: absolute; top: 0; 
+            border: 2px solid var(--gold); border-radius: 15px; 
+            width: 100%; max-width: 480px; padding: 15px; 
+            text-align: center; background: rgba(255, 204, 0, 0.05); 
+        }
+        .crown { color: var(--gold); font-size: 24px; display: block; }
+
         .timer-val { font-size: 150px; font-weight: 800; font-family: monospace; line-height: 1; margin: 10px 0; }
-        .btn-action { width: 100%; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; padding: 18px; text-transform: uppercase; margin-top: 5px; }
+        .timer-red { color: var(--red) !important; text-shadow: 0 0 30px var(--red); animation: blink 0.8s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        .controls-container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 10px; }
+        .btn-action { width: 100%; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; padding: 18px; text-transform: uppercase; }
         .btn-cyan { background: var(--neon); color: black; }
-        .url-badge { background: rgba(0, 229, 255, 0.1); border: 1px solid var(--neon); color: var(--neon); padding: 4px 8px; border-radius: 5px; font-size: 10px; cursor: pointer; }
+        .btn-row { display: flex; gap: 10px; }
+        .btn-adjust { background: #1a1a1a; color: white; border: 1px solid #333; flex: 1; padding: 12px; cursor: pointer; border-radius: 8px; font-weight: bold; }
     </style>
 </head>
-<body onload="checkView()">
+<body>
 
     <div id="login-screen">
         <div class="login-card">
-            <h2 style="color: var(--neon); margin-bottom: 25px;">Welcome to LiveBIT</h2>
-            <div class="input-wrapper"><input type="text" id="log-email" class="input-style" placeholder="Email (@gmail.com)"></div>
+            <h2 style="color: var(--neon); margin-bottom: 10px;">Welcome to LiveBIT</h2>
+            
+            <div id="error-msg"></div>
+
+            <div class="input-wrapper"><input type="text" id="log-email" placeholder="Email (@gmail.com)"></div>
+            
             <div class="input-wrapper">
-                <input type="password" id="log-pass" class="input-style" placeholder="Password (8+ chars)">
-                <i class="fas fa-eye toggle-eye" onclick="togglePass()"></i>
+                <input type="password" id="log-pass" placeholder="Password (8+ chars)">
+                <i class="fas fa-eye toggle-password" onclick="togglePasswordVisibility()"></i>
             </div>
-            <div class="input-wrapper"><input type="text" id="log-user" class="input-style" placeholder="TikTok @Username"></div>
+
+            <div class="input-wrapper"><input type="text" id="log-user" placeholder="TikTok @Username"></div>
             <button onclick="doLogin()" class="btn-action btn-cyan">ENTER PANEL</button>
         </div>
     </div>
 
-    <div id="gifters-overlay">
-        <div class="ov-card">
-            <div class="ov-title">TOP 3 GIFTERS</div>
-            <div class="ov-snipe">SNIPE: <span id="ov-snipe-val">20</span>s</div>
-            
-            <div id="ov-item-1" class="ov-item" style="color: var(--gold); border-bottom: 2px solid var(--gold);">
-                <span>1. Waiting...</span><span>0 🪙</span>
-            </div>
-
-            <div id="ov-timer-display" class="ov-timer">01:00</div>
-
-            <div id="ov-list-others" class="ov-list">
-                <div class="ov-item"><span>2. Waiting...</span><span>0 🪙</span></div>
-                <div class="ov-item"><span>3. Waiting...</span><span>0 🪙</span></div>
-            </div>
-        </div>
-    </div>
-
     <div id="admin-panel">
-        <div class="side-container">
-            <div class="side-panel">
-                <h3 style="margin:0; margin-bottom:10px;">TOP 10 LIKERS</h3>
-                <div id="likers-list"></div>
-            </div>
-        </div>
-
+        <div class="side-panel"><h3>TOP LIKERS</h3><div id="likers-list"></div></div>
+        
         <div class="center-panel">
-            <div style="color: var(--red); font-size: 22px; font-weight: 900;">SNIPE: <span id="current-snipe-val">20</span>s</div>
+            <div class="gifter-box">
+                <span class="crown">👑 <span style="font-size: 12px; font-weight: 900;">BIGGEST GIFTER</span></span>
+                <div id="top-gifter-name" style="font-size: 24px; font-weight: bold;">Waiting...</div>
+            </div>
+
+            <div style="color: var(--red); font-size: 22px; font-weight: 900; margin-top: 40px;">SNIPE: <span id="current-snipe-val">20</span>s</div>
             <div id="timer-display" class="timer-val">01:00</div>
             
-            <div style="width: 480px; display: flex; flex-direction: column; gap: 8px;">
-                <button class="btn-action btn-cyan" onclick="toggleClock()">START / PAUSE</button>
-                <div style="display:flex; gap:10px;">
+            <div class="controls-container">
+                <button id="main-timer-btn" class="btn-action btn-cyan" onclick="toggleClock()">START / PAUSE</button>
+                <div class="btn-row">
                     <button class="btn-action" style="background:#333; color:white; flex:1;" onclick="resetClock()">RESET</button>
                     <button class="btn-action" style="background:var(--purple); color:white; flex:1;" onclick="toggleSnipeEdit()">SNIPE DELAY</button>
                 </div>
-                <div id="snipe-input-area" style="display:none;"><input type="number" id="snipe-input" value="20" onchange="updateUI()" style="width:100%; padding:10px; background:#000; color:white; border:1px solid var(--purple);"></div>
-                <div style="display:flex; gap:10px;">
-                    <button style="flex:1; padding:10px;" onclick="adjustTime(30)">30 ↑</button>
-                    <button style="flex:1; padding:10px;" onclick="adjustTime(-30)">30 ↓</button>
+                <div id="snipe-input-area" style="display:none;"><input type="number" id="snipe-input" value="20" style="text-align:center; border:1px solid var(--purple);"></div>
+                <div class="btn-row">
+                    <button class="btn-adjust" onclick="adjustTime(-30)">30 <i class="fas fa-arrow-down"></i></button>
+                    <button class="btn-adjust" onclick="adjustTime(30)">30 <i class="fas fa-arrow-up"></i></button>
                 </div>
                 <button class="btn-action" style="background:transparent; color:var(--green); border:2px solid var(--green);" onclick="connectLive()">CONNECT TIKTOK LIVE</button>
-                <div style="text-align:center; margin-top:10px;">
-                    <span class="url-badge" onclick="copyLink('gifters')">COPY GIFTERS & TIMER OVERLAY</span>
-                </div>
             </div>
         </div>
 
-        <div class="side-container">
-            <div class="side-panel">
-                <h3 style="margin:0; margin-bottom:10px;">TOP 3 GIFTERS (ADMIN)</h3>
-                <div id="gifters-list"></div>
-            </div>
-        </div>
+        <div class="side-panel"><h3>TOP GIFTERS</h3><div id="gifters-list"></div></div>
     </div>
 
     <script>
-        let timeLeft = 60, active = false, timerTask;
+        const socket = io("https://livebit-server.onrender.com");
+        let timeLeft = 60, active = false, isSnipeMode = false, timerTask;
 
-        function checkView() {
-            if (new URLSearchParams(window.location.search).get('view') === 'gifters') {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('gifters-overlay').style.display = 'flex';
+        // פונקציית העין להצגת סיסמה
+        function togglePasswordVisibility() {
+            const passInput = document.getElementById('log-pass');
+            const eyeIcon = document.querySelector('.toggle-password');
+            if (passInput.type === "password") {
+                passInput.type = "text";
+                eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                passInput.type = "password";
+                eyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
             }
-        }
-
-        function updateUI() {
-            const m = Math.floor(timeLeft/60), s = timeLeft%60;
-            const timeStr = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-            document.getElementById('timer-display').innerText = timeStr;
-            if(document.getElementById('ov-timer-display')) document.getElementById('ov-timer-display').innerText = timeStr;
-            document.getElementById('ov-snipe-val').innerText = document.getElementById('snipe-input').value;
-        }
-
-        function toggleClock() {
-            if(active) { clearInterval(timerTask); active = false; }
-            else { active = true; timerTask = setInterval(() => { if(timeLeft > 0) timeLeft--; updateUI(); }, 1000); }
-        }
-
-        function resetClock() { clearInterval(timerTask); active = false; timeLeft = 60; updateUI(); }
-        function adjustTime(v) { timeLeft += v; updateUI(); }
-        function toggleSnipeEdit() { 
-            const s = document.getElementById('snipe-input-area'); 
-            s.style.display = s.style.display === 'none' ? 'block' : 'none'; 
         }
 
         function doLogin() {
-            const e = document.getElementById('log-email').value, p = document.getElementById('log-pass').value, u = document.getElementById('log-user').value;
-            if (e.includes("@gmail.com") && p.length >= 8 && u.startsWith("@")) {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('admin-panel').style.display = 'grid';
-                fillLists();
+            const email = document.getElementById('log-email').value;
+            const pass = document.getElementById('log-pass').value;
+            const user = document.getElementById('log-user').value;
+            const errorDiv = document.getElementById('error-msg');
+
+            if (!email.includes("@gmail.com") || pass.length < 8 || !user.startsWith("@")) {
+                errorDiv.style.display = "block";
+                errorDiv.innerHTML = "Login Failed<br>Make sure: Email is @gmail.com, Password is 8+ chars, and Username starts with @";
+                return;
+            }
+
+            errorDiv.style.display = "none";
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('admin-panel').style.display = 'grid';
+            fillLists();
+        }
+
+        function connectLive() {
+            const user = document.getElementById('log-user').value;
+            if (!socket.connected) {
+                Swal.fire({ icon: 'warning', title: 'SERVER WAKING UP', text: 'Please wait 10 seconds and try again.' });
+                return;
+            }
+            Swal.fire({ title: 'CONNECTING...', text: 'Checking TikTok Live', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+            socket.emit('joinRoom', user.replace('@',''));
+        }
+
+        socket.on('connected', () => { Swal.fire({ icon: 'success', title: 'CONNECTED!', timer: 2000, showConfirmButton: false }); });
+        socket.on('error', () => { Swal.fire({ icon: 'error', title: 'FAILED', text: 'Are you LIVE?' }); });
+
+        function toggleClock() {
+            const btn = document.getElementById('main-timer-btn');
+            const display = document.getElementById('timer-display');
+            if(active) {
+                clearInterval(timerTask); active = false; btn.innerText = "START / PAUSE";
             } else {
-                Swal.fire('Login Failed', 'Check your details', 'error');
+                active = true; btn.innerText = "PAUSE";
+                timerTask = setInterval(() => {
+                    if(timeLeft > 0) {
+                        timeLeft--;
+                    } else if (!isSnipeMode) {
+                        isSnipeMode = true;
+                        timeLeft = parseInt(document.getElementById('snipe-input').value);
+                        display.classList.add('timer-red');
+                    } else {
+                        clearInterval(timerTask); active = false; btn.innerText = "FINISH";
+                    }
+                    updateUI();
+                }, 1000);
             }
         }
 
-        function copyLink(type) {
-            const url = window.location.href.split('?')[0] + "?view=" + type;
-            navigator.clipboard.writeText(url).then(() => { Swal.fire({icon:'success', title:'Overlay URL Copied!', timer:1000, showConfirmButton:false}); });
+        function resetClock() { 
+            clearInterval(timerTask); active = false; isSnipeMode = false; timeLeft = 60; 
+            document.getElementById('timer-display').classList.remove('timer-red');
+            document.getElementById('main-timer-btn').innerText = "START / PAUSE";
+            updateUI(); 
         }
 
+        function adjustTime(v) { timeLeft += v; if(timeLeft < 0) timeLeft = 0; updateUI(); }
+        function updateUI() {
+            const m = Math.floor(timeLeft/60), s = timeLeft%60;
+            document.getElementById('timer-display').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }
+        function toggleSnipeEdit() {
+            const a = document.getElementById('snipe-input-area');
+            a.style.display = (a.style.display === 'block') ? 'none' : 'block';
+        }
         function fillLists() {
-            document.getElementById('likers-list').innerHTML = "List placeholder...";
-            document.getElementById('gifters-list').innerHTML = "List placeholder...";
-        }
-
-        function togglePass() {
-            const p = document.getElementById('log-pass');
-            p.type = p.type === "password" ? "text" : "password";
+            const f = (id, n, s) => {
+                let h = ""; for(let i=1; i<=n; i++) h+=`<div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #1a1a2a; color:#aaa;"><span>${i}. ${s}</span><span>0</span></div>`;
+                document.getElementById(id).innerHTML = h;
+            };
+            f('likers-list', 10, '❤️'); f('gifters-list', 3, '🪙');
         }
     </script>
 </body>
