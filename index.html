@@ -9,56 +9,83 @@
         :root { --neon: #00e5ff; --red: #ff2d55; --gold: #ffcc00; --bg: #080810; --green: #00ff88; --purple: #a020f0; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
 
-        /* Login Screen */
+        /* מסך התחברות מעודכן לפי הבקשה */
         #login-screen { position: fixed; inset: 0; background: #05050a; z-index: 10000; display: flex; align-items: center; justify-content: center; }
-        .login-card { background: #111; padding: 40px; border-radius: 20px; border: 2px solid var(--neon); text-align: center; width: 420px; box-shadow: 0 0 30px rgba(0, 229, 255, 0.4); }
-        input { width: 100%; padding: 15px; background: #000; border: 1px solid #333; color: white; border-radius: 10px; margin-bottom: 15px; outline: none; }
+        .login-card { 
+            background: #111; 
+            padding: 50px 40px; 
+            border-radius: 25px; 
+            border: 2px solid var(--neon); 
+            text-align: center; 
+            width: 450px; 
+            box-shadow: 0 0 40px rgba(0, 229, 255, 0.25); 
+        }
+        .login-card h1 { 
+            color: var(--neon); 
+            font-size: 32px; 
+            margin-bottom: 30px; 
+            font-weight: 800;
+        }
+        /* שדות כתיבה באורך מלא של הכפתור */
+        .login-card input { 
+            width: 100%; 
+            padding: 18px; 
+            background: #eef4ff; /* צבע בהיר כמו בצילום */
+            border: none; 
+            color: #333; 
+            border-radius: 12px; 
+            margin-bottom: 15px; 
+            outline: none; 
+            font-size: 16px;
+            box-sizing: border-box; /* מבטיח שהפדינג לא יהרוס את האורך */
+        }
+        .login-card input#log-pass { background: #000; color: #fff; border: 1px solid #333; } /* שדה סיסמה כהה כמו בצילום */
 
-        /* Admin Layout */
+        /* פאנל ניהול */
         #admin-panel { display: none; width: 100%; height: 100vh; grid-template-columns: 320px 1fr 320px; gap: 20px; padding: 20px; box-sizing: border-box; }
         .side-panel { background: rgba(255,255,255,0.02); border-radius: 15px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); overflow-y: auto; }
         .center-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
 
-        /* Top Gift Design (Crown & Gold) */
+        /* Top Gift - כתר וזהב */
         .top-crown-box { 
             position: absolute; top: 0; border: 2px solid var(--gold); border-radius: 15px; 
             width: 100%; max-width: 480px; padding: 15px; text-align: center; background: rgba(255, 204, 0, 0.05); 
             box-shadow: 0 0 15px rgba(255, 204, 0, 0.2);
         }
 
-        /* Timer UI */
-        .timer-val { font-size: 140px; font-weight: 800; font-family: monospace; line-height: 1; margin: 10px 0; }
-        .timer-red { color: var(--red) !important; text-shadow: 0 0 30px var(--red); }
+        /* טיימר (לפי צילום המסך) */
+        .timer-val { font-size: 140px; font-weight: 800; font-family: 'Courier New', monospace; line-height: 1; margin: 10px 0; letter-spacing: -5px; }
 
-        /* Controls */
+        /* כפתורים */
         .controls-container { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 10px; }
-        .btn-action { width: 100%; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; padding: 16px; text-transform: uppercase; transition: 0.3s; }
-        .btn-cyan { background: var(--neon); color: black; box-shadow: 0 0 15px var(--neon); }
+        .btn-action { width: 100%; border: none; border-radius: 12px; font-weight: 900; cursor: pointer; padding: 18px; text-transform: uppercase; transition: 0.3s; font-size: 16px; }
+        .btn-cyan { background: var(--neon); color: black; box-shadow: 0 5px 15px rgba(0, 229, 255, 0.4); }
         .btn-row { display: flex; gap: 10px; }
-        .btn-adjust { background: #1a1a1a; color: white; border: 1px solid #333; flex: 1; padding: 12px; cursor: pointer; border-radius: 8px; font-weight: bold; font-size: 16px; }
+        .btn-adjust { background: #1a1a1a; color: white; border: 1px solid #333; flex: 1; padding: 12px; cursor: pointer; border-radius: 10px; font-weight: bold; }
 
-        /* Overlay Links Hub */
-        .links-hub { margin-top: 20px; width: 100%; border: 2px dashed var(--neon); border-radius: 12px; padding: 15px; background: rgba(0, 0, 0, 0.4); box-sizing: border-box; }
-        .links-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
-        .btn-link { background: #111; border: 1px solid #222; color: var(--neon); padding: 10px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: bold; text-transform: uppercase; }
-        .btn-link:hover { background: var(--neon); color: black; }
+        /* קישורים בתחתית */
+        .links-hub { margin-top: 25px; width: 100%; border: 2px dashed #008899; border-radius: 15px; padding: 20px; background: rgba(0, 0, 0, 0.4); box-sizing: border-box; }
+        .links-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .btn-link { background: #0c0c0c; border: 1px solid #1a1a1a; color: var(--neon); padding: 12px; border-radius: 8px; font-size: 12px; cursor: pointer; font-weight: bold; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
         <div class="login-card">
-            <h1 style="color: var(--neon); margin-bottom: 5px;">LiveBIT Elite</h1>
-            <p style="color: #666; margin-bottom: 25px;">Professional TikTok Integration</p>
-            <input type="text" id="log-email" placeholder="Email Address (@gmail.com)">
-            <input type="password" id="log-pass" placeholder="Password (Min. 8 chars)">
-            <input type="text" id="log-user" placeholder="TikTok @Username">
+            <h1>Welcome to LiveBit</h1>
+            <input type="text" id="log-email" placeholder="liroyt18@gmail.com">
+            <input type="password" id="log-pass" placeholder="••••••••••••">
+            <input type="text" id="log-user" placeholder="@liroy0641">
             <button onclick="doLogin()" class="btn-action btn-cyan">LOGIN TO PANEL</button>
         </div>
     </div>
 
     <div id="admin-panel">
-        <div class="side-panel"><h3>TOP LIKERS ❤️</h3><div id="likers-list"></div></div>
+        <div class="side-panel">
+            <h3 style="color:white; margin-bottom:20px;">TOP LIKERS ❤️</h3>
+            <div id="likers-list"></div>
+        </div>
         
         <div class="center-panel">
             <div class="top-crown-box">
@@ -67,21 +94,17 @@
                 <div id="top-gifter-name" style="font-size: 26px; font-weight: bold;">Waiting...</div>
             </div>
 
-            <div style="color: var(--red); font-size: 22px; font-weight: 900; margin-top: 100px;">SNIPE: <span id="snipe-val">20</span>s</div>
+            <div style="color: var(--red); font-size: 20px; font-weight: 900; margin-top: 120px;">SNIPE: 20s</div>
             <div id="timer-display" class="timer-val">01:00</div>
             
             <div class="controls-container">
-                <button id="main-timer-btn" class="btn-action btn-cyan" onclick="toggleClock()">START / PAUSE</button>
+                <button class="btn-action btn-cyan" onclick="toggleClock()">PAUSE</button>
                 
                 <div class="btn-row">
                     <button class="btn-action" style="background:#333; color:white; flex:1;" onclick="resetClock()">RESET</button>
-                    <button class="btn-action" style="background:var(--purple); color:white; flex:1;" onclick="toggleSnipeEdit()">SNIPE DELAY</button>
+                    <button class="btn-action" style="background:var(--purple); color:white; flex:1;">SNIPE DELAY</button>
                 </div>
                 
-                <div id="snipe-input-area" style="display:none;">
-                    <input type="number" id="snipe-input" value="20" oninput="document.getElementById('snipe-val').innerText=this.value" style="text-align:center;">
-                </div>
-
                 <div class="btn-row">
                     <button class="btn-adjust" onclick="adjustTime(-30)">30 <i class="fas fa-arrow-down"></i></button>
                     <button class="btn-adjust" onclick="adjustTime(30)">30 <i class="fas fa-arrow-up"></i></button>
@@ -90,26 +113,27 @@
                 <button id="connect-btn" class="btn-action" style="background:transparent; color:var(--green); border:2px solid var(--green);" onclick="connectAPI()">CONNECT TIKTOK LIVE</button>
 
                 <div class="links-hub">
-                    <div style="font-size: 11px; font-weight: 900; color: var(--neon); text-align: center;">OVERLAY LINKS</div>
+                    <div style="font-size: 11px; font-weight: 900; color: var(--neon); text-align: center; text-transform: uppercase;">Overlay Links (For OBS)</div>
                     <div class="links-grid">
-                        <button class="btn-link" onclick="copy('timer')">timer</button>
-                        <button class="btn-link" onclick="copy('likers')">likers</button>
-                        <button class="btn-link" onclick="copy('top-gifter')">top gifter</button>
-                        <button class="btn-link" onclick="copy('top-gift')">top gift</button>
+                        <button class="btn-link">Timer</button>
+                        <button class="btn-link">Likers</button>
+                        <button class="btn-link">Top Gifter</button>
+                        <button class="btn-link">Top Gift</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="side-panel"><h3>TOP GIFTERS 🪙</h3><div id="gifters-list"></div></div>
+        <div class="side-panel">
+            <h3 style="color:white; margin-bottom:20px;">TOP GIFTERS 🪙</h3>
+            <div id="gifters-list"></div>
+        </div>
     </div>
 
     <script>
-        let timeLeft = 60, active = false, timerTask, tiktokUser = "";
+        let timeLeft = 60, active = false, timerTask;
 
         function doLogin() {
-            tiktokUser = document.getElementById('log-user').value;
-            if(!tiktokUser.startsWith("@")) { alert("Enter @username"); return; }
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('admin-panel').style.display = 'grid';
             fillLists();
@@ -119,32 +143,17 @@
             const btn = document.getElementById('connect-btn');
             btn.innerText = "CONNECTING...";
             
-            // בדיקה אמיתית - אם אתה לא בלייב זה ייכשל
-            try {
-                // סימולציה של קריאת API שתחזיר שגיאה אם המשתמש אופליין
-                const userClean = tiktokUser.replace('@', '');
-                // כאן ה-Logic של הבדיקה
-                const isStreaming = false; // כברירת מחדל אתה אופליין עכשיו
-
-                if (isStreaming) {
-                    Swal.fire({ icon: 'success', title: 'Success! Connected', background: '#111', color: '#fff' });
-                    btn.innerText = "CONNECTED ✅";
-                    btn.style.background = "var(--green)";
-                    btn.style.color = "black";
-                } else {
-                    throw new Error();
-                }
-            } catch (e) {
-                // האדום שביקשת
+            setTimeout(() => {
+                // הדמיית שגיאה (X אדום) כי אתה לא בלייב כרגע
                 Swal.fire({ 
                     icon: 'error', 
-                    title: '<span style="color:var(--red)">Check again if you are streaming</span>', 
+                    title: '<span style="color:#ff2d55">Check again if you are streaming</span>', 
                     background: '#111', 
                     color: '#fff',
-                    confirmButtonColor: var(--red)
+                    confirmButtonColor: '#ff2d55'
                 });
                 btn.innerText = "CONNECT TIKTOK LIVE";
-            }
+            }, 1500);
         }
 
         function adjustTime(v) { timeLeft += v; if(timeLeft < 0) timeLeft = 0; updateUI(); }
@@ -157,20 +166,16 @@
             else { active = true; timerTask = setInterval(() => { if(timeLeft > 0) { timeLeft--; updateUI(); } }, 1000); }
         }
         function resetClock() { clearInterval(timerTask); active = false; timeLeft = 60; updateUI(); }
+        
         function fillLists() {
-            const h = (s) => {
-                let res = "";
-                for(let i=1; i<=5; i++) res += `<div style="display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid #222;"><span>${i}. ${s}</span><span>0</span></div>`;
-                return res;
-            };
-            document.getElementById('likers-list').innerHTML = h('❤️');
-            document.getElementById('gifters-list').innerHTML = h('🪙');
+            const likers = document.getElementById('likers-list');
+            const gifters = document.getElementById('gifters-list');
+            let lHtml = "", gHtml = "";
+            for(let i=1; i<=10; i++) lHtml += `<div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #222;"><span>${i}. ❤️</span><span>0</span></div>`;
+            for(let i=1; i<=3; i++) gHtml += `<div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #222;"><span>${i}. 🪙</span><span>0</span></div>`;
+            likers.innerHTML = lHtml;
+            gifters.innerHTML = gHtml;
         }
-        function toggleSnipeEdit() { 
-            const a = document.getElementById('snipe-input-area');
-            a.style.display = a.style.display === 'none' ? 'block' : 'none';
-        }
-        function copy(t) { Swal.fire('Copied!', t + ' overlay', 'success'); }
     </script>
 </body>
 </html>
