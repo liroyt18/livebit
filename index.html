@@ -18,7 +18,14 @@
         /* Layout */
         #admin-panel { display: none; width: 100%; height: 100vh; grid-template-columns: 320px 1fr 320px; gap: 20px; padding: 20px; box-sizing: border-box; }
         .side-panel { background: rgba(255,255,255,0.02); border-radius: 15px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); overflow-y: auto; }
-        .center-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+        .center-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; position: relative; }
+
+        /* Top Gifter Box (Top Center) */
+        .gifter-box { 
+            position: absolute; top: 0; border: 2px solid var(--gold); border-radius: 15px; 
+            width: 100%; max-width: 480px; padding: 15px; text-align: center; background: rgba(255, 204, 0, 0.05); 
+        }
+        .crown { color: var(--gold); font-size: 24px; display: block; }
 
         /* Timer UI */
         .timer-val { font-size: 140px; font-weight: 800; font-family: monospace; line-height: 1; margin: 10px 0; }
@@ -31,7 +38,6 @@
         .btn-cyan { background: var(--neon); color: black; }
         .btn-row { display: flex; gap: 10px; }
         .btn-adjust { background: #1a1a1a; color: white; border: 1px solid #333; flex: 1; padding: 12px; cursor: pointer; border-radius: 8px; font-weight: bold; }
-        .btn-adjust:hover { background: #252525; border-color: #555; }
 
         /* Overlay Links Box */
         .links-hub { 
@@ -40,7 +46,6 @@
         }
         .links-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
         .btn-link { background: #111; border: 1px solid #222; color: var(--neon); padding: 10px; border-radius: 6px; font-size: 11px; cursor: pointer; font-weight: bold; text-transform: uppercase; }
-        .btn-link:hover { background: var(--neon); color: black; }
 
         /* Overlays (Hidden Views) */
         .overlay-view { display: none; position: fixed; inset: 0; background: black; z-index: 99999; flex-direction: column; align-items: center; justify-content: center; }
@@ -53,14 +58,8 @@
         <div style="color: var(--red); font-size: 30px; font-weight: 900; margin-bottom: 10px;">SNIPE: <span class="snipe-sync">20</span>s</div>
         <div class="timer-val timer-sync">01:00</div>
     </div>
-    <div id="view-likers" class="overlay-view" style="padding: 40px;">
-        <h2 style="width:100%; max-width:400px; text-align:left;">TOP LIKERS</h2>
-        <div id="likers-sync" style="width:100%; max-width:400px;"></div>
-    </div>
-    <div id="view-top-gifter" class="overlay-view" style="padding: 40px;">
-        <h2 style="width:100%; max-width:400px; text-align:left;">TOP GIFTERS</h2>
-        <div id="gifters-sync" style="width:100%; max-width:400px;"></div>
-    </div>
+    <div id="view-likers" class="overlay-view" style="padding: 40px;"><h2 style="width:100%; max-width:400px; text-align:left;">TOP LIKERS</h2><div id="likers-sync" style="width:100%; max-width:400px;"></div></div>
+    <div id="view-top-gifter" class="overlay-view" style="padding: 40px;"><h2 style="width:100%; max-width:400px; text-align:left;">TOP GIFTERS</h2><div id="gifters-sync" style="width:100%; max-width:400px;"></div></div>
     <div id="view-top-gift" class="overlay-view">
         <h1 style="color: white; font-size: 45px; margin-bottom: 10px;">TOP GIFT</h1>
         <div id="top-gift-username" style="color: var(--neon); font-size: 40px; font-weight: 900;">Waiting...</div>
@@ -80,7 +79,12 @@
         <div class="side-panel"><h3>TOP LIKERS</h3><div id="likers-list"></div></div>
         
         <div class="center-panel">
-            <div style="color: var(--red); font-size: 22px; font-weight: 900;">SNIPE: <span class="snipe-sync">20</span>s</div>
+            <div class="gifter-box">
+                <span class="crown">👑 <span style="font-size: 12px; font-weight: 900;">BIGGEST GIFTER</span></span>
+                <div id="top-gifter-name" style="font-size: 24px; font-weight: bold;">Waiting...</div>
+            </div>
+
+            <div style="color: var(--red); font-size: 22px; font-weight: 900; margin-top: 80px;">SNIPE: <span class="snipe-sync">20</span>s</div>
             <div id="timer-display" class="timer-val timer-sync">01:00</div>
             
             <div class="controls-container">
@@ -100,7 +104,7 @@
                 <button class="btn-action" style="background:transparent; color:var(--green); border:2px solid var(--green);" onclick="connectLive()">CONNECT TIKTOK LIVE</button>
 
                 <div class="links-hub">
-                    <div style="font-size: 11px; font-weight: bold; color: var(--neon); text-align: center;">OVERLAY LINKS (FOR OBS)</div>
+                    <div style="font-size: 11px; font-weight: bold; color: var(--neon); text-align: center;">OVERLAY LINKS</div>
                     <div class="links-grid">
                         <button class="btn-link" onclick="copyLink('timer')">timer</button>
                         <button class="btn-link" onclick="copyLink('likers')">likers</button>
@@ -129,7 +133,7 @@
         function copyLink(type) {
             const url = window.location.origin + window.location.pathname + '#' + type;
             navigator.clipboard.writeText(url);
-            Swal.fire({ icon: 'success', title: 'Copied!', timer: 1000, showConfirmButton: false });
+            Swal.fire({ icon: 'success', title: 'Copied!', timer: 800, showConfirmButton: false });
         }
 
         function doLogin() {
@@ -141,9 +145,9 @@
         function adjustTime(v) { timeLeft += v; if(timeLeft < 0) timeLeft = 0; updateUI(); }
 
         function toggleClock() {
-            if(active) { clearInterval(timerTask); active = false; }
+            if(active) { clearInterval(timerTask); active = false; document.getElementById('main-timer-btn').innerText = "START"; }
             else {
-                active = true;
+                active = true; document.getElementById('main-timer-btn').innerText = "PAUSE";
                 timerTask = setInterval(() => {
                     if(timeLeft > 0) timeLeft--;
                     else if (!isSnipeMode) {
@@ -161,8 +165,13 @@
             document.querySelectorAll('.timer-sync').forEach(el => el.innerText = res);
         }
 
-        function resetClock() { clearInterval(timerTask); active = false; isSnipeMode = false; timeLeft = 60; updateUI(); }
+        function resetClock() { clearInterval(timerTask); active = false; isSnipeMode = false; timeLeft = 60; 
+            document.querySelectorAll('.timer-sync').forEach(el => el.classList.remove('timer-red'));
+            updateUI(); 
+        }
+
         function updateSnipeVal(v) { document.querySelectorAll('.snipe-sync').forEach(el => el.innerText = v); }
+        
         function toggleSnipeEdit() { 
             const a = document.getElementById('snipe-input-area');
             a.style.display = a.style.display === 'none' ? 'block' : 'none';
@@ -178,7 +187,7 @@
             document.getElementById('gifters-list').innerHTML = createHTML(3, '🪙');
         }
 
-        function connectLive() { Swal.fire('Connected', 'TikTok Live Integration Active', 'success'); }
+        function connectLive() { Swal.fire('LiveBIT', 'TikTok Live Connected', 'success'); }
     </script>
 </body>
 </html>
