@@ -13,41 +13,44 @@
         /* Login Screen */
         #login-screen { position: fixed; inset: 0; background: #05050a; z-index: 10000; display: flex; align-items: center; justify-content: center; }
         .login-card { background: #111; padding: 40px; border-radius: 20px; border: 2px solid var(--neon); text-align: center; width: 420px; box-shadow: 0 0 30px rgba(0, 229, 255, 0.4); }
-        input { width: 100%; padding: 15px; background: #000; border: 1px solid #333; color: white; border-radius: 10px; margin-bottom: 15px; outline: none; }
+        .input-group { margin-bottom: 15px; text-align: left; }
+        input { width: 100%; padding: 15px; background: #000; border: 1px solid #333; color: white; border-radius: 10px; box-sizing: border-box; outline: none; }
+        #error-msg { color: var(--red); font-size: 13px; margin-bottom: 10px; display: none; }
 
-        /* Layout */
+        /* Admin Layout */
         #admin-panel { display: none; width: 100%; height: 100vh; grid-template-columns: 320px 1fr 320px; gap: 20px; padding: 20px; box-sizing: border-box; }
         .side-panel { background: rgba(255,255,255,0.02); border-radius: 15px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); overflow-y: auto; }
-        .center-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; position: relative; }
+        .center-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
 
-        /* Top Gifter Box (Top Center) */
-        .gifter-box { 
+        /* Gifter Box (The One You Liked) */
+        .top-crown-box { 
             position: absolute; top: 0; border: 2px solid var(--gold); border-radius: 15px; 
             width: 100%; max-width: 480px; padding: 15px; text-align: center; background: rgba(255, 204, 0, 0.05); 
+            box-shadow: 0 0 15px rgba(255, 204, 0, 0.1);
         }
-        .crown { color: var(--gold); font-size: 24px; display: block; }
 
         /* Timer UI */
         .timer-val { font-size: 140px; font-weight: 800; font-family: monospace; line-height: 1; margin: 10px 0; }
         .timer-red { color: var(--red) !important; text-shadow: 0 0 30px var(--red); animation: blink 0.8s infinite; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-        /* Control Buttons */
+        /* Controls */
         .controls-container { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 10px; }
-        .btn-action { width: 100%; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; padding: 16px; text-transform: uppercase; transition: 0.2s; }
-        .btn-cyan { background: var(--neon); color: black; }
+        .btn-action { width: 100%; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; padding: 16px; text-transform: uppercase; }
+        .btn-cyan { background: var(--neon); color: black; box-shadow: 0 0 15px var(--neon); }
         .btn-row { display: flex; gap: 10px; }
-        .btn-adjust { background: #1a1a1a; color: white; border: 1px solid #333; flex: 1; padding: 12px; cursor: pointer; border-radius: 8px; font-weight: bold; }
+        .btn-adjust { background: #1a1a1a; color: white; border: 1px solid #333; flex: 1; padding: 12px; cursor: pointer; border-radius: 8px; font-weight: bold; font-size: 16px; }
 
         /* Overlay Links Box */
         .links-hub { 
-            margin-top: 20px; width: 100%; border: 1px dashed var(--neon); 
+            margin-top: 20px; width: 100%; border: 2px dashed var(--neon); 
             border-radius: 12px; padding: 15px; background: rgba(0, 0, 0, 0.4); box-sizing: border-box;
         }
         .links-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
-        .btn-link { background: #111; border: 1px solid #222; color: var(--neon); padding: 10px; border-radius: 6px; font-size: 11px; cursor: pointer; font-weight: bold; text-transform: uppercase; }
+        .btn-link { background: #111; border: 1px solid #222; color: var(--neon); padding: 10px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: 0.2s; }
+        .btn-link:hover { background: var(--neon); color: black; }
 
-        /* Overlays (Hidden Views) */
+        /* Overlay Views (OBS) */
         .overlay-view { display: none; position: fixed; inset: 0; background: black; z-index: 99999; flex-direction: column; align-items: center; justify-content: center; }
         .overlay-active { display: flex !important; }
     </style>
@@ -58,33 +61,42 @@
         <div style="color: var(--red); font-size: 30px; font-weight: 900; margin-bottom: 10px;">SNIPE: <span class="snipe-sync">20</span>s</div>
         <div class="timer-val timer-sync">01:00</div>
     </div>
-    <div id="view-likers" class="overlay-view" style="padding: 40px;"><h2 style="width:100%; max-width:400px; text-align:left;">TOP LIKERS</h2><div id="likers-sync" style="width:100%; max-width:400px;"></div></div>
-    <div id="view-top-gifter" class="overlay-view" style="padding: 40px;"><h2 style="width:100%; max-width:400px; text-align:left;">TOP GIFTERS</h2><div id="gifters-sync" style="width:100%; max-width:400px;"></div></div>
+    <div id="view-likers" class="overlay-view" style="padding: 40px;">
+        <h2 style="width:100%; max-width:400px; text-align:left;">TOP LIKERS</h2>
+        <div id="likers-sync" style="width:100%; max-width:400px;"></div>
+    </div>
+    <div id="view-top-gifter" class="overlay-view" style="padding: 40px;">
+        <h2 style="width:100%; max-width:400px; text-align:left;">TOP GIFTERS</h2>
+        <div id="gifters-sync" style="width:100%; max-width:400px;"></div>
+    </div>
     <div id="view-top-gift" class="overlay-view">
         <h1 style="color: white; font-size: 45px; margin-bottom: 10px;">TOP GIFT</h1>
-        <div id="top-gift-username" style="color: var(--neon); font-size: 40px; font-weight: 900;">Waiting...</div>
+        <div id="top-gift-username" style="color: var(--neon); font-size: 40px; font-weight: 900;">Waiting for gift...</div>
     </div>
 
     <div id="login-screen">
         <div class="login-card">
-            <h2 style="color: var(--neon);">LiveBIT Elite Pro</h2>
-            <input type="text" id="log-email" placeholder="Email (@gmail.com)">
-            <input type="password" id="log-pass" placeholder="Password (8+ chars)">
-            <input type="text" id="log-user" placeholder="TikTok @Username">
-            <button onclick="doLogin()" class="btn-action btn-cyan">ENTER PANEL</button>
+            <h1 style="color: var(--neon); margin-bottom: 5px;">LiveBIT Elite</h1>
+            <p style="color: #666; margin-bottom: 25px;">Pro TikTok Control Panel</p>
+            <div id="error-msg"></div>
+            <input type="text" id="log-email" placeholder="Email Address (@gmail.com)" style="margin-bottom:15px;">
+            <input type="password" id="log-pass" placeholder="Password (Min. 8 chars)" style="margin-bottom:15px;">
+            <input type="text" id="log-user" placeholder="TikTok @Username" style="margin-bottom:20px;">
+            <button onclick="doLogin()" class="btn-action btn-cyan">LOGIN TO PANEL</button>
         </div>
     </div>
 
     <div id="admin-panel">
-        <div class="side-panel"><h3>TOP LIKERS</h3><div id="likers-list"></div></div>
+        <div class="side-panel"><h3>TOP LIKERS ❤️</h3><div id="likers-list"></div></div>
         
         <div class="center-panel">
-            <div class="gifter-box">
-                <span class="crown">👑 <span style="font-size: 12px; font-weight: 900;">BIGGEST GIFTER</span></span>
-                <div id="top-gifter-name" style="font-size: 24px; font-weight: bold;">Waiting...</div>
+            <div class="top-crown-box">
+                <div style="color: var(--gold); font-size: 24px;"><i class="fas fa-crown"></i></div>
+                <div style="font-size: 10px; font-weight: 900; color: var(--gold); letter-spacing: 2px;">BIGGEST GIFTER</div>
+                <div id="top-gifter-name" style="font-size: 26px; font-weight: bold;">Waiting...</div>
             </div>
 
-            <div style="color: var(--red); font-size: 22px; font-weight: 900; margin-top: 80px;">SNIPE: <span class="snipe-sync">20</span>s</div>
+            <div style="color: var(--red); font-size: 22px; font-weight: 900; margin-top: 100px;">SNIPE: <span class="snipe-sync">20</span>s</div>
             <div id="timer-display" class="timer-val timer-sync">01:00</div>
             
             <div class="controls-container">
@@ -104,7 +116,7 @@
                 <button class="btn-action" style="background:transparent; color:var(--green); border:2px solid var(--green);" onclick="connectLive()">CONNECT TIKTOK LIVE</button>
 
                 <div class="links-hub">
-                    <div style="font-size: 11px; font-weight: bold; color: var(--neon); text-align: center;">OVERLAY LINKS</div>
+                    <div style="font-size: 11px; font-weight: 900; color: var(--neon); text-align: center;">OVERLAY LINKS (COPY FOR OBS)</div>
                     <div class="links-grid">
                         <button class="btn-link" onclick="copyLink('timer')">timer</button>
                         <button class="btn-link" onclick="copyLink('likers')">likers</button>
@@ -115,7 +127,7 @@
             </div>
         </div>
 
-        <div class="side-panel"><h3>TOP GIFTERS</h3><div id="gifters-list"></div></div>
+        <div class="side-panel"><h3>TOP GIFTERS 🪙</h3><div id="gifters-list"></div></div>
     </div>
 
     <script>
@@ -130,16 +142,26 @@
             }
         };
 
-        function copyLink(type) {
-            const url = window.location.origin + window.location.pathname + '#' + type;
-            navigator.clipboard.writeText(url);
-            Swal.fire({ icon: 'success', title: 'Copied!', timer: 800, showConfirmButton: false });
-        }
-
         function doLogin() {
+            const email = document.getElementById('log-email').value;
+            const pass = document.getElementById('log-pass').value;
+            const user = document.getElementById('log-user').value;
+            const err = document.getElementById('error-msg');
+
+            if (!email.includes("@gmail.com") || pass.length < 8 || !user.startsWith("@")) {
+                err.innerText = "Login Failed: Check email, password (8+) or @username";
+                err.style.display = "block";
+                return;
+            }
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('admin-panel').style.display = 'grid';
             fillLists();
+        }
+
+        function copyLink(type) {
+            const url = window.location.origin + window.location.pathname + '#' + type;
+            navigator.clipboard.writeText(url);
+            Swal.fire({ icon: 'success', title: 'Link Copied!', text: 'Ready to paste in OBS', timer: 1000, showConfirmButton: false });
         }
 
         function adjustTime(v) { timeLeft += v; if(timeLeft < 0) timeLeft = 0; updateUI(); }
@@ -165,13 +187,14 @@
             document.querySelectorAll('.timer-sync').forEach(el => el.innerText = res);
         }
 
-        function resetClock() { clearInterval(timerTask); active = false; isSnipeMode = false; timeLeft = 60; 
+        function resetClock() { 
+            clearInterval(timerTask); active = false; isSnipeMode = false; timeLeft = 60; 
             document.querySelectorAll('.timer-sync').forEach(el => el.classList.remove('timer-red'));
+            document.getElementById('main-timer-btn').innerText = "START";
             updateUI(); 
         }
 
         function updateSnipeVal(v) { document.querySelectorAll('.snipe-sync').forEach(el => el.innerText = v); }
-        
         function toggleSnipeEdit() { 
             const a = document.getElementById('snipe-input-area');
             a.style.display = a.style.display === 'none' ? 'block' : 'none';
@@ -187,7 +210,7 @@
             document.getElementById('gifters-list').innerHTML = createHTML(3, '🪙');
         }
 
-        function connectLive() { Swal.fire('LiveBIT', 'TikTok Live Connected', 'success'); }
+        function connectLive() { Swal.fire('LiveBIT', 'TikTok Live Integration Active', 'success'); }
     </script>
 </body>
 </html>
