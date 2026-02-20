@@ -13,57 +13,68 @@
         /* Login Screen */
         #login-screen { position: fixed; inset: 0; background: #05050a; z-index: 10000; display: flex; align-items: center; justify-content: center; }
         .login-card { background: #111; padding: 40px; border-radius: 20px; border: 2px solid var(--neon); text-align: center; width: 420px; box-shadow: 0 0 30px rgba(0, 229, 255, 0.4); }
-        
-        /* הודעת שגיאה אדומה פנימית */
-        #error-msg { color: var(--red); font-size: 14px; margin-bottom: 15px; font-weight: bold; min-height: 40px; display: none; line-height: 1.4; }
-        
+        #error-msg { color: var(--red); font-size: 14px; margin-bottom: 15px; font-weight: bold; min-height: 40px; display: none; }
         .input-wrapper { margin-bottom: 15px; position: relative; }
         input { width: 100%; padding: 15px; background: #000; border: 1px solid #333; color: white; border-radius: 10px; box-sizing: border-box; outline: none; }
-        
-        /* אייקון העין */
-        .toggle-password { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #666; transition: 0.2s; }
-        .toggle-password:hover { color: var(--neon); }
+        .toggle-password { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #666; }
 
         /* Layout */
         #admin-panel { display: none; width: 100%; height: 100vh; grid-template-columns: 320px 1fr 320px; gap: 20px; padding: 20px; box-sizing: border-box; }
         .side-panel { background: rgba(255,255,255,0.02); border-radius: 15px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); overflow-y: auto; }
         .center-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; position: relative; }
 
-        /* Biggest Gifter - Top */
-        .gifter-box { 
-            position: absolute; top: 0; 
-            border: 2px solid var(--gold); border-radius: 15px; 
-            width: 100%; max-width: 480px; padding: 15px; 
-            text-align: center; background: rgba(255, 204, 0, 0.05); 
-        }
-        .crown { color: var(--gold); font-size: 24px; display: block; }
-
+        /* Timer UI */
         .timer-val { font-size: 150px; font-weight: 800; font-family: monospace; line-height: 1; margin: 10px 0; }
         .timer-red { color: var(--red) !important; text-shadow: 0 0 30px var(--red); animation: blink 0.8s infinite; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-        .controls-container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 10px; }
+        /* Links Box */
+        .links-hub { margin-top: 20px; padding: 15px; border: 1px dashed var(--neon); border-radius: 15px; background: rgba(0, 229, 255, 0.05); width: 100%; }
+        .links-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+        .btn-link { background: #111; border: 1px solid #222; color: #00e5ff; padding: 10px; border-radius: 8px; font-size: 11px; cursor: pointer; text-transform: uppercase; font-weight: bold; transition: 0.2s; }
+        .btn-link:hover { background: var(--neon); color: black; }
+
+        /* Overlay Mode (Clean Views) */
+        .overlay-view { display: none; position: fixed; inset: 0; background: black; z-index: 99999; flex-direction: column; align-items: center; justify-content: center; }
+        .overlay-active { display: flex !important; }
+
         .btn-action { width: 100%; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; padding: 18px; text-transform: uppercase; }
         .btn-cyan { background: var(--neon); color: black; }
         .btn-row { display: flex; gap: 10px; }
-        .btn-adjust { background: #1a1a1a; color: white; border: 1px solid #333; flex: 1; padding: 12px; cursor: pointer; border-radius: 8px; font-weight: bold; }
+        .btn-adjust { background: #1a1a1a; color: white; border: 1px solid #333; flex: 1; padding: 12px; cursor: pointer; border-radius: 8px; }
     </style>
 </head>
 <body>
 
+    <div id="view-timer" class="overlay-view">
+        <div style="color: var(--red); font-size: 30px; font-weight: 900; margin-bottom: 10px;">SNIPE: <span class="snipe-sync">20</span>s</div>
+        <div class="timer-val timer-sync">01:00</div>
+    </div>
+
+    <div id="view-likers" class="overlay-view" style="padding: 20px;">
+        <h2 style="align-self: flex-start; margin-left: 20px;">TOP LIKERS</h2>
+        <div id="likers-sync" style="width: 100%; max-width: 400px;"></div>
+    </div>
+
+    <div id="view-top-gifter" class="overlay-view" style="padding: 20px;">
+        <h2 style="align-self: flex-start; margin-left: 20px;">TOP GIFTERS</h2>
+        <div id="gifters-sync" style="width: 100%; max-width: 400px;"></div>
+    </div>
+
+    <div id="view-top-gift" class="overlay-view">
+        <h1 style="color: white; font-size: 40px; letter-spacing: 2px; margin-bottom: 10px;">TOP GIFT</h1>
+        <div id="top-gift-username" style="color: var(--neon); font-size: 35px; font-weight: bold;">Waiting for gift...</div>
+    </div>
+
     <div id="login-screen">
         <div class="login-card">
             <h2 style="color: var(--neon); margin-bottom: 10px;">Welcome to LiveBIT</h2>
-            
             <div id="error-msg"></div>
-
             <div class="input-wrapper"><input type="text" id="log-email" placeholder="Email (@gmail.com)"></div>
-            
             <div class="input-wrapper">
                 <input type="password" id="log-pass" placeholder="Password (8+ chars)">
                 <i class="fas fa-eye toggle-password" onclick="togglePasswordVisibility()"></i>
             </div>
-
             <div class="input-wrapper"><input type="text" id="log-user" placeholder="TikTok @Username"></div>
             <button onclick="doLogin()" class="btn-action btn-cyan">ENTER PANEL</button>
         </div>
@@ -73,13 +84,8 @@
         <div class="side-panel"><h3>TOP LIKERS</h3><div id="likers-list"></div></div>
         
         <div class="center-panel">
-            <div class="gifter-box">
-                <span class="crown">👑 <span style="font-size: 12px; font-weight: 900;">BIGGEST GIFTER</span></span>
-                <div id="top-gifter-name" style="font-size: 24px; font-weight: bold;">Waiting...</div>
-            </div>
-
-            <div style="color: var(--red); font-size: 22px; font-weight: 900; margin-top: 40px;">SNIPE: <span id="current-snipe-val">20</span>s</div>
-            <div id="timer-display" class="timer-val">01:00</div>
+            <div style="color: var(--red); font-size: 22px; font-weight: 900; margin-top: 40px;">SNIPE: <span class="snipe-sync">20</span>s</div>
+            <div id="timer-display" class="timer-val timer-sync">01:00</div>
             
             <div class="controls-container">
                 <button id="main-timer-btn" class="btn-action btn-cyan" onclick="toggleClock()">START / PAUSE</button>
@@ -87,12 +93,18 @@
                     <button class="btn-action" style="background:#333; color:white; flex:1;" onclick="resetClock()">RESET</button>
                     <button class="btn-action" style="background:var(--purple); color:white; flex:1;" onclick="toggleSnipeEdit()">SNIPE DELAY</button>
                 </div>
-                <div id="snipe-input-area" style="display:none;"><input type="number" id="snipe-input" value="20" style="text-align:center; border:1px solid var(--purple);"></div>
-                <div class="btn-row">
-                    <button class="btn-adjust" onclick="adjustTime(-30)">30 <i class="fas fa-arrow-down"></i></button>
-                    <button class="btn-adjust" onclick="adjustTime(30)">30 <i class="fas fa-arrow-up"></i></button>
-                </div>
+                <div id="snipe-input-area" style="display:none;"><input type="number" id="snipe-input" value="20" oninput="updateSnipeVal(this.value)" style="text-align:center;"></div>
                 <button class="btn-action" style="background:transparent; color:var(--green); border:2px solid var(--green);" onclick="connectLive()">CONNECT TIKTOK LIVE</button>
+                
+                <div class="links-hub">
+                    <span style="font-size: 12px; font-weight: bold; color: var(--neon);">OVERLAY LINKS (FOR OBS)</span>
+                    <div class="links-grid">
+                        <button class="btn-link" onclick="copyLink('timer')">Timer</button>
+                        <button class="btn-link" onclick="copyLink('likers')">Likers</button>
+                        <button class="btn-link" onclick="copyLink('top-gifter')">Top Gifter</button>
+                        <button class="btn-link" onclick="copyLink('top-gift')">Top Gift</button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -103,67 +115,55 @@
         const socket = io("https://livebit-server.onrender.com");
         let timeLeft = 60, active = false, isSnipeMode = false, timerTask;
 
-        // פונקציית העין להצגת סיסמה
+        // Check for Overlay Mode on Load
+        window.onload = () => {
+            const hash = window.location.hash.substring(1);
+            if(['timer', 'likers', 'top-gifter', 'top-gift'].includes(hash)) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('view-' + hash).classList.add('overlay-active');
+                if(hash === 'likers' || hash === 'top-gifter') fillLists();
+            }
+        };
+
+        function copyLink(type) {
+            const url = window.location.origin + window.location.pathname + '#' + type;
+            navigator.clipboard.writeText(url);
+            Swal.fire({ icon: 'success', title: 'Link Copied!', text: type + ' overlay link ready.', timer: 1500, showConfirmButton: false });
+        }
+
+        function updateSnipeVal(val) {
+            document.querySelectorAll('.snipe-sync').forEach(el => el.innerText = val);
+        }
+
         function togglePasswordVisibility() {
             const passInput = document.getElementById('log-pass');
-            const eyeIcon = document.querySelector('.toggle-password');
-            if (passInput.type === "password") {
-                passInput.type = "text";
-                eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
-            } else {
-                passInput.type = "password";
-                eyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
-            }
+            passInput.type = passInput.type === "password" ? "text" : "password";
         }
 
         function doLogin() {
             const email = document.getElementById('log-email').value;
             const pass = document.getElementById('log-pass').value;
             const user = document.getElementById('log-user').value;
-            const errorDiv = document.getElementById('error-msg');
-
             if (!email.includes("@gmail.com") || pass.length < 8 || !user.startsWith("@")) {
-                errorDiv.style.display = "block";
-                errorDiv.innerHTML = "Login Failed<br>Make sure: Email is @gmail.com, Password is 8+ chars, and Username starts with @";
+                document.getElementById('error-msg').style.display = "block";
+                document.getElementById('error-msg').innerHTML = "Login Failed - Check inputs";
                 return;
             }
-
-            errorDiv.style.display = "none";
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('admin-panel').style.display = 'grid';
             fillLists();
         }
 
-        function connectLive() {
-            const user = document.getElementById('log-user').value;
-            if (!socket.connected) {
-                Swal.fire({ icon: 'warning', title: 'SERVER WAKING UP', text: 'Please wait 10 seconds and try again.' });
-                return;
-            }
-            Swal.fire({ title: 'CONNECTING...', text: 'Checking TikTok Live', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
-            socket.emit('joinRoom', user.replace('@',''));
-        }
-
-        socket.on('connected', () => { Swal.fire({ icon: 'success', title: 'CONNECTED!', timer: 2000, showConfirmButton: false }); });
-        socket.on('error', () => { Swal.fire({ icon: 'error', title: 'FAILED', text: 'Are you LIVE?' }); });
-
         function toggleClock() {
-            const btn = document.getElementById('main-timer-btn');
-            const display = document.getElementById('timer-display');
-            if(active) {
-                clearInterval(timerTask); active = false; btn.innerText = "START / PAUSE";
-            } else {
-                active = true; btn.innerText = "PAUSE";
+            if(active) { clearInterval(timerTask); active = false; document.getElementById('main-timer-btn').innerText = "START"; }
+            else {
+                active = true; document.getElementById('main-timer-btn').innerText = "PAUSE";
                 timerTask = setInterval(() => {
-                    if(timeLeft > 0) {
-                        timeLeft--;
-                    } else if (!isSnipeMode) {
-                        isSnipeMode = true;
-                        timeLeft = parseInt(document.getElementById('snipe-input').value);
-                        display.classList.add('timer-red');
-                    } else {
-                        clearInterval(timerTask); active = false; btn.innerText = "FINISH";
-                    }
+                    if(timeLeft > 0) timeLeft--;
+                    else if (!isSnipeMode) {
+                        isSnipeMode = true; timeLeft = parseInt(document.getElementById('snipe-input').value);
+                        document.querySelectorAll('.timer-sync').forEach(el => el.classList.add('timer-red'));
+                    } else { clearInterval(timerTask); active = false; }
                     updateUI();
                 }, 1000);
             }
@@ -171,26 +171,34 @@
 
         function resetClock() { 
             clearInterval(timerTask); active = false; isSnipeMode = false; timeLeft = 60; 
-            document.getElementById('timer-display').classList.remove('timer-red');
-            document.getElementById('main-timer-btn').innerText = "START / PAUSE";
+            document.querySelectorAll('.timer-sync').forEach(el => { el.classList.remove('timer-red'); });
             updateUI(); 
         }
 
-        function adjustTime(v) { timeLeft += v; if(timeLeft < 0) timeLeft = 0; updateUI(); }
         function updateUI() {
             const m = Math.floor(timeLeft/60), s = timeLeft%60;
-            document.getElementById('timer-display').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            const timeStr = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            document.querySelectorAll('.timer-sync').forEach(el => el.innerText = timeStr);
         }
+
+        function fillLists() {
+            const f = (id, syncId, n, s) => {
+                let h = ""; 
+                for(let i=1; i<=n; i++) h+=`<div style="display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid #1a1a2a; color:#eee; font-size:18px;"><span>${i}. ${s}</span><span>0</span></div>`;
+                document.getElementById(id).innerHTML = h;
+                if(document.getElementById(syncId)) document.getElementById(syncId).innerHTML = h;
+            };
+            f('likers-list', 'likers-sync', 10, '❤️'); 
+            f('gifters-list', 'gifters-sync', 3, '🪙');
+        }
+
         function toggleSnipeEdit() {
             const a = document.getElementById('snipe-input-area');
-            a.style.display = (a.style.display === 'block') ? 'none' : 'block';
+            a.style.display = a.style.display === 'block' ? 'none' : 'block';
         }
-        function fillLists() {
-            const f = (id, n, s) => {
-                let h = ""; for(let i=1; i<=n; i++) h+=`<div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #1a1a2a; color:#aaa;"><span>${i}. ${s}</span><span>0</span></div>`;
-                document.getElementById(id).innerHTML = h;
-            };
-            f('likers-list', 10, '❤️'); f('gifters-list', 3, '🪙');
+
+        function connectLive() {
+            Swal.fire({ title: 'Connecting...', timer: 2000, didOpen: () => Swal.showLoading() });
         }
     </script>
 </body>
