@@ -11,45 +11,31 @@
 
         /* Login Screen */
         #login-screen { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; align-items: center; justify-content: center; }
-        .login-card { 
-            background: #080810; 
-            padding: 40px; 
-            border-radius: 20px; 
-            border: 2px solid var(--neon); 
-            text-align: center; 
-            width: 420px; 
-            box-shadow: 0 0 25px rgba(0, 229, 255, 0.3);
-        }
+        .login-card { background: #080810; padding: 40px; border-radius: 20px; border: 2px solid var(--neon); text-align: center; width: 420px; box-shadow: 0 0 25px rgba(0, 229, 255, 0.3); }
         .login-card h1 { color: var(--neon); font-size: 28px; margin-bottom: 25px; font-weight: bold; }
-        .login-card input { 
-            width: 100%; 
-            padding: 15px; 
-            background: #000; 
-            border: 1px solid #1a1a1a; 
-            color: white; 
-            border-radius: 10px; 
-            margin-bottom: 12px; 
-            outline: none; 
-            font-size: 14px;
-            box-sizing: border-box;
-        }
-        .error-msg { color: var(--red); font-size: 13px; margin-bottom: 15px; display: none; font-weight: bold; }
+        .login-card input { width: 100%; padding: 15px; background: #000; border: 1px solid #1a1a1a; color: white; border-radius: 10px; margin-bottom: 12px; outline: none; box-sizing: border-box; }
+        .error-msg { color: var(--red); font-size: 13px; margin-bottom: 15px; display: none; font-weight: bold; text-align: left; line-height: 1.4; }
 
-        /* Admin Panel Layout */
+        /* Admin Panel */
         #admin-panel { display: none; width: 100%; height: 100vh; grid-template-columns: 320px 1fr 320px; gap: 20px; padding: 20px; box-sizing: border-box; }
         .side-panel { background: #0c0c14; border-radius: 15px; padding: 20px; border: 1px solid #1a1a2a; overflow-y: auto; }
         .center-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
 
-        /* Top Gift & Timer */
-        .top-crown-box { position: absolute; top: 0; border: 2px solid var(--gold); border-radius: 15px; width: 100%; max-width: 480px; padding: 15px; text-align: center; background: rgba(255, 204, 0, 0.05); }
-        #timer-label { color: var(--red); font-size: 22px; font-weight: 900; margin-top: 120px; text-transform: uppercase; }
+        /* Timer UI */
+        #timer-label { color: var(--red); font-size: 22px; font-weight: 900; margin-top: 100px; text-transform: uppercase; }
         .timer-val { font-size: 140px; font-weight: 900; line-height: 1; margin: 5px 0; }
 
-        /* Buttons */
-        .btn-action { width: 100%; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; padding: 16px; text-transform: uppercase; font-size: 15px; transition: 0.3s; }
+        /* Controls */
+        .btn-action { width: 100%; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; padding: 16px; text-transform: uppercase; font-size: 15px; }
         .btn-cyan { background: var(--neon); color: black; box-shadow: 0 4px 15px rgba(0, 229, 255, 0.3); }
         .btn-row { display: flex; gap: 10px; margin-top: 10px; width: 100%; max-width: 400px; }
         .btn-adjust { background: #1a1a1a; color: white; border: 1px solid #333; flex: 1; padding: 12px; cursor: pointer; border-radius: 8px; font-weight: bold; }
+
+        /* Links Box (The one I missed) */
+        .links-hub { margin-top: 25px; width: 100%; max-width: 400px; border: 2px dashed #005566; border-radius: 15px; padding: 15px; background: rgba(0,0,0,0.5); }
+        .links-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+        .btn-link { background: #050505; border: 1px solid #111; color: var(--neon); padding: 10px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .btn-link:hover { background: var(--neon); color: #000; }
     </style>
 </head>
 <body>
@@ -60,9 +46,7 @@
             <input type="text" id="email-in" placeholder="Email">
             <input type="password" id="pass-in" placeholder="Password">
             <input type="text" id="user-in" placeholder="TikTok Username">
-            
             <div id="login-error" class="error-msg"></div>
-            
             <button onclick="validateLogin()" class="btn-action btn-cyan">ENTER PANEL</button>
         </div>
     </div>
@@ -71,12 +55,6 @@
         <div class="side-panel"><h3>TOP LIKERS ❤️</h3><div id="likers-list"></div></div>
         
         <div class="center-panel">
-            <div class="top-crown-box">
-                <div style="color: var(--gold); font-size: 24px;"><i class="fas fa-crown"></i></div>
-                <div style="font-size: 10px; font-weight: 900; color: var(--gold);">BIGGEST GIFTER</div>
-                <div id="top-gifter-name" style="font-size: 26px; font-weight: bold;">Waiting...</div>
-            </div>
-
             <div id="timer-label">TIME REMAINING</div>
             <div id="timer-display" class="timer-val">01:00</div>
             
@@ -91,6 +69,16 @@
                     <button class="btn-adjust" onclick="adjustTime(30)">30 <i class="fas fa-arrow-up"></i></button>
                 </div>
                 <button id="connect-btn" class="btn-action" style="background:transparent; color:var(--green); border:2px solid var(--green);" onclick="connectAPI()">CONNECT TIKTOK LIVE</button>
+
+                <div class="links-hub">
+                    <div style="font-size: 10px; color: var(--neon); text-align: center; font-weight: 900; letter-spacing: 1px;">OVERLAY LINKS</div>
+                    <div class="links-grid">
+                        <button class="btn-link" onclick="copyOverlay('Timer')">Timer</button>
+                        <button class="btn-link" onclick="copyOverlay('Likers')">Likers</button>
+                        <button class="btn-link" onclick="copyOverlay('Top Gifter')">Top Gifter</button>
+                        <button class="btn-link" onclick="copyOverlay('Top Gift')">Top Gift</button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -105,16 +93,15 @@
             const pass = document.getElementById('pass-in').value;
             const user = document.getElementById('user-in').value;
             const errorBox = document.getElementById('login-error');
-            
             errorBox.style.display = "none";
-            let missing = [];
+            let errors = [];
 
-            if (!email.includes("@gmail.com")) missing.push("Email must contain @gmail.com");
-            if (pass.length < 8) missing.push("Password must be 8+ characters");
-            if (!user.includes("@")) missing.push("TikTok Username must contain @");
+            if (!email.includes("@gmail.com")) errors.push("Missing: @gmail.com in Email");
+            if (pass.length < 8) errors.push("Missing: 8+ characters in Password");
+            if (!user.includes("@")) errors.push("Missing: @ in TikTok Username");
 
-            if (missing.length > 0) {
-                errorBox.innerHTML = "You are missing: " + missing.join("<br>Try to add: " + missing.map(m => m.split(' ').pop()).join(", "));
+            if (errors.length > 0) {
+                errorBox.innerHTML = errors.join("<br>");
                 errorBox.style.display = "block";
             } else {
                 document.getElementById('login-screen').style.display = 'none';
@@ -157,7 +144,7 @@
 
         function setSnipeTime() {
             Swal.fire({ title: 'Set Snipe Seconds', input: 'number', inputValue: snipeTime, background: '#111', color: '#fff' })
-            .then(res => { if(res.value) snipeTime = parseInt(res.value); });
+            .then(res => { if(res.value) { snipeTime = parseInt(res.value); } });
         }
 
         function adjustTime(v) { timeLeft += v; if(timeLeft < 0) timeLeft = 0; updateUI(); }
@@ -169,6 +156,18 @@
                 Swal.fire({ icon: 'error', title: '<span style="color:var(--red)">Check again if you are streaming</span>', background: '#111', color: '#fff' });
                 btn.innerText = "CONNECT TIKTOK LIVE";
             }, 1000);
+        }
+
+        function copyOverlay(type) {
+            // כאן תשים את ה-URL האמיתי של האוברליי שלך בעתיד
+            const dummyUrl = `https://livebit.io/overlay/${type.toLowerCase().replace(' ', '-')}`;
+            navigator.clipboard.writeText(dummyUrl);
+            Swal.fire({
+                icon: 'success',
+                title: type + ' Overlay Ready!',
+                text: 'Add this link to TikTok Studio as a Browser Source',
+                background: '#111', color: '#fff', timer: 2000, showConfirmButton: false
+            });
         }
 
         function fillLists() {
