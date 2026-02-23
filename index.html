@@ -6,205 +6,103 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        :root { --neon: #00e5ff; --red: #ff2d55; --gold: #ffcc00; --bg: #080810; --green: #00ff88; --purple: #a020f0; }
+        :root { --neon: #00e5ff; --red: #ff2d55; --gold: #ffcc00; --bg: #080810; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; }
         
-        /* עיצוב כללי ודפים וירטואליים */
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
-        .overlay-mode { background: transparent !important; } /* רקע שקוף לאוברליי */
+        /* עיצוב האוברליי - רק מה שרואים בטיקטוק */
+        .overlay-mode { background: transparent !important; }
+        #overlay-view { 
+            display: none; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            text-align: center; 
+        }
 
-        /* Login Screen - מעוצב לפי התמונה */
-        #login-screen { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; align-items: center; justify-content: center; }
-        .login-card { background: #080810; padding: 40px; border-radius: 20px; border: 2px solid var(--neon); text-align: center; width: 420px; box-shadow: 0 0 25px rgba(0, 229, 255, 0.3); }
-        .login-card h1 { color: var(--neon); font-size: 28px; margin-bottom: 25px; font-weight: bold; }
-        .login-card input { width: 100%; padding: 15px; background: #000; border: 1px solid #1a1a1a; color: white; border-radius: 10px; margin-bottom: 12px; outline: none; box-sizing: border-box; }
-        .login-card input::placeholder { color: #555; }
-        .error-msg { color: var(--red); font-size: 13px; margin-bottom: 15px; display: none; font-weight: bold; text-align: left; line-height: 1.4; }
+        /* תיבת הכתר (Top Gift) */
+        .top-crown-box { 
+            border: 2px solid var(--gold); 
+            border-radius: 15px; 
+            width: 320px; 
+            padding: 12px; 
+            background: rgba(0, 0, 0, 0.8); 
+            margin-bottom: 30px;
+            box-shadow: 0 0 15px rgba(255, 204, 0, 0.3);
+        }
 
-        /* פאנל ניהול */
-        #admin-panel { display: none; width: 100%; height: 100vh; grid-template-columns: 320px 1fr 320px; gap: 20px; padding: 20px; box-sizing: border-box; }
-        .side-panel { background: #0c0c14; border-radius: 15px; padding: 20px; border: 1px solid #1a1a2a; overflow-y: auto; }
-        .center-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        /* כותרת הסנייפ */
+        .snipe-label { 
+            color: var(--red); 
+            font-size: 28px; 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            margin-bottom: 5px; 
+        }
 
-        /* טיימר וסנייפ */
-        #timer-label { color: var(--red); font-size: 22px; font-weight: 900; margin-top: 100px; text-transform: uppercase; }
-        .timer-val { font-size: 140px; font-weight: 900; line-height: 1; margin: 5px 0; font-family: sans-serif; }
+        /* הטיימר הענק */
+        .timer-val { 
+            font-size: 160px; 
+            font-weight: 900; 
+            line-height: 1; 
+            color: white; 
+            text-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
 
-        /* כפתורים */
-        .btn-action { width: 100%; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; padding: 16px; text-transform: uppercase; font-size: 15px; transition: 0.2s; }
-        .btn-cyan { background: var(--neon); color: black; box-shadow: 0 4px 15px rgba(0, 229, 255, 0.3); }
-        .btn-cyan:hover { filter: brightness(1.2); }
-        .btn-row { display: flex; gap: 10px; margin-top: 10px; width: 100%; max-width: 400px; }
-        .btn-adjust { background: #1a1a1a; color: white; border: 1px solid #333; flex: 1; padding: 12px; cursor: pointer; border-radius: 8px; font-weight: bold; }
-
-        /* תיבת קישורים */
-        .links-hub { margin-top: 25px; width: 100%; max-width: 400px; border: 2px dashed #005566; border-radius: 15px; padding: 15px; background: rgba(0,0,0,0.5); }
-        .links-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
-        .btn-link { background: #050505; border: 1px solid #111; color: var(--neon); padding: 10px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-
-        /* תצוגת אוברליי בלבד (מופעל ע"י הקישור) */
-        .only-show { display: none; position: fixed; inset: 0; align-items: center; justify-content: center; background: transparent; }
+        /* פאנל הניהול (מוסתר במצב אוברליי) */
+        #admin-panel { display: none; padding: 20px; }
+        #login-screen { position: fixed; inset: 0; background: #000; z-index: 1000; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
-<body>
+<body class="overlay-mode">
+
+    <div id="overlay-view">
+        <div class="top-crown-box">
+            <div style="color: var(--gold); font-size: 30px;"><i class="fas fa-crown"></i></div>
+            <div style="font-size: 12px; font-weight: 900; color: var(--gold); letter-spacing: 2px; margin-top: 5px;">BIGGEST GIFTER</div>
+            <div id="ov-top-name" style="font-size: 24px; font-weight: bold;">Waiting...</div>
+        </div>
+
+        <div id="ov-label" class="snipe-label">SNIPE: <span id="ov-snipe-val">20</span>s</div>
+        
+        <div id="ov-timer" class="timer-val">01:00</div>
+    </div>
 
     <div id="login-screen">
-        <div class="login-card">
-            <h1>Welcome to LiveBit</h1>
-            <input type="text" id="email-in" placeholder="Email">
-            <input type="password" id="pass-in" placeholder="Password">
-            <input type="text" id="user-in" placeholder="TikTok @Username">
-            <div id="login-error" class="error-msg"></div>
-            <button onclick="validateLogin()" class="btn-action btn-cyan">ENTER PANEL</button>
-        </div>
-    </div>
-
-    <div id="overlay-view" class="only-show">
-        <div id="overlay-content"></div>
-    </div>
-
-    <div id="admin-panel">
-        <div class="side-panel"><h3>TOP LIKERS ❤️</h3><div id="likers-list"></div></div>
-        
-        <div class="center-panel">
-            <div id="timer-label">TIME REMAINING</div>
-            <div id="timer-display" class="timer-val">01:00</div>
-            
-            <div style="width:100%; max-width:400px; display:flex; flex-direction:column; gap:10px;">
-                <button id="main-btn" class="btn-action btn-cyan" onclick="toggleClock()">START</button>
-                <div class="btn-row">
-                    <button class="btn-action" style="background:#222; color:white; flex:1;" onclick="resetClock()">RESET</button>
-                    <button class="btn-action" style="background:var(--purple); color:white; flex:1;" onclick="setSnipeTime()">SNIPE DELAY</button>
-                </div>
-                <div class="btn-row">
-                    <button class="btn-adjust" onclick="adjustTime(-30)">30 <i class="fas fa-arrow-down"></i></button>
-                    <button class="btn-adjust" onclick="adjustTime(30)">30 <i class="fas fa-arrow-up"></i></button>
-                </div>
-                <button id="connect-btn" class="btn-action" style="background:transparent; color:var(--green); border:2px solid var(--green);" onclick="connectAPI()">CONNECT TIKTOK LIVE</button>
-
-                <div class="links-hub">
-                    <div style="font-size: 10px; color: var(--neon); text-align: center; font-weight: 900;">OVERLAY LINKS</div>
-                    <div class="links-grid">
-                        <button class="btn-link" onclick="copyOverlay('timer')">Timer</button>
-                        <button class="btn-link" onclick="copyOverlay('likers')">Likers</button>
-                        <button class="btn-link" onclick="copyOverlay('top-gifter')">Top Gifter</button>
-                        <button class="btn-link" onclick="copyOverlay('top-gift')">Top Gift</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="side-panel"><h3>TOP GIFTERS 🪙</h3><div id="gifters-list"></div></div>
+        <button onclick="startApp()" style="padding: 20px; background: var(--neon); border:none; border-radius:10px; cursor:pointer; font-weight:bold;">ENTER PANEL</button>
     </div>
 
     <script>
-        let timeLeft = 60, snipeTime = 20, isSnipePhase = false, active = false, timerTask;
+        let snipeTime = 20;
 
-        // בדיקה אם הדף נפתח כקישור אוברליי (עבור טיקטוק סטודיו)
+        // בדיקה אם זה קישור אוברליי
         window.onload = function() {
             const urlParams = new URLSearchParams(window.location.search);
-            const view = urlParams.get('view');
-            if (view) {
-                document.body.classList.add('overlay-mode');
+            if (urlParams.get('view') === 'timer') {
                 document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('admin-panel').style.display = 'none';
                 document.getElementById('overlay-view').style.display = 'flex';
                 
-                // כאן הקוד יציג רק את האלמנט המבוקש
-                if(view === 'timer') {
-                    document.getElementById('overlay-content').innerHTML = `<div id="timer-display" class="timer-val" style="color:white">01:00</div>`;
-                }
+                // עדכון הסנייפ הראשוני
+                document.getElementById('ov-snipe-val').innerText = snipeTime;
             }
         };
 
-        function validateLogin() {
-            const email = document.getElementById('email-in').value;
-            const pass = document.getElementById('pass-in').value;
-            const user = document.getElementById('user-in').value;
-            const errorBox = document.getElementById('login-error');
-            errorBox.style.display = "none";
-            let missing = [];
-
-            if (!email.includes("@gmail.com")) missing.push("Missing: @gmail.com");
-            if (pass.length < 8) missing.push("Missing: 8+ characters");
-            if (!user.includes("@")) missing.push("Missing: @ in username");
-
-            if (missing.length > 0) {
-                errorBox.innerHTML = "You are missing: " + missing.join(", ") + "<br>Try to add them.";
-                errorBox.style.display = "block";
-            } else {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('admin-panel').style.display = 'grid';
-                fillLists();
-            }
+        function startApp() {
+            document.getElementById('login-screen').style.display = 'none';
+            // כאן הקוד של פאנל הניהול שלך...
+            Swal.fire('Connected', 'Panel is ready', 'success');
         }
 
-        // לוגיקת טיימר וסנייפ
-        function toggleClock() {
-            const btn = document.getElementById('main-btn');
-            if(active) { clearInterval(timerTask); active = false; btn.innerText = "START"; } 
-            else { active = true; btn.innerText = "PAUSE"; timerTask = setInterval(runTimer, 1000); }
-        }
-
-        function runTimer() {
-            if (timeLeft > 0) {
-                timeLeft--;
-                updateUI();
-            } else if (!isSnipePhase) {
-                isSnipePhase = true;
-                timeLeft = snipeTime;
-                document.getElementById('timer-label').innerText = "SNIPE PHASE";
-                document.getElementById('timer-display').style.color = "var(--red)";
-                updateUI();
-            } else { resetClock(); }
-        }
-
-        function resetClock() {
-            clearInterval(timerTask); active = false; isSnipePhase = false; timeLeft = 60;
-            document.getElementById('main-btn').innerText = "START";
-            document.getElementById('timer-label').innerText = "TIME REMAINING";
-            document.getElementById('timer-display').style.color = "#fff";
-            updateUI();
-        }
-
-        function updateUI() {
-            const m = Math.floor(timeLeft/60), s = timeLeft%60;
-            const timeStr = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-            document.getElementById('timer-display').innerText = timeStr;
-            
-            // עדכון האוברליי אם הוא פתוח
-            const overlayTimer = document.querySelector('#overlay-content #timer-display');
-            if(overlayTimer) overlayTimer.innerText = timeStr;
-        }
-
-        function setSnipeTime() {
-            Swal.fire({ title: 'Set Snipe (Seconds)', input: 'number', inputValue: snipeTime, background: '#111', color: '#fff' })
-            .then(res => { if(res.value) snipeTime = parseInt(res.value); });
-        }
-
-        function adjustTime(v) { timeLeft += v; if(timeLeft < 0) timeLeft = 0; updateUI(); }
-
+        // פונקציית העתקת הקישור (המעודכנת)
         function copyOverlay(type) {
-            // הקישור כולל פרמטר שאומר לקוד להציג רק את האלמנט
             const url = window.location.href.split('?')[0] + "?view=" + type;
             navigator.clipboard.writeText(url);
-            Swal.fire({ icon: 'success', title: 'Link Copied!', text: 'Paste this as Browser Source in TikTok Studio', background: '#111', color: '#fff', timer: 2000 });
-        }
-
-        function connectAPI() {
-            const btn = document.getElementById('connect-btn');
-            btn.innerText = "SEARCHING...";
-            setTimeout(() => {
-                Swal.fire({ icon: 'error', title: 'Stream not found', text: 'Please start your TikTok Live first', background: '#111', color: '#fff' });
-                btn.innerText = "CONNECT TIKTOK LIVE";
-            }, 1000);
-        }
-
-        function fillLists() {
-            const l = document.getElementById('likers-list'), g = document.getElementById('gifters-list');
-            let lh = "", gh = "";
-            for(let i=1; i<=10; i++) lh += `<div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #1a1a2a;"><span>${i}. ❤️</span><span>0</span></div>`;
-            for(let i=1; i<=3; i++) gh += `<div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #1a1a2a;"><span>${i}. 🪙</span><span>0</span></div>`;
-            l.innerHTML = lh; g.innerHTML = gh;
+            Swal.fire({
+                icon: 'success',
+                title: 'Overlay Link Copied!',
+                text: 'Add this to TikTok Studio as a Browser Source',
+                background: '#111', color: '#fff'
+            });
         }
     </script>
 </body>
