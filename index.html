@@ -7,35 +7,42 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root { --neon: #00e5ff; --red: #ff2d55; --gold: #ffcc00; --bg: #080810; --green: #00ff88; --purple: #a020f0; }
+        
+        /* עיצוב כללי ודפים וירטואליים */
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
+        .overlay-mode { background: transparent !important; } /* רקע שקוף לאוברליי */
 
-        /* Login Screen */
+        /* Login Screen - מעוצב לפי התמונה */
         #login-screen { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; align-items: center; justify-content: center; }
         .login-card { background: #080810; padding: 40px; border-radius: 20px; border: 2px solid var(--neon); text-align: center; width: 420px; box-shadow: 0 0 25px rgba(0, 229, 255, 0.3); }
         .login-card h1 { color: var(--neon); font-size: 28px; margin-bottom: 25px; font-weight: bold; }
         .login-card input { width: 100%; padding: 15px; background: #000; border: 1px solid #1a1a1a; color: white; border-radius: 10px; margin-bottom: 12px; outline: none; box-sizing: border-box; }
+        .login-card input::placeholder { color: #555; }
         .error-msg { color: var(--red); font-size: 13px; margin-bottom: 15px; display: none; font-weight: bold; text-align: left; line-height: 1.4; }
 
-        /* Admin Panel */
+        /* פאנל ניהול */
         #admin-panel { display: none; width: 100%; height: 100vh; grid-template-columns: 320px 1fr 320px; gap: 20px; padding: 20px; box-sizing: border-box; }
         .side-panel { background: #0c0c14; border-radius: 15px; padding: 20px; border: 1px solid #1a1a2a; overflow-y: auto; }
         .center-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
 
-        /* Timer UI */
+        /* טיימר וסנייפ */
         #timer-label { color: var(--red); font-size: 22px; font-weight: 900; margin-top: 100px; text-transform: uppercase; }
-        .timer-val { font-size: 140px; font-weight: 900; line-height: 1; margin: 5px 0; }
+        .timer-val { font-size: 140px; font-weight: 900; line-height: 1; margin: 5px 0; font-family: sans-serif; }
 
-        /* Controls */
-        .btn-action { width: 100%; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; padding: 16px; text-transform: uppercase; font-size: 15px; }
+        /* כפתורים */
+        .btn-action { width: 100%; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; padding: 16px; text-transform: uppercase; font-size: 15px; transition: 0.2s; }
         .btn-cyan { background: var(--neon); color: black; box-shadow: 0 4px 15px rgba(0, 229, 255, 0.3); }
+        .btn-cyan:hover { filter: brightness(1.2); }
         .btn-row { display: flex; gap: 10px; margin-top: 10px; width: 100%; max-width: 400px; }
         .btn-adjust { background: #1a1a1a; color: white; border: 1px solid #333; flex: 1; padding: 12px; cursor: pointer; border-radius: 8px; font-weight: bold; }
 
-        /* Links Box (The one I missed) */
+        /* תיבת קישורים */
         .links-hub { margin-top: 25px; width: 100%; max-width: 400px; border: 2px dashed #005566; border-radius: 15px; padding: 15px; background: rgba(0,0,0,0.5); }
         .links-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
         .btn-link { background: #050505; border: 1px solid #111; color: var(--neon); padding: 10px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-        .btn-link:hover { background: var(--neon); color: #000; }
+
+        /* תצוגת אוברליי בלבד (מופעל ע"י הקישור) */
+        .only-show { display: none; position: fixed; inset: 0; align-items: center; justify-content: center; background: transparent; }
     </style>
 </head>
 <body>
@@ -45,10 +52,14 @@
             <h1>Welcome to LiveBit</h1>
             <input type="text" id="email-in" placeholder="Email">
             <input type="password" id="pass-in" placeholder="Password">
-            <input type="text" id="user-in" placeholder="TikTok Username">
+            <input type="text" id="user-in" placeholder="TikTok @Username">
             <div id="login-error" class="error-msg"></div>
             <button onclick="validateLogin()" class="btn-action btn-cyan">ENTER PANEL</button>
         </div>
+    </div>
+
+    <div id="overlay-view" class="only-show">
+        <div id="overlay-content"></div>
     </div>
 
     <div id="admin-panel">
@@ -71,12 +82,12 @@
                 <button id="connect-btn" class="btn-action" style="background:transparent; color:var(--green); border:2px solid var(--green);" onclick="connectAPI()">CONNECT TIKTOK LIVE</button>
 
                 <div class="links-hub">
-                    <div style="font-size: 10px; color: var(--neon); text-align: center; font-weight: 900; letter-spacing: 1px;">OVERLAY LINKS</div>
+                    <div style="font-size: 10px; color: var(--neon); text-align: center; font-weight: 900;">OVERLAY LINKS</div>
                     <div class="links-grid">
-                        <button class="btn-link" onclick="copyOverlay('Timer')">Timer</button>
-                        <button class="btn-link" onclick="copyOverlay('Likers')">Likers</button>
-                        <button class="btn-link" onclick="copyOverlay('Top Gifter')">Top Gifter</button>
-                        <button class="btn-link" onclick="copyOverlay('Top Gift')">Top Gift</button>
+                        <button class="btn-link" onclick="copyOverlay('timer')">Timer</button>
+                        <button class="btn-link" onclick="copyOverlay('likers')">Likers</button>
+                        <button class="btn-link" onclick="copyOverlay('top-gifter')">Top Gifter</button>
+                        <button class="btn-link" onclick="copyOverlay('top-gift')">Top Gift</button>
                     </div>
                 </div>
             </div>
@@ -88,20 +99,37 @@
     <script>
         let timeLeft = 60, snipeTime = 20, isSnipePhase = false, active = false, timerTask;
 
+        // בדיקה אם הדף נפתח כקישור אוברליי (עבור טיקטוק סטודיו)
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const view = urlParams.get('view');
+            if (view) {
+                document.body.classList.add('overlay-mode');
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('admin-panel').style.display = 'none';
+                document.getElementById('overlay-view').style.display = 'flex';
+                
+                // כאן הקוד יציג רק את האלמנט המבוקש
+                if(view === 'timer') {
+                    document.getElementById('overlay-content').innerHTML = `<div id="timer-display" class="timer-val" style="color:white">01:00</div>`;
+                }
+            }
+        };
+
         function validateLogin() {
             const email = document.getElementById('email-in').value;
             const pass = document.getElementById('pass-in').value;
             const user = document.getElementById('user-in').value;
             const errorBox = document.getElementById('login-error');
             errorBox.style.display = "none";
-            let errors = [];
+            let missing = [];
 
-            if (!email.includes("@gmail.com")) errors.push("Missing: @gmail.com in Email");
-            if (pass.length < 8) errors.push("Missing: 8+ characters in Password");
-            if (!user.includes("@")) errors.push("Missing: @ in TikTok Username");
+            if (!email.includes("@gmail.com")) missing.push("Missing: @gmail.com");
+            if (pass.length < 8) missing.push("Missing: 8+ characters");
+            if (!user.includes("@")) missing.push("Missing: @ in username");
 
-            if (errors.length > 0) {
-                errorBox.innerHTML = errors.join("<br>");
+            if (missing.length > 0) {
+                errorBox.innerHTML = "You are missing: " + missing.join(", ") + "<br>Try to add them.";
                 errorBox.style.display = "block";
             } else {
                 document.getElementById('login-screen').style.display = 'none';
@@ -110,6 +138,7 @@
             }
         }
 
+        // לוגיקת טיימר וסנייפ
         function toggleClock() {
             const btn = document.getElementById('main-btn');
             if(active) { clearInterval(timerTask); active = false; btn.innerText = "START"; } 
@@ -139,35 +168,35 @@
 
         function updateUI() {
             const m = Math.floor(timeLeft/60), s = timeLeft%60;
-            document.getElementById('timer-display').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            const timeStr = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            document.getElementById('timer-display').innerText = timeStr;
+            
+            // עדכון האוברליי אם הוא פתוח
+            const overlayTimer = document.querySelector('#overlay-content #timer-display');
+            if(overlayTimer) overlayTimer.innerText = timeStr;
         }
 
         function setSnipeTime() {
-            Swal.fire({ title: 'Set Snipe Seconds', input: 'number', inputValue: snipeTime, background: '#111', color: '#fff' })
-            .then(res => { if(res.value) { snipeTime = parseInt(res.value); } });
+            Swal.fire({ title: 'Set Snipe (Seconds)', input: 'number', inputValue: snipeTime, background: '#111', color: '#fff' })
+            .then(res => { if(res.value) snipeTime = parseInt(res.value); });
         }
 
         function adjustTime(v) { timeLeft += v; if(timeLeft < 0) timeLeft = 0; updateUI(); }
+
+        function copyOverlay(type) {
+            // הקישור כולל פרמטר שאומר לקוד להציג רק את האלמנט
+            const url = window.location.href.split('?')[0] + "?view=" + type;
+            navigator.clipboard.writeText(url);
+            Swal.fire({ icon: 'success', title: 'Link Copied!', text: 'Paste this as Browser Source in TikTok Studio', background: '#111', color: '#fff', timer: 2000 });
+        }
 
         function connectAPI() {
             const btn = document.getElementById('connect-btn');
             btn.innerText = "SEARCHING...";
             setTimeout(() => {
-                Swal.fire({ icon: 'error', title: '<span style="color:var(--red)">Check again if you are streaming</span>', background: '#111', color: '#fff' });
+                Swal.fire({ icon: 'error', title: 'Stream not found', text: 'Please start your TikTok Live first', background: '#111', color: '#fff' });
                 btn.innerText = "CONNECT TIKTOK LIVE";
             }, 1000);
-        }
-
-        function copyOverlay(type) {
-            // כאן תשים את ה-URL האמיתי של האוברליי שלך בעתיד
-            const dummyUrl = `https://livebit.io/overlay/${type.toLowerCase().replace(' ', '-')}`;
-            navigator.clipboard.writeText(dummyUrl);
-            Swal.fire({
-                icon: 'success',
-                title: type + ' Overlay Ready!',
-                text: 'Add this link to TikTok Studio as a Browser Source',
-                background: '#111', color: '#fff', timer: 2000, showConfirmButton: false
-            });
         }
 
         function fillLists() {
