@@ -7,52 +7,57 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root { --neon: #00e5ff; --red: #ff2d55; --gold: #ffcc00; --bg: #080810; --green: #00ff88; --purple: #a020f0; }
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
+        
+        /* עיצוב כללי */
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; }
+        
+        /* מצב אוברליי - שקיפות מלאה בלי רקע */
+        .overlay-mode { background: transparent !important; }
+        .overlay-mode #admin-panel, .overlay-mode #login-screen { display: none !important; }
 
-        /* Login Screen - עיצוב מדויק לפי התמונה */
+        /* Login Screen */
         #login-screen { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; align-items: center; justify-content: center; }
-        .login-card { background: #080810; padding: 40px; border-radius: 20px; border: 2px solid var(--neon); text-align: center; width: 420px; box-shadow: 0 0 25px rgba(0, 229, 255, 0.3); }
-        .login-card h1 { color: var(--neon); font-size: 28px; margin-bottom: 25px; font-weight: bold; }
-        .login-card input { width: 100%; padding: 15px; background: #000; border: 1px solid #1a1a1a; color: white; border-radius: 10px; margin-bottom: 12px; outline: none; box-sizing: border-box; }
-        .error-msg { color: var(--red); font-size: 13px; margin-bottom: 15px; display: none; font-weight: bold; text-align: left; }
+        .login-card { background: #080810; padding: 40px; border-radius: 20px; border: 2px solid var(--neon); text-align: center; width: 420px; }
+        .login-card input { width: 100%; padding: 15px; background: #000; border: 1px solid #1a1a1a; color: white; border-radius: 10px; margin-bottom: 12px; outline: none; }
+        .error-msg { color: var(--red); font-size: 13px; margin-bottom: 15px; display: none; font-weight: bold; }
 
-        /* Admin Panel Layout */
+        /* Admin Panel */
         #admin-panel { display: none; width: 100%; height: 100vh; grid-template-columns: 320px 1fr 320px; gap: 20px; padding: 20px; box-sizing: border-box; }
         .side-panel { background: #0c0c14; border-radius: 15px; padding: 20px; border: 1px solid #1a1a2a; overflow-y: auto; }
         .center-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
 
-        /* Top Gift Box */
-        .top-crown-box { position: absolute; top: 0; border: 2px solid var(--gold); border-radius: 15px; width: 100%; max-width: 480px; padding: 15px; text-align: center; background: rgba(255, 204, 0, 0.05); }
+        /* רכיבי האוברליי */
+        .top-gift-container { 
+            border: 2px solid var(--gold); 
+            border-radius: 15px; 
+            padding: 10px 40px; 
+            text-align: center; 
+            background: rgba(0,0,0,0.6); /* רקע חלש מאוד לתיבה עצמה כדי שהטקסט יקפוץ */
+            display: inline-block;
+        }
+        
+        .snipe-header { color: var(--red); font-size: 28px; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; }
+        .timer-display { font-size: 140px; font-weight: 900; line-height: 1; color: white; }
 
-        /* Timer UI */
-        .snipe-label { color: var(--red); font-size: 24px; font-weight: 900; margin-top: 120px; text-transform: uppercase; }
-        .timer-val { font-size: 140px; font-weight: 900; line-height: 1; margin: 5px 0; font-family: sans-serif; }
-
-        /* Buttons */
-        .btn-action { width: 100%; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; padding: 16px; text-transform: uppercase; font-size: 15px; transition: 0.2s; }
-        .btn-cyan { background: var(--neon); color: black; box-shadow: 0 4px 15px rgba(0, 229, 255, 0.3); }
-        .btn-row { display: flex; gap: 10px; margin-top: 10px; width: 100%; max-width: 400px; }
-        .btn-adjust { background: #1a1a1a; color: white; border: 1px solid #333; flex: 1; padding: 12px; cursor: pointer; border-radius: 8px; font-weight: bold; }
-
-        /* Links Box */
-        .links-hub { margin-top: 25px; width: 100%; max-width: 400px; border: 2px dashed #005566; border-radius: 15px; padding: 15px; background: rgba(0,0,0,0.5); }
+        /* כפתורי ניהול */
+        .btn-action { width: 100%; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; padding: 16px; text-transform: uppercase; }
+        .btn-cyan { background: var(--neon); color: black; }
+        .links-hub { margin-top: 25px; width: 100%; max-width: 400px; border: 2px dashed #005566; border-radius: 15px; padding: 15px; }
         .links-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
-        .btn-link { background: #050505; border: 1px solid #111; color: var(--neon); padding: 10px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .btn-link { background: #050505; border: 1px solid #111; color: var(--neon); padding: 10px; border-radius: 6px; font-size: 11px; cursor: pointer; }
 
-        /* Overlay Only Mode */
-        .overlay-mode #admin-panel, .overlay-mode #login-screen { display: none !important; }
-        .overlay-only { display: none; height: 100vh; flex-direction: column; align-items: center; justify-content: center; background: transparent; }
-        .overlay-mode .overlay-only { display: flex; }
+        /* הצגה בקישורים נפרדים */
+        #ov-timer-view, #ov-gift-view { display: none; height: 100vh; flex-direction: column; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
         <div class="login-card">
-            <h1>Welcome to LiveBit</h1>
+            <h1 style="color:var(--neon)">Welcome to LiveBit</h1>
             <input type="text" id="email-in" placeholder="Email">
             <input type="password" id="pass-in" placeholder="Password">
-            <input type="text" id="user-in" placeholder="TikTok @Username">
+            <input type="text" id="user-in" placeholder="TikTok Username">
             <div id="login-error" class="error-msg"></div>
             <button onclick="validateLogin()" class="btn-action btn-cyan">ENTER PANEL</button>
         </div>
@@ -62,34 +67,19 @@
         <div class="side-panel"><h3>TOP LIKERS ❤️</h3><div id="likers-list"></div></div>
         
         <div class="center-panel">
-            <div class="top-crown-box">
-                <div style="color: var(--gold); font-size: 24px;"><i class="fas fa-crown"></i></div>
-                <div style="font-size: 10px; font-weight: 900; color: var(--gold);">BIGGEST GIFTER</div>
-                <div id="top-gifter-name" style="font-size: 26px; font-weight: bold;">Waiting...</div>
-            </div>
-
-            <div class="snipe-label">SNIPE: <span id="snipe-val-display">20</span>s</div>
-            <div id="timer-display" class="timer-val">01:00</div>
+            <div class="snipe-header">SNIPE: <span id="snipe-val-panel">20</span>s</div>
+            <div id="timer-val-panel" class="timer-display">01:00</div>
             
-            <div style="width:100%; max-width:400px; display:flex; flex-direction:column; gap:10px;">
+            <div style="width:100%; max-width:400px; display:flex; flex-direction:column; gap:10px; margin-top:20px;">
                 <button id="main-btn" class="btn-action btn-cyan" onclick="toggleClock()">START</button>
-                <div class="btn-row">
-                    <button class="btn-action" style="background:#222; color:white; flex:1;" onclick="resetClock()">RESET</button>
-                    <button class="btn-action" style="background:var(--purple); color:white; flex:1;" onclick="setSnipeTime()">SNIPE DELAY</button>
-                </div>
-                <div class="btn-row">
-                    <button class="btn-adjust" onclick="adjustTime(-30)">30 <i class="fas fa-arrow-down"></i></button>
-                    <button class="btn-adjust" onclick="adjustTime(30)">30 <i class="fas fa-arrow-up"></i></button>
-                </div>
+                <button class="btn-action" style="background:var(--purple); color:white;" onclick="setSnipeTime()">SNIPE DELAY</button>
                 <button id="connect-btn" class="btn-action" style="background:transparent; color:var(--green); border:2px solid var(--green);" onclick="connectAPI()">CONNECT TIKTOK LIVE</button>
 
                 <div class="links-hub">
-                    <div style="font-size: 10px; color: var(--neon); text-align: center; font-weight: 900;">OVERLAY LINKS</div>
+                    <div style="font-size: 10px; color: var(--neon); text-align: center;">OVERLAY LINKS</div>
                     <div class="links-grid">
-                        <button class="btn-link" onclick="copyOverlay('timer')">Timer</button>
-                        <button class="btn-link" onclick="copyOverlay('likers')">Likers</button>
-                        <button class="btn-link" onclick="copyOverlay('top-gifter')">Top Gifter</button>
-                        <button class="btn-link" onclick="copyOverlay('top-gift')">Top Gift</button>
+                        <button class="btn-link" onclick="copyOverlay('timer')">TIMER</button>
+                        <button class="btn-link" onclick="copyOverlay('top-gift')">TOP GIFT</button>
                     </div>
                 </div>
             </div>
@@ -98,112 +88,83 @@
         <div class="side-panel"><h3>TOP GIFTERS 🪙</h3><div id="gifters-list"></div></div>
     </div>
 
-    <div id="overlay-view" class="overlay-only">
-        <div class="top-crown-box" style="position: static; margin-bottom: 20px;">
+    <div id="ov-timer-view">
+        <div class="snipe-header">SNIPE: <span id="ov-snipe-val">20</span>s</div>
+        <div id="ov-timer-val" class="timer-display">01:00</div>
+    </div>
+
+    <div id="ov-gift-view">
+        <div class="top-gift-container">
             <div style="color: var(--gold); font-size: 24px;"><i class="fas fa-crown"></i></div>
-            <div id="ov-top-name" style="font-size: 22px; font-weight: bold;">Waiting...</div>
+            <div style="font-size: 18px; font-weight: bold; color: white;">Waiting...</div>
         </div>
-        <div class="snipe-label" style="margin-top:0">SNIPE: <span id="ov-snipe-val">20</span>s</div>
-        <div id="ov-timer" class="timer-val">01:00</div>
     </div>
 
     <script>
-        let timeLeft = 60, snipeTime = 20, isSnipePhase = false, active = false, timerTask;
+        let timeLeft = 60, snipeTime = 20, active = false, timerTask;
 
-        // בדיקה אם הדף נפתח כקישור אוברליי
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('view')) {
-            document.body.classList.add('overlay-mode');
-        }
+        // בדיקה איזה חלק להציג לפי הקישור
+        window.onload = function() {
+            const view = new URLSearchParams(window.location.search).get('view');
+            if (view) {
+                document.body.classList.add('overlay-mode');
+                if (view === 'timer') document.getElementById('ov-timer-view').style.display = 'flex';
+                if (view === 'top-gift') document.getElementById('ov-gift-view').style.display = 'flex';
+            }
+        };
 
         function validateLogin() {
-            const email = document.getElementById('email-in').value;
-            const pass = document.getElementById('pass-in').value;
-            const user = document.getElementById('user-in').value;
+            const email = document.getElementById('email-in').value, pass = document.getElementById('pass-in').value, user = document.getElementById('user-in').value;
             const errorBox = document.getElementById('login-error');
             errorBox.style.display = "none";
-            let errors = [];
+            let errs = [];
+            if (!email.includes("@gmail.com")) errs.push("Missing: @gmail.com");
+            if (pass.length < 8) errs.push("Missing: 8+ chars");
+            if (!user.includes("@")) errs.push("Missing: @ in username");
 
-            if (!email.includes("@gmail.com")) errors.push("Missing: @gmail.com");
-            if (pass.length < 8) errors.push("Missing: 8+ characters");
-            if (!user.includes("@")) errors.push("Missing: @ in username");
-
-            if (errors.length > 0) {
-                errorBox.innerHTML = "You are missing: " + errors.join(", ") + "<br>Try to add them.";
+            if (errs.length > 0) {
+                errorBox.innerHTML = errs.join("<br>");
                 errorBox.style.display = "block";
             } else {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('admin-panel').style.display = 'grid';
-                fillLists();
             }
         }
 
         function toggleClock() {
-            const btn = document.getElementById('main-btn');
-            if(active) { clearInterval(timerTask); active = false; btn.innerText = "START"; } 
-            else { active = true; btn.innerText = "PAUSE"; timerTask = setInterval(runTimer, 1000); }
+            if(active) { clearInterval(timerTask); active = false; document.getElementById('main-btn').innerText = "START"; } 
+            else { active = true; document.getElementById('main-btn').innerText = "PAUSE"; timerTask = setInterval(runTimer, 1000); }
         }
 
         function runTimer() {
-            if (timeLeft > 0) {
-                timeLeft--;
-                updateUI();
-            } else if (!isSnipePhase) {
-                isSnipePhase = true;
-                timeLeft = snipeTime;
-                document.getElementById('timer-display').style.color = "var(--red)";
-                updateUI();
-            } else { resetClock(); }
-        }
-
-        function resetClock() {
-            clearInterval(timerTask); active = false; isSnipePhase = false; timeLeft = 60;
-            document.getElementById('main-btn').innerText = "START";
-            document.getElementById('timer-display').style.color = "#fff";
-            updateUI();
+            if (timeLeft > 0) { timeLeft--; updateUI(); }
         }
 
         function updateUI() {
             const m = Math.floor(timeLeft/60), s = timeLeft%60;
             const timeStr = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-            document.getElementById('timer-display').innerText = timeStr;
-            if(document.getElementById('ov-timer')) document.getElementById('ov-timer').innerText = timeStr;
+            document.getElementById('timer-val-panel').innerText = timeStr;
+            if(document.getElementById('ov-timer-val')) document.getElementById('ov-timer-val').innerText = timeStr;
         }
 
         function setSnipeTime() {
-            Swal.fire({ title: 'Set Snipe Seconds', input: 'number', inputValue: snipeTime, background: '#111', color: '#fff' })
-            .then(res => { 
-                if(res.value) { 
-                    snipeTime = parseInt(res.value); 
-                    document.getElementById('snipe-val-display').innerText = snipeTime;
+            Swal.fire({ title: 'Set Snipe Delay', input: 'number', inputValue: snipeTime }).then(res => {
+                if(res.value) {
+                    snipeTime = res.value;
+                    document.getElementById('snipe-val-panel').innerText = snipeTime;
                     if(document.getElementById('ov-snipe-val')) document.getElementById('ov-snipe-val').innerText = snipeTime;
-                } 
+                }
             });
         }
-
-        function adjustTime(v) { timeLeft += v; if(timeLeft < 0) timeLeft = 0; updateUI(); }
 
         function copyOverlay(type) {
             const url = window.location.href.split('?')[0] + "?view=" + type;
             navigator.clipboard.writeText(url);
-            Swal.fire({ icon: 'success', title: 'Link Copied!', background: '#111', color: '#fff', timer: 1500 });
+            Swal.fire({ icon: 'success', title: 'Link Copied for ' + type, background: '#111', color: '#fff' });
         }
 
         function connectAPI() {
-            const btn = document.getElementById('connect-btn');
-            btn.innerText = "SEARCHING...";
-            setTimeout(() => {
-                Swal.fire({ icon: 'error', title: 'Stream not found', background: '#111', color: '#fff' });
-                btn.innerText = "CONNECT TIKTOK LIVE";
-            }, 1000);
-        }
-
-        function fillLists() {
-            const l = document.getElementById('likers-list'), g = document.getElementById('gifters-list');
-            let lh = "", gh = "";
-            for(let i=1; i<=10; i++) lh += `<div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #1a1a2a;"><span>${i}. ❤️</span><span>0</span></div>`;
-            for(let i=1; i<=3; i++) gh += `<div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #1a1a2a;"><span>${i}. 🪙</span><span>0</span></div>`;
-            l.innerHTML = lh; g.innerHTML = gh;
+            Swal.fire({ icon: 'error', title: 'Check stream connection', background: '#111', color: '#fff' });
         }
     </script>
 </body>
